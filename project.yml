@@ -33,7 +33,6 @@ targets:
       path: Sources/Resources/AquaFaste.entitlements
       properties:
         com.apple.developer.healthkit: true
-        com.apple.developer.healthkit.access: []
     settings:
       base:
         INFOPLIST_FILE: Sources/Resources/Info.plist
