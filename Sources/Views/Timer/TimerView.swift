@@ -91,7 +91,7 @@ struct TimerView: View {
 
                             ForEach(manager.todayLogs, id: \.id) { log in
                                 LogRow(log: log, unit: profile.unit)
-                                    .swipeActions(edge: .trailing) {
+                                    .contextMenu {
                                         Button(role: .destructive) {
                                             manager.deleteLog(log)
                                         } label: {

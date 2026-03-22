@@ -3,6 +3,7 @@ import Charts
 
 struct HistoryView: View {
     @Environment(HydrationManager.self) private var manager
+    @Environment(\.modelContext) private var modelContext
     private let profile = UserProfile.shared
 
     var body: some View {

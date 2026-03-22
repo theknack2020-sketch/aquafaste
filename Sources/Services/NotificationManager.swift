@@ -37,6 +37,7 @@ final class NotificationManager {
         // Schedule reminders for today and tomorrow
         let calendar = Calendar.current
         let now = Date.now
+        let hourIncrement = max(1, intervalMinutes / 60) // prevent zero increment
 
         for dayOffset in 0...1 {
             guard let day = calendar.date(byAdding: .day, value: dayOffset, to: now) else { continue }
@@ -47,13 +48,13 @@ final class NotificationManager {
             while hour < sleepStart {
                 let minute = 0
                 guard let reminderDate = calendar.date(bySettingHour: hour, minute: minute, second: 0, of: startOfDay) else {
-                    hour += intervalMinutes / 60
+                    hour += hourIncrement
                     continue
                 }
 
                 // Skip past reminders
                 if reminderDate <= now {
-                    hour += intervalMinutes / 60
+                    hour += hourIncrement
                     continue
                 }
 
@@ -79,7 +80,7 @@ final class NotificationManager {
                     print("[AquaFaste] Failed to schedule notification: \(error)")
                 }
 
-                hour += intervalMinutes / 60
+                hour += hourIncrement
             }
         }
     }
