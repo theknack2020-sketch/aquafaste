@@ -1,0 +1,25 @@
+# Xcode
+*.xcodeproj/
+xcuserdata/
+DerivedData/
+build/
+*.ipa
+*.dSYM.zip
+*.dSYM
+
+# Fastlane
+fastlane/AuthKey_*.p8
+fastlane/api_key.json
+*.p12
+
+# Secrets
+.env
+*.p8
+
+# macOS
+.DS_Store
+
+# GSD runtime
+.gsd/runtime/
+.gsd/activity/
+.gsd/worktrees/
