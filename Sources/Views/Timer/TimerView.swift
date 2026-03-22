@@ -8,8 +8,10 @@ struct TimerView: View {
     @State private var customAmount: String = ""
     @State private var animateProgress = false
     @State private var showGoalComplete = false
+    @State private var showPaywall = false
 
     private let profile = UserProfile.shared
+    private let subscription = SubscriptionManager.shared
 
     var body: some View {
         NavigationStack {
@@ -89,6 +91,13 @@ struct TimerView: View {
 
                             ForEach(manager.todayLogs, id: \.id) { log in
                                 LogRow(log: log, unit: profile.unit)
+                                    .swipeActions(edge: .trailing) {
+                                        Button(role: .destructive) {
+                                            manager.deleteLog(log)
+                                        } label: {
+                                            Label("Delete", systemImage: "trash")
+                                        }
+                                    }
                             }
                         }
                         .padding(.top, 8)
@@ -119,6 +128,9 @@ struct TimerView: View {
                         withAnimation { showGoalComplete = false }
                     }
                 }
+            }
+            .sheet(isPresented: $showPaywall) {
+                PaywallView()
             }
         }
     }

@@ -9,6 +9,11 @@ struct HistoryView: View {
         NavigationStack {
             ScrollView {
                 VStack(spacing: 24) {
+                    // Streak card
+                    if profile.currentStreak > 0 {
+                        streakCard
+                    }
+
                     // Weekly chart
                     weeklyChart
 
@@ -22,6 +27,59 @@ struct HistoryView: View {
                 .padding()
             }
             .navigationTitle("History")
+        }
+    }
+
+    // MARK: - Streak Card
+
+    private var streakCard: some View {
+        VStack(spacing: 12) {
+            HStack {
+                Image(systemName: "flame.fill")
+                    .font(.title2)
+                    .foregroundStyle(.orange)
+                VStack(alignment: .leading, spacing: 2) {
+                    Text("\(profile.currentStreak) Day Streak")
+                        .font(.title3.weight(.bold))
+                    Text(streakMessage)
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                }
+                Spacer()
+            }
+
+            // Milestone dots
+            HStack(spacing: 4) {
+                ForEach([3, 7, 14, 30, 60, 100], id: \.self) { milestone in
+                    VStack(spacing: 2) {
+                        Circle()
+                            .fill(profile.currentStreak >= milestone ? Color.orange : Color.gray.opacity(0.3))
+                            .frame(width: 12, height: 12)
+                        Text("\(milestone)")
+                            .font(.system(size: 8))
+                            .foregroundStyle(.secondary)
+                    }
+                    if milestone != 100 {
+                        Rectangle()
+                            .fill(profile.currentStreak >= milestone ? Color.orange.opacity(0.5) : Color.gray.opacity(0.2))
+                            .frame(height: 2)
+                    }
+                }
+            }
+        }
+        .padding()
+        .background(Color.aquaCardBackground, in: RoundedRectangle(cornerRadius: 16))
+    }
+
+    private var streakMessage: String {
+        switch profile.currentStreak {
+        case 1...2: return "Just getting started!"
+        case 3...6: return "Building momentum!"
+        case 7...13: return "One week strong!"
+        case 14...29: return "Two weeks of hydration!"
+        case 30...59: return "A whole month! Amazing!"
+        case 60...99: return "Two months! Incredible!"
+        default: return "Legendary streak!"
         }
     }
 
