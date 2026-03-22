@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+    <key>ITSAppUsesNonExemptEncryption</key>
+    <false/>
+    <key>NSHealthShareUsageDescription</key>
+    <string>AquaFaste reads your body weight from Health to calculate your personalized daily hydration goal.</string>
+    <key>NSHealthUpdateUsageDescription</key>
+    <string>AquaFaste saves your water intake to Health so you can track hydration alongside your other health data.</string>
+</dict>
+</plist>
