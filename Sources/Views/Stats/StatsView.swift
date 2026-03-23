@@ -5,21 +5,62 @@ struct StatsView: View {
     @Environment(HydrationManager.self) private var manager
     private let profile = UserProfile.shared
 
+    private let haptics = HapticManager.shared
+
     @State private var calendarMonth = Date.now
 
     var body: some View {
         NavigationStack {
-            ScrollView {
-                VStack(spacing: 20) {
-                    summaryCards
-                    weeklyChartSection
-                    weeklyComparisonSection
-                    calendarHeatmapSection
-                    timeOfDaySection
-                    drinkBreakdownSection
-                    insightsSection
+            Group {
+                if manager.allLogs().count < 3 {
+                    // Empty state — not enough data
+                    VStack(spacing: 20) {
+                        Spacer()
+
+                        ZStack {
+                            Circle()
+                                .fill(Color.aquaPrimary.opacity(0.08))
+                                .frame(width: 120, height: 120)
+                            Image(systemName: "chart.bar.xaxis.ascending")
+                                .font(.system(size: 52))
+                                .foregroundStyle(Color.aquaPrimary.opacity(0.4))
+                                .symbolRenderingMode(.hierarchical)
+                        }
+
+                        VStack(spacing: 8) {
+                            Text("Insights Coming Soon")
+                                .font(.title3.weight(.bold))
+                                .foregroundStyle(Color.aquaTextPrimary)
+                            Text("Drink water for a few days to see insights")
+                                .font(.subheadline)
+                                .foregroundStyle(Color.aquaTextSecondary)
+                            Text("Charts, streaks, drink breakdowns, and\npersonalized insights will appear here.")
+                                .font(.caption)
+                                .foregroundStyle(.tertiary)
+                                .multilineTextAlignment(.center)
+                                .padding(.top, 2)
+                        }
+
+                        Spacer()
+                    }
+                    .frame(maxWidth: .infinity)
+                    .padding()
+                    .accessibilityElement(children: .combine)
+                    .accessibilityLabel("Not enough data for insights yet. Drink water for a few days to see statistics.")
+                } else {
+                    ScrollView {
+                        VStack(spacing: 20) {
+                            summaryCards
+                            weeklyChartSection
+                            weeklyComparisonSection
+                            calendarHeatmapSection
+                            timeOfDaySection
+                            drinkBreakdownSection
+                            insightsSection
+                        }
+                        .padding()
+                    }
                 }
-                .padding()
             }
             .navigationTitle("Statistics")
             .background(Color.aquaBackground)
@@ -149,6 +190,7 @@ struct StatsView: View {
         }
         .padding()
         .background(Color.aquaCardBackground, in: RoundedRectangle(cornerRadius: 16))
+        .shadow(color: Color.black.opacity(0.06), radius: 8, x: 0, y: 3)
     }
 
     // MARK: - Weekly Comparison
@@ -201,6 +243,7 @@ struct StatsView: View {
         }
         .padding()
         .background(Color.aquaCardBackground, in: RoundedRectangle(cornerRadius: 16))
+        .shadow(color: Color.black.opacity(0.06), radius: 8, x: 0, y: 3)
     }
 
     // MARK: - Calendar Heatmap
@@ -218,6 +261,7 @@ struct StatsView: View {
             // Month navigation
             HStack {
                 Button {
+                    haptics.selectionChanged()
                     calendarMonth = calendar.date(byAdding: .month, value: -1, to: calendarMonth)!
                 } label: {
                     Image(systemName: "chevron.left")
@@ -235,6 +279,7 @@ struct StatsView: View {
                 Button {
                     let next = calendar.date(byAdding: .month, value: 1, to: calendarMonth)!
                     if next <= .now {
+                        haptics.selectionChanged()
                         calendarMonth = next
                     }
                 } label: {
@@ -302,6 +347,7 @@ struct StatsView: View {
         }
         .padding()
         .background(Color.aquaCardBackground, in: RoundedRectangle(cornerRadius: 16))
+        .shadow(color: Color.black.opacity(0.06), radius: 8, x: 0, y: 3)
     }
 
     // MARK: - Time of Day
@@ -374,6 +420,7 @@ struct StatsView: View {
         }
         .padding()
         .background(Color.aquaCardBackground, in: RoundedRectangle(cornerRadius: 16))
+        .shadow(color: Color.black.opacity(0.06), radius: 8, x: 0, y: 3)
     }
 
     // MARK: - Drink Breakdown
@@ -437,6 +484,7 @@ struct StatsView: View {
         }
         .padding()
         .background(Color.aquaCardBackground, in: RoundedRectangle(cornerRadius: 16))
+        .shadow(color: Color.black.opacity(0.06), radius: 8, x: 0, y: 3)
     }
 
     // MARK: - Insights
@@ -467,6 +515,7 @@ struct StatsView: View {
         }
         .padding()
         .background(Color.aquaCardBackground, in: RoundedRectangle(cornerRadius: 16))
+        .shadow(color: Color.black.opacity(0.06), radius: 8, x: 0, y: 3)
     }
 
     // MARK: - Helpers
@@ -551,6 +600,9 @@ private struct StatCard: View {
         .frame(maxWidth: .infinity, alignment: .leading)
         .padding()
         .background(Color.aquaCardBackground, in: RoundedRectangle(cornerRadius: 14))
+        .shadow(color: iconColor.opacity(0.12), radius: 8, x: 0, y: 3)
+        .accessibilityElement(children: .combine)
+        .accessibilityLabel("\(title): \(value) \(unit)")
     }
 }
 
@@ -584,6 +636,9 @@ private struct StatCardWide: View {
         }
         .padding()
         .background(Color.aquaCardBackground, in: RoundedRectangle(cornerRadius: 14))
+        .shadow(color: iconColor.opacity(0.12), radius: 8, x: 0, y: 3)
+        .accessibilityElement(children: .combine)
+        .accessibilityLabel("\(title): \(value), \(subtitle)")
     }
 }
 
@@ -593,12 +648,22 @@ private struct SectionHeader: View {
 
     var body: some View {
         HStack(spacing: 6) {
+            RoundedRectangle(cornerRadius: 2)
+                .fill(
+                    LinearGradient(
+                        colors: [Color.aquaGradientStart, Color.aquaGradientEnd],
+                        startPoint: .top,
+                        endPoint: .bottom
+                    )
+                )
+                .frame(width: 3, height: 18)
             Image(systemName: icon)
                 .font(.subheadline)
                 .foregroundStyle(Color.aquaPrimary)
             Text(title)
                 .font(.headline)
         }
+        .accessibilityAddTraits(.isHeader)
     }
 }
 

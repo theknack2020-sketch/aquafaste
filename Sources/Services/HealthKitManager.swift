@@ -11,7 +11,7 @@ actor HealthKitManager {
 
     func requestAuthorization() async -> Bool {
         guard HKHealthStore.isHealthDataAvailable() else {
-            print("[AquaFaste] HealthKit not available")
+            print("[AquaFaste] HealthKit not available on this device")
             return false
         }
 
@@ -26,7 +26,8 @@ actor HealthKitManager {
             isAuthorized = true
             return true
         } catch {
-            print("[AquaFaste] HealthKit authorization failed: \(error)")
+            print("[AquaFaste] HealthKit authorization failed: \(error.localizedDescription)")
+            isAuthorized = false
             return false
         }
     }
@@ -35,9 +36,12 @@ actor HealthKitManager {
 
     func saveWaterIntake(amount: Double, date: Date) async {
         if !isAuthorized {
-            _ = await requestAuthorization()
+            let granted = await requestAuthorization()
+            guard granted else {
+                // HealthKit not authorized — skip silently, water is still tracked locally
+                return
+            }
         }
-        guard isAuthorized else { return }
 
         let waterType = HKQuantityType(.dietaryWater)
         let quantity = HKQuantity(unit: .literUnit(with: .milli), doubleValue: amount)
@@ -51,14 +55,18 @@ actor HealthKitManager {
         do {
             try await healthStore.save(sample)
         } catch {
-            print("[AquaFaste] Failed to save water to HealthKit: \(error)")
+            print("[AquaFaste] Failed to save water to HealthKit: \(error.localizedDescription)")
+            // Non-fatal — app continues to work without HealthKit sync
         }
     }
 
     // MARK: - Read Weight
 
     func readBodyWeight() async -> Double? {
-        guard isAuthorized else { return nil }
+        if !isAuthorized {
+            let granted = await requestAuthorization()
+            guard granted else { return nil }
+        }
 
         let weightType = HKQuantityType(.bodyMass)
         let sortDescriptor = NSSortDescriptor(key: HKSampleSortIdentifierStartDate, ascending: false)

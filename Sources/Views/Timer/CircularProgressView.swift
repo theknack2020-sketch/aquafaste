@@ -9,6 +9,7 @@ struct CircularProgressView: View {
 
     @State private var animatedProgress: Double = 0
     @State private var splashTrigger = false
+    @State private var glowPulse = false
 
     private var percentageComplete: Int {
         Int(min(animatedProgress, 1.0) * 100)
@@ -30,11 +31,31 @@ struct CircularProgressView: View {
             let size = min(geo.size.width, geo.size.height)
 
             ZStack {
+                // Outer glow ring
+                Circle()
+                    .stroke(
+                        LinearGradient(
+                            colors: [Color.aquaGradientStart.opacity(0.25), Color.aquaGradientEnd.opacity(0.1)],
+                            startPoint: .top,
+                            endPoint: .bottom
+                        ),
+                        lineWidth: 20
+                    )
+                    .blur(radius: 8)
+                    .opacity(glowPulse ? 0.6 : 0.3)
+
                 // Background ring
                 Circle()
-                    .stroke(Color.aquaPrimary.opacity(0.15), lineWidth: 12)
+                    .stroke(
+                        LinearGradient(
+                            colors: [Color.aquaPrimary.opacity(0.12), Color.aquaGradientEnd.opacity(0.08)],
+                            startPoint: .topLeading,
+                            endPoint: .bottomTrailing
+                        ),
+                        lineWidth: 14
+                    )
 
-                // Progress ring with spring animation
+                // Progress ring with spring animation and glow
                 Circle()
                     .trim(from: 0, to: min(animatedProgress, 1.0))
                     .stroke(
@@ -44,23 +65,39 @@ struct CircularProgressView: View {
                             startAngle: .degrees(0),
                             endAngle: .degrees(360)
                         ),
-                        style: StrokeStyle(lineWidth: 12, lineCap: .round)
+                        style: StrokeStyle(lineWidth: 14, lineCap: .round)
                     )
                     .rotationEffect(.degrees(-90))
+                    .shadow(color: Color.aquaGradientStart.opacity(0.5), radius: 8, x: 0, y: 0)
+                    .shadow(color: Color.aquaGradientEnd.opacity(0.3), radius: 16, x: 0, y: 4)
 
                 // Glowing dot at progress tip
                 if animatedProgress > 0.02 {
                     Circle()
                         .fill(Color.aquaGradientEnd)
-                        .frame(width: 16, height: 16)
-                        .shadow(color: Color.aquaGradientEnd.opacity(0.6), radius: 6)
+                        .frame(width: 18, height: 18)
+                        .shadow(color: Color.aquaGradientEnd.opacity(0.8), radius: 10)
+                        .shadow(color: Color.aquaGradientStart.opacity(0.4), radius: 20)
                         .offset(y: -(size - 28) / 2)
                         .rotationEffect(.degrees(min(animatedProgress, 1.0) * 360 - 90))
                 }
 
-                // Wave fill inside circle
-                WaveView(progress: min(animatedProgress, 1.0))
-                    .clipShape(Circle().inset(by: 14))
+                // Wave fill inside circle with inner glow
+                ZStack {
+                    WaveView(progress: min(animatedProgress, 1.0))
+
+                    // Inner glow at water surface
+                    Circle()
+                        .fill(
+                            RadialGradient(
+                                colors: [Color.aquaGradientStart.opacity(0.15), .clear],
+                                center: .center,
+                                startRadius: size * 0.1,
+                                endRadius: size * 0.45
+                            )
+                        )
+                }
+                .clipShape(Circle().inset(by: 14))
 
                 // Center content
                 VStack(spacing: 8) {
@@ -122,6 +159,9 @@ struct CircularProgressView: View {
         .onAppear {
             withAnimation(.spring(response: 1.0, dampingFraction: 0.7)) {
                 animatedProgress = progress
+            }
+            withAnimation(.easeInOut(duration: 2.0).repeatForever(autoreverses: true)) {
+                glowPulse = true
             }
         }
     }
@@ -214,5 +254,29 @@ struct WaveView: View {
         path3.closeSubpath()
 
         context.fill(path3, with: .color(Color.white.opacity(0.07)))
+
+        // Bubble/sparkle effect — small circles that float upward
+        let bubbleCount = 5
+        for i in 0..<bubbleCount {
+            let phase = Double(i) / Double(bubbleCount)
+            let bubbleX = size.width * (0.15 + 0.7 * frac(phase + time * 0.08))
+            let cyclePos = frac(phase * 2.3 + time * 0.15)
+            let bubbleY = size.height - (size.height * progress * cyclePos)
+            let bubbleRadius = 2.0 + sin(time + Double(i)) * 1.5
+            let bubbleOpacity = 0.15 * (1.0 - cyclePos)
+            if bubbleY > waterHeight {
+                let bubble = Path(ellipseIn: CGRect(
+                    x: bubbleX - bubbleRadius,
+                    y: bubbleY - bubbleRadius,
+                    width: bubbleRadius * 2,
+                    height: bubbleRadius * 2
+                ))
+                context.fill(bubble, with: .color(Color.white.opacity(bubbleOpacity)))
+            }
+        }
+    }
+
+    private func frac(_ x: Double) -> Double {
+        x - floor(x)
     }
 }

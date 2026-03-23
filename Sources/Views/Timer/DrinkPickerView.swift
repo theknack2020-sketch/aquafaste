@@ -25,10 +25,21 @@ struct DrinkPickerView: View {
                     // Categorized drink grid
                     ForEach(groupedDrinks, id: \.category) { group in
                         VStack(alignment: .leading, spacing: 10) {
-                            Text(group.category.rawValue)
-                                .font(.subheadline.weight(.semibold))
-                                .foregroundStyle(Color.aquaTextSecondary)
-                                .padding(.horizontal, 4)
+                            HStack(spacing: 6) {
+                                RoundedRectangle(cornerRadius: 2)
+                                    .fill(
+                                        LinearGradient(
+                                            colors: [Color.aquaGradientStart, Color.aquaGradientEnd],
+                                            startPoint: .top,
+                                            endPoint: .bottom
+                                        )
+                                    )
+                                    .frame(width: 3, height: 16)
+                                Text(group.category.rawValue)
+                                    .font(.subheadline.weight(.semibold))
+                                    .foregroundStyle(Color.aquaTextSecondary)
+                            }
+                            .padding(.horizontal, 4)
 
                             LazyVGrid(
                                 columns: [
@@ -107,12 +118,50 @@ struct DrinkPickerView: View {
                         .foregroundStyle(.brown)
                     }
                 }
+
+                Text(hydrationEfficiencyText(for: selectedDrink))
+                    .font(.caption2)
+                    .foregroundStyle(.secondary)
+                    .lineLimit(1)
             }
 
             Spacer()
         }
         .padding()
-        .background(Color.aquaCardBackground, in: RoundedRectangle(cornerRadius: 16))
+        .background(
+            ZStack {
+                RoundedRectangle(cornerRadius: 16)
+                    .fill(Color.aquaCardBackground)
+                RoundedRectangle(cornerRadius: 16)
+                    .fill(
+                        LinearGradient(
+                            colors: [selectedDrink.color.opacity(0.08), .clear],
+                            startPoint: .topLeading,
+                            endPoint: .bottomTrailing
+                        )
+                    )
+            }
+        )
+        .shadow(color: selectedDrink.color.opacity(0.15), radius: 10, x: 0, y: 4)
+    }
+
+    // MARK: - Hydration Efficiency
+
+    private func hydrationEfficiencyText(for drink: DrinkType) -> String {
+        switch drink {
+        case .water: return "Pure hydration — the gold standard"
+        case .coffee: return "Coffee: 85% hydration • mild diuretic"
+        case .tea: return "Tea: 90% hydration • less caffeine than coffee"
+        case .juice: return "Juice: 130% hydration • electrolytes boost"
+        case .milk: return "Milk: 150% hydration • superior to water (research)"
+        case .soda: return "Soda: 70% hydration • sugar + caffeine reduce effect"
+        case .sparklingWater: return "Same as still water — 100% hydration"
+        case .coconutWater: return "Coconut: 110% hydration • natural electrolytes"
+        case .smoothie: return "Smoothie: 90% hydration • nutrient-rich"
+        case .soup: return "Soup: 80% hydration • sodium affects ratio"
+        case .beer: return "Beer: 40% hydration • alcohol is dehydrating"
+        case .wine: return "Wine: 30% hydration • high alcohol reduces effect"
+        }
     }
 }
 
@@ -142,10 +191,19 @@ struct DrinkTile: View {
                     Circle()
                         .fill(
                             isSelected
-                                ? drink.color.opacity(0.25)
-                                : drink.color.opacity(0.1)
+                                ? LinearGradient(
+                                    colors: [drink.color.opacity(0.3), drink.color.opacity(0.12)],
+                                    startPoint: .topLeading,
+                                    endPoint: .bottomTrailing
+                                  )
+                                : LinearGradient(
+                                    colors: [drink.color.opacity(0.12), drink.color.opacity(0.06)],
+                                    startPoint: .topLeading,
+                                    endPoint: .bottomTrailing
+                                  )
                         )
                         .frame(width: 52, height: 52)
+                        .shadow(color: drink.color.opacity(isSelected ? 0.3 : 0.1), radius: isSelected ? 8 : 4, x: 0, y: 2)
 
                     // Subtle ring for selected
                     if isSelected {

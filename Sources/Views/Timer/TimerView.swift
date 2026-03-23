@@ -35,6 +35,18 @@ struct TimerView: View {
     var body: some View {
         NavigationStack {
             ZStack(alignment: .bottom) {
+                // Water-themed gradient background
+                LinearGradient(
+                    colors: [
+                        Color.aquaGradientStart.opacity(0.08),
+                        Color.aquaGradientEnd.opacity(0.04),
+                        Color.aquaBackground
+                    ],
+                    startPoint: .top,
+                    endPoint: .center
+                )
+                .ignoresSafeArea()
+
                 ScrollView {
                     VStack(spacing: 20) {
                         // Progress circle with water fill overlay
@@ -74,16 +86,34 @@ struct TimerView: View {
                             caffeineCounter
                         }
 
-                        // Streak
+                        // Encouragement when close to goal
+                        if !goalReached && remainingToGoal > 0 && remainingToGoal <= profile.dailyGoal * 0.2 {
+                            HStack(spacing: 6) {
+                                Image(systemName: "sparkles")
+                                    .foregroundStyle(.yellow)
+                                Text("Almost there! Just \(profile.unit.formatAmount(remainingToGoal)) to go!")
+                                    .font(.subheadline.weight(.medium))
+                                    .foregroundStyle(Color.aquaPrimary)
+                            }
+                            .padding(.horizontal, 14)
+                            .padding(.vertical, 8)
+                            .background(Color.aquaPrimary.opacity(0.08), in: Capsule())
+                            .transition(.scale.combined(with: .opacity))
+                            .accessibilityLabel("Almost at your goal. \(profile.unit.formatAmount(remainingToGoal)) remaining")
+                        }
+
+                        // Streak with motivational text
                         if profile.currentStreak > 0 {
                             HStack(spacing: 6) {
                                 Image(systemName: "flame.fill")
                                     .foregroundStyle(.orange)
-                                Text("\(profile.currentStreak) day streak")
+                                Text(streakMotivationText)
                                     .font(.subheadline.weight(.medium))
                                     .foregroundStyle(Color.aquaTextSecondary)
                             }
                             .padding(.top, 4)
+                            .accessibilityElement(children: .combine)
+                            .accessibilityLabel("\(profile.currentStreak) day hydration streak. \(streakMotivationText)")
                         }
 
                         // Favorites section
@@ -288,6 +318,8 @@ struct TimerView: View {
                                     in: Capsule()
                                 )
                             }
+                            .accessibilityLabel("Log \(profile.unit.formatAmount(recent.amount)) of \(recent.drinkType.displayName)")
+                            .accessibilityHint("Double tap to log this recent drink")
                         }
                     }
                 }
@@ -333,8 +365,11 @@ struct TimerView: View {
                 .frame(width: 72, height: 72)
                 .foregroundStyle(Color.aquaPrimary)
                 .background(Color.aquaCardBackground, in: RoundedRectangle(cornerRadius: 16))
+                .shadow(color: Color.black.opacity(0.08), radius: 6, x: 0, y: 3)
             }
             .scaleEffect(customButtonBounce ? 1.2 : 1.0)
+            .accessibilityLabel("Log custom amount of \(selectedDrink.displayName)")
+            .accessibilityHint("Double tap to enter a custom drink amount")
             .opacity(buttonsAppeared ? 1 : 0)
             .offset(y: buttonsAppeared ? 0 : 20)
             .animation(
@@ -366,6 +401,8 @@ struct TimerView: View {
         .padding(.horizontal, 14)
         .padding(.vertical, 8)
         .background(Color.brown.opacity(0.08), in: Capsule())
+        .accessibilityElement(children: .combine)
+        .accessibilityLabel("\(Int(manager.todayCaffeine)) milligrams caffeine consumed today\(manager.todayCaffeine > 400 ? ", exceeds recommended daily limit" : "")")
     }
 
     // MARK: - Favorites Section
@@ -417,7 +454,10 @@ struct TimerView: View {
                                     .frame(width: 70)
                                     .padding(.vertical, 8)
                                     .background(Color.aquaCardBackground, in: RoundedRectangle(cornerRadius: 12))
+                                    .shadow(color: Color.black.opacity(0.06), radius: 4, x: 0, y: 2)
                                 }
+                                .accessibilityLabel("Log \(profile.unit.formatAmount(fav.amount)) of \(fav.drink.displayName), \(fav.name)")
+                                .accessibilityHint("Double tap to log this favorite drink")
                             }
 
                             // Add favorite button
@@ -442,7 +482,10 @@ struct TimerView: View {
                                 .frame(width: 70)
                                 .padding(.vertical, 8)
                                 .background(Color.aquaCardBackground, in: RoundedRectangle(cornerRadius: 12))
+                                .shadow(color: Color.black.opacity(0.06), radius: 4, x: 0, y: 2)
                             }
+                            .accessibilityLabel("Add new favorite drink")
+                            .accessibilityHint("Double tap to save a drink as a favorite")
                         }
                         .padding(.horizontal)
                     }
@@ -558,10 +601,30 @@ struct TimerView: View {
         }
         .padding()
         .background(Color.aquaCardBackground, in: RoundedRectangle(cornerRadius: 16))
+        .shadow(color: Color.aquaPrimary.opacity(0.08), radius: 12, x: 0, y: 4)
         .padding(.top, 4)
     }
 
     // MARK: - Actions
+
+    private var goalReached: Bool { manager.todayTotal >= profile.dailyGoal }
+    private var remainingToGoal: Double { max(0, profile.dailyGoal - manager.todayTotal) }
+
+    private var streakMotivationText: String {
+        let streak = profile.currentStreak
+        switch streak {
+        case 1: return "Day 1! Every journey starts here 💧"
+        case 2: return "Day 2! Building momentum 💪"
+        case 3...6: return "\(streak)-day streak! Keep it going 🔥"
+        case 7: return "Hydration hero! Day 7 🏆"
+        case 8...13: return "\(streak) days strong! 🌟"
+        case 14...29: return "\(streak) days! You're unstoppable 💎"
+        case 30: return "Legendary! Day 30 👑"
+        case 31...59: return "\(streak)-day streak! Over a month! 👑"
+        case 60...99: return "\(streak) days! Incredible discipline 🎯"
+        default: return "\(streak)-day legendary streak! 🌊"
+        }
+    }
 
     private func logDrink(amount: Double, caffeineMg: Double? = nil) {
         let wasUnderGoal = manager.todayTotal < profile.dailyGoal
@@ -644,6 +707,8 @@ struct QuickAddButton: View {
             .frame(width: 72, height: 72)
             .foregroundStyle(.white)
             .background(Color.aquaGradient, in: RoundedRectangle(cornerRadius: 16))
+            .shadow(color: Color.aquaGradientEnd.opacity(0.35), radius: 8, x: 0, y: 4)
+            .shadow(color: Color.aquaGradientStart.opacity(0.15), radius: 3, x: 0, y: 1)
         }
         .scaleEffect(isPressed ? 0.88 : 1.0)
         .accessibilityLabel("Log \(unit.formatAmount(amount))\(name.isEmpty ? "" : ", \(name)")")

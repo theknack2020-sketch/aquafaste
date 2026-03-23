@@ -4,6 +4,8 @@ struct FavoriteDrinksSheet: View {
     @Environment(HydrationManager.self) private var manager
     @Environment(\.dismiss) private var dismiss
 
+    private let haptics = HapticManager.shared
+
     @State private var showAddSheet = false
     @State private var newName = ""
     @State private var newDrinkType: DrinkType = .water
@@ -50,6 +52,7 @@ struct FavoriteDrinksSheet: View {
                             }
                         }
                         .onDelete { indexSet in
+                            haptics.error()
                             let favs = manager.fetchFavorites()
                             for index in indexSet {
                                 manager.deleteFavorite(favs[index])

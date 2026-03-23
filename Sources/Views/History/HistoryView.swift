@@ -6,6 +6,8 @@ struct HistoryView: View {
     @Environment(\.modelContext) private var modelContext
     private let profile = UserProfile.shared
 
+    private let haptics = HapticManager.shared
+
     @State private var editingLog: WaterLog?
     @State private var editAmount: String = ""
     @State private var editDrinkType: DrinkType = .water
@@ -13,28 +15,67 @@ struct HistoryView: View {
 
     var body: some View {
         NavigationStack {
-            ScrollView {
-                VStack(spacing: 24) {
-                    // Streak card
-                    if profile.currentStreak > 0 {
-                        streakCard
+            Group {
+                if manager.todayLogs.isEmpty && manager.logsForDate(Calendar.current.date(byAdding: .day, value: -1, to: .now)!).isEmpty && manager.logsForDate(Calendar.current.date(byAdding: .day, value: -2, to: .now)!).isEmpty && profile.currentStreak == 0 {
+                    // Empty state
+                    VStack(spacing: 20) {
+                        Spacer()
+
+                        ZStack {
+                            Circle()
+                                .fill(Color.aquaPrimary.opacity(0.08))
+                                .frame(width: 120, height: 120)
+                            Image(systemName: "drop.circle")
+                                .font(.system(size: 56))
+                                .foregroundStyle(Color.aquaPrimary.opacity(0.4))
+                                .symbolRenderingMode(.hierarchical)
+                        }
+
+                        VStack(spacing: 8) {
+                            Text("No History Yet")
+                                .font(.title3.weight(.bold))
+                                .foregroundStyle(Color.aquaTextPrimary)
+                            Text("Log your first drink to see history")
+                                .font(.subheadline)
+                                .foregroundStyle(Color.aquaTextSecondary)
+                            Text("Your daily logs, streaks, and weekly charts\nwill appear here.")
+                                .font(.caption)
+                                .foregroundStyle(.tertiary)
+                                .multilineTextAlignment(.center)
+                                .padding(.top, 2)
+                        }
+
+                        Spacer()
                     }
+                    .frame(maxWidth: .infinity)
+                    .padding()
+                    .accessibilityElement(children: .combine)
+                    .accessibilityLabel("No history yet. Log your first drink to see history.")
+                } else {
+                    ScrollView {
+                        VStack(spacing: 24) {
+                            // Streak card
+                            if profile.currentStreak > 0 {
+                                streakCard
+                            }
 
-                    // Weekly chart
-                    weeklyChart
+                            // Weekly chart
+                            weeklyChart
 
-                    // Today's details with timeline
-                    todaySection
+                            // Today's details with timeline
+                            todaySection
 
-                    // Yesterday
-                    let yesterday = Calendar.current.date(byAdding: .day, value: -1, to: .now)!
-                    daySection(for: yesterday, title: "Yesterday")
+                            // Yesterday
+                            let yesterday = Calendar.current.date(byAdding: .day, value: -1, to: .now)!
+                            daySection(for: yesterday, title: "Yesterday")
 
-                    // Day before yesterday
-                    let dayBefore = Calendar.current.date(byAdding: .day, value: -2, to: .now)!
-                    daySection(for: dayBefore, title: dayBefore.formatted(.dateTime.weekday(.wide)))
+                            // Day before yesterday
+                            let dayBefore = Calendar.current.date(byAdding: .day, value: -2, to: .now)!
+                            daySection(for: dayBefore, title: dayBefore.formatted(.dateTime.weekday(.wide)))
+                        }
+                        .padding()
+                    }
                 }
-                .padding()
             }
             .navigationTitle("History")
             .sheet(isPresented: $showEditSheet) {
@@ -47,6 +88,7 @@ struct HistoryView: View {
                             showEditSheet = false
                         },
                         onDelete: {
+                            haptics.error()
                             manager.deleteLog(log)
                             showEditSheet = false
                         }
@@ -98,6 +140,7 @@ struct HistoryView: View {
         }
         .padding()
         .background(Color.aquaCardBackground, in: RoundedRectangle(cornerRadius: 16))
+        .shadow(color: Color.orange.opacity(0.1), radius: 8, x: 0, y: 3)
     }
 
     private var streakMessage: String {
@@ -118,6 +161,7 @@ struct HistoryView: View {
         VStack(alignment: .leading, spacing: 12) {
             Text("This Week")
                 .font(.headline)
+                .accessibilityAddTraits(.isHeader)
 
             let weekData = manager.weeklyData()
 
@@ -176,6 +220,7 @@ struct HistoryView: View {
         }
         .padding()
         .background(Color.aquaCardBackground, in: RoundedRectangle(cornerRadius: 16))
+        .shadow(color: Color.aquaPrimary.opacity(0.08), radius: 8, x: 0, y: 3)
     }
 
     // MARK: - Today Section
@@ -191,8 +236,19 @@ struct HistoryView: View {
 
         return VStack(alignment: .leading, spacing: 12) {
             HStack {
-                Text(title)
-                    .font(.headline)
+                HStack(spacing: 6) {
+                    RoundedRectangle(cornerRadius: 2)
+                        .fill(
+                            LinearGradient(
+                                colors: [Color.aquaGradientStart, Color.aquaGradientEnd],
+                                startPoint: .leading,
+                                endPoint: .trailing
+                            )
+                        )
+                        .frame(width: 3, height: 18)
+                    Text(title)
+                        .font(.headline)
+                }
                 Spacer()
                 VStack(alignment: .trailing, spacing: 2) {
                     Text(profile.unit.formatAmount(total))
@@ -268,6 +324,7 @@ struct HistoryView: View {
                         }
 
                         Button(role: .destructive) {
+                            haptics.error()
                             withAnimation(.spring(response: 0.4)) {
                                 manager.deleteLog(log)
                             }
@@ -280,6 +337,7 @@ struct HistoryView: View {
         }
         .padding()
         .background(Color.aquaCardBackground, in: RoundedRectangle(cornerRadius: 16))
+        .shadow(color: Color.black.opacity(0.06), radius: 6, x: 0, y: 3)
     }
 }
 

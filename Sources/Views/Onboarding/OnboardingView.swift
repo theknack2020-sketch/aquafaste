@@ -11,6 +11,7 @@ struct OnboardingView: View {
     @State private var notificationDenied = false
 
     private let profile = UserProfile.shared
+    private let haptics = HapticManager.shared
 
     var body: some View {
         VStack {
@@ -34,12 +35,38 @@ struct OnboardingView: View {
     // MARK: - Page 1: Welcome
 
     private var welcomePage: some View {
-        VStack(spacing: 20) {
-            Spacer()
+        ZStack {
+            // Deep ocean gradient
+            LinearGradient(
+                colors: [
+                    Color(red: 0.02, green: 0.12, blue: 0.35).opacity(0.15),
+                    Color.aquaGradientStart.opacity(0.08),
+                    Color.aquaBackground
+                ],
+                startPoint: .top,
+                endPoint: .bottom
+            )
+            .ignoresSafeArea()
 
-            Image(systemName: "drop.fill")
-                .font(.system(size: 64))
-                .foregroundStyle(Color.aquaGradient)
+            VStack(spacing: 20) {
+                Spacer()
+
+                ZStack {
+                    Circle()
+                        .fill(
+                            RadialGradient(
+                                colors: [Color.aquaGradientStart.opacity(0.2), .clear],
+                                center: .center,
+                                startRadius: 20,
+                                endRadius: 80
+                            )
+                        )
+                        .frame(width: 140, height: 140)
+                    Image(systemName: "drop.fill")
+                        .font(.system(size: 64))
+                        .foregroundStyle(Color.aquaGradient)
+                        .shadow(color: Color.aquaGradientStart.opacity(0.4), radius: 16, x: 0, y: 4)
+                }
 
             Text("Welcome to AquaFaste")
                 .font(.title.weight(.bold))
@@ -49,9 +76,20 @@ struct OnboardingView: View {
                 .foregroundStyle(.secondary)
                 .multilineTextAlignment(.center)
 
+            // Benefit highlights
+            VStack(alignment: .leading, spacing: 10) {
+                benefitRow(icon: "brain.head.profile.fill", text: "Boost focus & energy by staying hydrated")
+                benefitRow(icon: "heart.fill", text: "Support heart health with consistent water intake")
+                benefitRow(icon: "sparkles", text: "Better skin, digestion & mood — backed by science")
+            }
+            .padding()
+            .background(Color.aquaCardBackground, in: RoundedRectangle(cornerRadius: 16))
+            .shadow(color: Color.black.opacity(0.06), radius: 6, x: 0, y: 3)
+
             Spacer()
 
             Button("Get Started") {
+                haptics.light()
                 withAnimation { currentPage = 1 }
             }
             .buttonStyle(.borderedProminent)
@@ -59,14 +97,27 @@ struct OnboardingView: View {
             .controlSize(.large)
 
             pageIndicator(current: 0)
+            }
+            .padding()
         }
-        .padding()
     }
 
     // MARK: - Page 2: Weight
 
     private var weightPage: some View {
-        VStack(spacing: 20) {
+        ZStack {
+            LinearGradient(
+                colors: [
+                    Color.aquaGradientStart.opacity(0.06),
+                    Color.aquaGradientEnd.opacity(0.04),
+                    Color.aquaBackground
+                ],
+                startPoint: .topLeading,
+                endPoint: .bottomTrailing
+            )
+            .ignoresSafeArea()
+
+            VStack(spacing: 20) {
             Spacer()
 
             Image(systemName: "scalemass.fill")
@@ -76,7 +127,7 @@ struct OnboardingView: View {
             Text("What's your weight?")
                 .font(.title2.weight(.bold))
 
-            Text("We'll calculate your personalized daily goal")
+            Text("Science says 30–35 ml per kg body weight")
                 .font(.subheadline)
                 .foregroundStyle(.secondary)
 
@@ -110,6 +161,7 @@ struct OnboardingView: View {
                 if let w = Double(weight), w > 0 {
                     profile.weight = w
                 }
+                haptics.light()
                 withAnimation { currentPage = 2 }
             }
             .buttonStyle(.borderedProminent)
@@ -117,14 +169,27 @@ struct OnboardingView: View {
             .controlSize(.large)
 
             pageIndicator(current: 1)
+            }
+            .padding()
         }
-        .padding()
     }
 
     // MARK: - Page 3: Activity
 
     private var activityPage: some View {
-        VStack(spacing: 20) {
+        ZStack {
+            LinearGradient(
+                colors: [
+                    Color.aquaPrimary.opacity(0.06),
+                    Color.aquaGradientStart.opacity(0.04),
+                    Color.aquaBackground
+                ],
+                startPoint: .top,
+                endPoint: .center
+            )
+            .ignoresSafeArea()
+
+            VStack(spacing: 20) {
             Spacer()
 
             Image(systemName: "figure.run")
@@ -134,9 +199,16 @@ struct OnboardingView: View {
             Text("How active are you?")
                 .font(.title2.weight(.bold))
 
+            Text("Active people lose more water through sweat\nand need up to 50% more hydration")
+                .font(.caption)
+                .foregroundStyle(.secondary)
+                .multilineTextAlignment(.center)
+                .padding(.horizontal)
+
             VStack(spacing: 8) {
                 ForEach(ActivityLevel.allCases) { level in
                     Button {
+                        haptics.selectionChanged()
                         selectedActivity = level
                     } label: {
                         HStack {
@@ -169,6 +241,7 @@ struct OnboardingView: View {
 
             Button("Next") {
                 profile.activityLevel = selectedActivity
+                haptics.light()
                 withAnimation { currentPage = 3 }
             }
             .buttonStyle(.borderedProminent)
@@ -176,14 +249,27 @@ struct OnboardingView: View {
             .controlSize(.large)
 
             pageIndicator(current: 2)
+            }
+            .padding()
         }
-        .padding()
     }
 
     // MARK: - Page 4: Notifications
 
     private var notificationPage: some View {
-        VStack(spacing: 20) {
+        ZStack {
+            LinearGradient(
+                colors: [
+                    Color.aquaGradientEnd.opacity(0.06),
+                    Color.aquaGradientStart.opacity(0.03),
+                    Color.aquaBackground
+                ],
+                startPoint: .topTrailing,
+                endPoint: .bottomLeading
+            )
+            .ignoresSafeArea()
+
+            VStack(spacing: 20) {
             Spacer()
 
             Image(systemName: "bell.badge.fill")
@@ -194,7 +280,7 @@ struct OnboardingView: View {
             Text("Stay on Track")
                 .font(.title.weight(.bold))
 
-            Text("Hydration reminders help you build a consistent habit. We'll send smart reminders during your waking hours — never at night.")
+            Text("People who use reminders drink 40% more water on average. Smart reminders during waking hours — never at night.")
                 .font(.subheadline)
                 .foregroundStyle(.secondary)
                 .multilineTextAlignment(.center)
@@ -225,24 +311,41 @@ struct OnboardingView: View {
             }
             .padding()
             .background(Color.aquaCardBackground, in: RoundedRectangle(cornerRadius: 16))
+            .shadow(color: Color.aquaPrimary.opacity(0.08), radius: 8, x: 0, y: 3)
 
             Spacer()
 
             if notificationDenied {
-                // Graceful denial handling
-                VStack(spacing: 8) {
-                    Text("No worries! You can enable reminders anytime in Settings.")
+                // Graceful denial handling with inline guidance
+                VStack(spacing: 10) {
+                    HStack(spacing: 8) {
+                        Image(systemName: "bell.slash")
+                            .foregroundStyle(.orange)
+                        Text("Notifications Blocked")
+                            .font(.subheadline.weight(.semibold))
+                    }
+
+                    Text("No worries! You can enable reminders anytime in\nSettings → AquaFaste → Notifications")
                         .font(.caption)
                         .foregroundStyle(.secondary)
                         .multilineTextAlignment(.center)
 
-                    Button("Continue Without Reminders") {
-                        withAnimation { currentPage = 4 }
+                    HStack(spacing: 12) {
+                        Button("Open Settings") {
+                            NotificationManager.shared.openNotificationSettings()
+                        }
+                        .font(.caption.weight(.medium))
+                        .foregroundStyle(Color.aquaPrimary)
+
+                        Button("Continue Without") {
+                            haptics.light()
+                            withAnimation { currentPage = 4 }
+                        }
+                        .buttonStyle(.borderedProminent)
+                        .tint(Color.aquaCardBackground)
+                        .foregroundStyle(Color.aquaTextPrimary)
+                        .controlSize(.regular)
                     }
-                    .buttonStyle(.borderedProminent)
-                    .tint(Color.aquaCardBackground)
-                    .foregroundStyle(Color.aquaTextPrimary)
-                    .controlSize(.large)
                 }
             } else if notificationGranted {
                 VStack(spacing: 4) {
@@ -255,6 +358,7 @@ struct OnboardingView: View {
                 }
 
                 Button("Continue") {
+                    haptics.light()
                     withAnimation { currentPage = 4 }
                 }
                 .buttonStyle(.borderedProminent)
@@ -276,6 +380,7 @@ struct OnboardingView: View {
                 .controlSize(.large)
 
                 Button("Skip for Now") {
+                    haptics.light()
                     withAnimation { currentPage = 4 }
                 }
                 .font(.subheadline)
@@ -283,8 +388,9 @@ struct OnboardingView: View {
             }
 
             pageIndicator(current: 3)
+            }
+            .padding()
         }
-        .padding()
     }
 
     private func notificationBenefit(icon: String, title: String, description: String) -> some View {
@@ -307,7 +413,19 @@ struct OnboardingView: View {
     // MARK: - Page 5: Ready
 
     private var readyPage: some View {
-        VStack(spacing: 20) {
+        ZStack {
+            LinearGradient(
+                colors: [
+                    Color.green.opacity(0.06),
+                    Color.aquaGradientStart.opacity(0.04),
+                    Color.aquaBackground
+                ],
+                startPoint: .top,
+                endPoint: .bottom
+            )
+            .ignoresSafeArea()
+
+            VStack(spacing: 20) {
             Spacer()
 
             Image(systemName: "checkmark.circle.fill")
@@ -334,13 +452,18 @@ struct OnboardingView: View {
             }
             .padding()
             .background(Color.aquaCardBackground, in: RoundedRectangle(cornerRadius: 16))
+            .shadow(color: Color.black.opacity(0.06), radius: 6, x: 0, y: 3)
 
             Spacer()
 
             Button("Start Tracking") {
+                haptics.success()
                 profile.onboardingComplete = true
                 Task {
-                    _ = await HealthKitManager.shared.requestAuthorization()
+                    let hkAuthorized = await HealthKitManager.shared.requestAuthorization()
+                    if !hkAuthorized {
+                        print("[AquaFaste] HealthKit not authorized — continuing without sync")
+                    }
                     await NotificationManager.shared.scheduleAllNotifications()
                 }
                 isComplete = true
@@ -348,19 +471,35 @@ struct OnboardingView: View {
             .buttonStyle(.borderedProminent)
             .tint(Color.aquaPrimary)
             .controlSize(.large)
+            .accessibilityLabel("Start tracking your daily hydration")
 
             Button("Try Premium Free") {
                 showPaywall = true
             }
             .font(.subheadline)
             .foregroundStyle(Color.aquaPrimary)
+            .accessibilityLabel("Try premium features free")
+            .accessibilityHint("Opens premium subscription options")
 
             pageIndicator(current: 4)
+            }
+            .padding()
         }
-        .padding()
     }
 
     // MARK: - Helpers
+
+    private func benefitRow(icon: String, text: String) -> some View {
+        HStack(spacing: 12) {
+            Image(systemName: icon)
+                .font(.body)
+                .foregroundStyle(Color.aquaPrimary)
+                .frame(width: 28)
+            Text(text)
+                .font(.subheadline)
+                .foregroundStyle(Color.aquaTextPrimary)
+        }
+    }
 
     private func summaryRow(icon: String, text: String) -> some View {
         HStack(spacing: 12) {

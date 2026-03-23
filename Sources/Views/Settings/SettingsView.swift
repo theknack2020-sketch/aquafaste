@@ -12,6 +12,8 @@ struct SettingsView: View {
     // Cup editing
     @State private var editingCups: [(name: String, size: Double)] = []
 
+    private let haptics = HapticManager.shared
+
     // Theme
     @AppStorage("af_app_theme") private var selectedThemeRaw: String = AppTheme.ocean.rawValue
     private var selectedTheme: AppTheme {
@@ -35,6 +37,7 @@ struct SettingsView: View {
     // Export
     @State private var showExportSheet = false
     @State private var exportURL: URL?
+    @State private var showShareApp = false
 
     // Reset
     @State private var showResetConfirmation = false
@@ -59,6 +62,19 @@ struct SettingsView: View {
                 dangerZoneSection
             }
             .navigationTitle("Settings")
+            .scrollContentBackground(.hidden)
+            .background(
+                LinearGradient(
+                    colors: [
+                        Color.aquaGradientStart.opacity(0.04),
+                        Color.aquaBackground,
+                        Color.aquaBackground
+                    ],
+                    startPoint: .top,
+                    endPoint: .center
+                )
+                .ignoresSafeArea()
+            )
             .alert("Custom Goal", isPresented: $showGoalEditor) {
                 TextField(profile.unit == .ml ? "ml" : "fl oz", text: $customGoal)
                     .keyboardType(.numberPad)
@@ -130,8 +146,15 @@ struct SettingsView: View {
                     .frame(width: 60, height: 60)
                     .background(
                         RoundedRectangle(cornerRadius: 14)
-                            .fill(Color.aquaPrimary.opacity(0.12))
+                            .fill(
+                                LinearGradient(
+                                    colors: [Color.aquaGradientStart.opacity(0.15), Color.aquaGradientEnd.opacity(0.08)],
+                                    startPoint: .topLeading,
+                                    endPoint: .bottomTrailing
+                                )
+                            )
                     )
+                    .shadow(color: Color.aquaPrimary.opacity(0.15), radius: 8, x: 0, y: 3)
                     .accessibilityHidden(true)
 
                 VStack(alignment: .leading, spacing: 4) {
@@ -140,12 +163,12 @@ struct SettingsView: View {
                     Text("Hydration Tracker")
                         .font(.caption)
                         .foregroundStyle(.secondary)
-                    Text("Version 1.0.0")
+                    Text("Version \(appVersionString)")
                         .font(.caption2)
                         .foregroundStyle(.tertiary)
                 }
                 .accessibilityElement(children: .combine)
-                .accessibilityLabel("AquaFaste Hydration Tracker, Version 1.0.0")
+                .accessibilityLabel("AquaFaste Hydration Tracker, Version \(appVersionString)")
             }
             .padding(.vertical, 4)
             .listRowBackground(Color.clear)
@@ -158,6 +181,7 @@ struct SettingsView: View {
         Section {
             ForEach(AppTheme.allCases) { theme in
                 Button {
+                    haptics.selectionChanged()
                     withAnimation(.easeInOut(duration: 0.25)) {
                         selectedThemeRaw = theme.rawValue
                         ThemeManager.shared.setTheme(theme)
@@ -172,6 +196,7 @@ struct SettingsView: View {
                             }
                         }
                         .clipShape(RoundedRectangle(cornerRadius: 6))
+                        .shadow(color: theme.primary.opacity(0.2), radius: 3, x: 0, y: 1)
                         .accessibilityHidden(true)
 
                         Image(systemName: theme.iconName)
@@ -296,6 +321,9 @@ struct SettingsView: View {
                 Label("Refill Reminder", systemImage: "arrow.triangle.2.circlepath")
             }
             .tint(Color.aquaPrimary)
+            .accessibilityLabel("Refill reminder")
+            .accessibilityValue(refillReminderEnabled ? "On" : "Off")
+            .accessibilityHint("Reminds you when your bottle is empty")
             .onChange(of: refillReminderEnabled) { _, newValue in
                 profile.refillReminderEnabled = newValue
             }
@@ -338,7 +366,11 @@ struct SettingsView: View {
                 Label("Drink Reminders", systemImage: "bell.fill")
             }
             .tint(Color.aquaPrimary)
+            .accessibilityLabel("Drink reminders")
+            .accessibilityValue(remindersEnabled ? "On" : "Off")
+            .accessibilityHint("Sends periodic reminders to drink water")
             .onChange(of: remindersEnabled) { _, newValue in
+                haptics.selectionChanged()
                 profile.remindersEnabled = newValue
                 rescheduleNotifications()
             }
@@ -524,6 +556,7 @@ struct SettingsView: View {
                         .foregroundStyle(.secondary)
                 }
             }
+            .accessibilityLabel("Lumifaste, Intermittent Fasting Tracker. Opens App Store.")
         }
     }
 
@@ -531,6 +564,26 @@ struct SettingsView: View {
 
     private var aboutSection: some View {
         Section("About") {
+            // Share App
+            Button {
+                showShareApp = true
+            } label: {
+                Label("Share AquaFaste", systemImage: "square.and.arrow.up")
+            }
+            .accessibilityLabel("Share AquaFaste with friends")
+            .accessibilityHint("Opens share sheet with app link")
+
+            // Rate App
+            Button {
+                if let url = URL(string: "https://apps.apple.com/app/aquafaste/id6743434938?action=write-review") {
+                    UIApplication.shared.open(url)
+                }
+            } label: {
+                Label("Rate AquaFaste", systemImage: "star.fill")
+            }
+            .accessibilityLabel("Rate AquaFaste on the App Store")
+            .accessibilityHint("Opens App Store review page")
+
             // Contact Support
             Button {
                 sendSupportEmail()
@@ -552,6 +605,17 @@ struct SettingsView: View {
             .accessibilityLabel("Terms of Use")
             .accessibilityHint("Opens terms of use in browser")
 
+            // Version info
+            HStack {
+                Label("Version", systemImage: "info.circle")
+                Spacer()
+                Text(appVersionString)
+                    .font(.subheadline)
+                    .foregroundStyle(.secondary)
+            }
+            .accessibilityElement(children: .combine)
+            .accessibilityLabel("Version \(appVersionString)")
+
             // Health Disclaimer
             VStack(alignment: .leading, spacing: 6) {
                 HStack(spacing: 6) {
@@ -569,6 +633,11 @@ struct SettingsView: View {
             .padding(.vertical, 4)
             .accessibilityElement(children: .combine)
             .accessibilityLabel("Health Disclaimer. AquaFaste provides general hydration guidance and is not a substitute for professional medical advice.")
+        }
+        .sheet(isPresented: $showShareApp) {
+            let shareText = "Stay hydrated with AquaFaste! 💧 Track your daily water intake and build healthy habits."
+            let appURL = URL(string: "https://apps.apple.com/app/aquafaste/id6743434938")!
+            ShareSheet(items: [shareText, appURL])
         }
     }
 
@@ -592,6 +661,12 @@ struct SettingsView: View {
     }
 
     // MARK: - Helpers
+
+    private var appVersionString: String {
+        let version = Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "1.0.0"
+        let build = Bundle.main.infoDictionary?["CFBundleVersion"] as? String ?? "1"
+        return "\(version) (\(build))"
+    }
 
     private func rescheduleNotifications() {
         Task {
@@ -621,7 +696,9 @@ struct SettingsView: View {
     private func sendSupportEmail() {
         let email = "support@theknack.app"
         let subject = "AquaFaste Support"
-        let body = "App Version: 1.0.0\niOS Version: \(UIDevice.current.systemVersion)\nDevice: \(UIDevice.current.model)"
+        let version = Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "1.0.0"
+        let build = Bundle.main.infoDictionary?["CFBundleVersion"] as? String ?? "1"
+        let body = "App Version: \(version) (\(build))\niOS Version: \(UIDevice.current.systemVersion)\nDevice: \(UIDevice.current.model)"
 
         let encodedSubject = subject.addingPercentEncoding(withAllowedCharacters: CharacterSet.urlQueryAllowed) ?? subject
         let encodedBody = body.addingPercentEncoding(withAllowedCharacters: CharacterSet.urlQueryAllowed) ?? body
