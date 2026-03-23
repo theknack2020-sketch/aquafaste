@@ -7,6 +7,8 @@ struct OnboardingView: View {
     @State private var selectedActivity: ActivityLevel = .moderate
     @State private var enableReminders = true
     @State private var showPaywall = false
+    @State private var notificationGranted = false
+    @State private var notificationDenied = false
 
     private let profile = UserProfile.shared
 
@@ -16,7 +18,8 @@ struct OnboardingView: View {
                 welcomePage.tag(0)
                 weightPage.tag(1)
                 activityPage.tag(2)
-                readyPage.tag(3)
+                notificationPage.tag(3)
+                readyPage.tag(4)
             }
             .tabViewStyle(.page(indexDisplayMode: .always))
             .indexViewStyle(.page(backgroundDisplayMode: .always))
@@ -25,6 +28,8 @@ struct OnboardingView: View {
             PaywallView()
         }
     }
+
+    private let totalPages = 5
 
     // MARK: - Page 1: Welcome
 
@@ -88,10 +93,15 @@ struct OnboardingView: View {
             }
 
             if let w = Double(weight), w > 0 {
-                let goal = w * 35.0 * selectedActivity.multiplier
-                Text("Recommended: \(Int(goal)) ml/day")
-                    .font(.subheadline)
-                    .foregroundStyle(Color.aquaPrimary)
+                let goal = Int(w * 35.0 * selectedActivity.multiplier)
+                VStack(spacing: 4) {
+                    Text("Recommended: \(goal) ml/day")
+                        .font(.subheadline.weight(.medium))
+                        .foregroundStyle(Color.aquaPrimary)
+                    Text("Based on \(Int(w)) kg × 30–35 ml/kg")
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                }
             }
 
             Spacer()
@@ -170,7 +180,131 @@ struct OnboardingView: View {
         .padding()
     }
 
-    // MARK: - Page 4: Ready
+    // MARK: - Page 4: Notifications
+
+    private var notificationPage: some View {
+        VStack(spacing: 20) {
+            Spacer()
+
+            Image(systemName: "bell.badge.fill")
+                .font(.system(size: 56))
+                .foregroundStyle(Color.aquaPrimary)
+                .symbolRenderingMode(.hierarchical)
+
+            Text("Stay on Track")
+                .font(.title.weight(.bold))
+
+            Text("Hydration reminders help you build a consistent habit. We'll send smart reminders during your waking hours — never at night.")
+                .font(.subheadline)
+                .foregroundStyle(.secondary)
+                .multilineTextAlignment(.center)
+                .padding(.horizontal, 8)
+
+            // Benefits list
+            VStack(alignment: .leading, spacing: 12) {
+                notificationBenefit(
+                    icon: "clock.fill",
+                    title: "Smart Timing",
+                    description: "Reminders every 1-2 hours, only during waking hours"
+                )
+                notificationBenefit(
+                    icon: "moon.fill",
+                    title: "Quiet Hours",
+                    description: "No notifications while you sleep"
+                )
+                notificationBenefit(
+                    icon: "trophy.fill",
+                    title: "Celebrations",
+                    description: "Get notified when you hit your daily goal"
+                )
+                notificationBenefit(
+                    icon: "flame.fill",
+                    title: "Streak Protection",
+                    description: "Reminders to keep your streak alive"
+                )
+            }
+            .padding()
+            .background(Color.aquaCardBackground, in: RoundedRectangle(cornerRadius: 16))
+
+            Spacer()
+
+            if notificationDenied {
+                // Graceful denial handling
+                VStack(spacing: 8) {
+                    Text("No worries! You can enable reminders anytime in Settings.")
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                        .multilineTextAlignment(.center)
+
+                    Button("Continue Without Reminders") {
+                        withAnimation { currentPage = 4 }
+                    }
+                    .buttonStyle(.borderedProminent)
+                    .tint(Color.aquaCardBackground)
+                    .foregroundStyle(Color.aquaTextPrimary)
+                    .controlSize(.large)
+                }
+            } else if notificationGranted {
+                VStack(spacing: 4) {
+                    Image(systemName: "checkmark.circle.fill")
+                        .font(.title2)
+                        .foregroundStyle(.green)
+                    Text("Reminders enabled!")
+                        .font(.subheadline.weight(.medium))
+                        .foregroundStyle(.green)
+                }
+
+                Button("Continue") {
+                    withAnimation { currentPage = 4 }
+                }
+                .buttonStyle(.borderedProminent)
+                .tint(Color.aquaPrimary)
+                .controlSize(.large)
+            } else {
+                Button("Enable Reminders") {
+                    Task {
+                        let granted = await NotificationManager.shared.requestAuthorization()
+                        notificationGranted = granted
+                        notificationDenied = !granted
+                        if granted {
+                            NotificationManager.shared.registerCategories()
+                        }
+                    }
+                }
+                .buttonStyle(.borderedProminent)
+                .tint(Color.aquaPrimary)
+                .controlSize(.large)
+
+                Button("Skip for Now") {
+                    withAnimation { currentPage = 4 }
+                }
+                .font(.subheadline)
+                .foregroundStyle(.secondary)
+            }
+
+            pageIndicator(current: 3)
+        }
+        .padding()
+    }
+
+    private func notificationBenefit(icon: String, title: String, description: String) -> some View {
+        HStack(spacing: 12) {
+            Image(systemName: icon)
+                .font(.body)
+                .foregroundStyle(Color.aquaPrimary)
+                .frame(width: 28)
+
+            VStack(alignment: .leading, spacing: 2) {
+                Text(title)
+                    .font(.subheadline.weight(.medium))
+                Text(description)
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+            }
+        }
+    }
+
+    // MARK: - Page 5: Ready
 
     private var readyPage: some View {
         VStack(spacing: 20) {
@@ -191,7 +325,12 @@ struct OnboardingView: View {
             VStack(alignment: .leading, spacing: 8) {
                 summaryRow(icon: "scalemass.fill", text: "\(Int(profile.weight)) kg")
                 summaryRow(icon: "figure.run", text: profile.activityLevel.displayName)
-                summaryRow(icon: "bell.fill", text: "Reminders every 2 hours")
+                summaryRow(
+                    icon: "bell.fill",
+                    text: notificationGranted
+                        ? "Reminders every \(profile.reminderInterval / 60) hours"
+                        : "Reminders off"
+                )
             }
             .padding()
             .background(Color.aquaCardBackground, in: RoundedRectangle(cornerRadius: 16))
@@ -202,6 +341,7 @@ struct OnboardingView: View {
                 profile.onboardingComplete = true
                 Task {
                     _ = await HealthKitManager.shared.requestAuthorization()
+                    await NotificationManager.shared.scheduleAllNotifications()
                 }
                 isComplete = true
             }
@@ -215,7 +355,7 @@ struct OnboardingView: View {
             .font(.subheadline)
             .foregroundStyle(Color.aquaPrimary)
 
-            pageIndicator(current: 3)
+            pageIndicator(current: 4)
         }
         .padding()
     }
@@ -234,7 +374,7 @@ struct OnboardingView: View {
 
     private func pageIndicator(current: Int) -> some View {
         HStack(spacing: 6) {
-            ForEach(0..<4, id: \.self) { i in
+            ForEach(0..<totalPages, id: \.self) { i in
                 Circle()
                     .fill(i == current ? Color.aquaPrimary : Color.aquaPrimary.opacity(0.3))
                     .frame(width: 8, height: 8)

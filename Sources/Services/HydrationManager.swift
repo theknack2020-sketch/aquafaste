@@ -11,18 +11,25 @@ final class HydrationManager {
     var todayTotal: Double = 0     // effective ml
     var todayRawTotal: Double = 0  // raw ml
     var progress: Double = 0       // 0.0 - 1.0+
+    var todayCaffeine: Double = 0  // mg
+
+    /// Last undone log (for undo support)
+    var lastDeletedLog: WaterLog?
 
     func setup(context: ModelContext) {
         self.modelContext = context
+        handleTimezoneChange()
         refreshToday()
     }
 
     // MARK: - Logging
 
-    func logWater(amount: Double, drinkType: DrinkType) {
+    func logWater(amount: Double, drinkType: DrinkType, caffeineMg: Double? = nil) {
         guard let context = modelContext else { return }
 
-        let log = WaterLog(amount: amount, drinkType: drinkType)
+        let wasUnderGoal = todayTotal < profile.dailyGoal
+
+        let log = WaterLog(amount: amount, drinkType: drinkType, caffeineMg: caffeineMg)
         context.insert(log)
 
         do {
@@ -41,13 +48,169 @@ final class HydrationManager {
 
         refreshToday()
         checkStreak()
+
+        // Smart timing: record log for notification suppression
+        NotificationManager.shared.recordWaterLog()
+
+        // Goal completion notification
+        if wasUnderGoal && todayTotal >= profile.dailyGoal {
+            NotificationManager.shared.sendGoalCompleteNotification(
+                streak: profile.currentStreak
+            )
+        }
+
+        // Refill reminder check
+        checkRefillReminder()
+
+        // Reschedule reminders with updated smart timing
+        Task {
+            await NotificationManager.shared.scheduleAllNotifications()
+        }
     }
 
     func deleteLog(_ log: WaterLog) {
         guard let context = modelContext else { return }
+        lastDeletedLog = nil  // can't undo a manual delete
         context.delete(log)
         try? context.save()
         refreshToday()
+    }
+
+    /// Delete all water logs (used by data reset)
+    func deleteAllLogs() {
+        guard let context = modelContext else { return }
+        let descriptor = FetchDescriptor<WaterLog>()
+        if let all = try? context.fetch(descriptor) {
+            for log in all {
+                context.delete(log)
+            }
+            try? context.save()
+        }
+        refreshToday()
+    }
+
+    /// Edit a past log's amount or drink type
+    func editLog(_ log: WaterLog, newAmount: Double? = nil, newDrinkType: DrinkType? = nil) {
+        if let amount = newAmount {
+            log.amount = amount
+        }
+        if let type = newDrinkType {
+            log.drinkType = type.rawValue
+            log.hydrationRatio = type.hydrationRatio
+            log.caffeineMg = type.caffeinePer250ml * log.amount / 250.0
+        }
+        try? modelContext?.save()
+        refreshToday()
+    }
+
+    /// Undo the most recent drink log
+    func undoLastDrink() -> WaterLog? {
+        guard let lastLog = todayLogs.first else { return nil }
+        let undone = lastLog
+        deleteLog(lastLog)
+        lastDeletedLog = undone
+        return undone
+    }
+
+    /// Redo (re-add) the last undone drink
+    func redoLastDrink() {
+        guard let log = lastDeletedLog else { return }
+        logWater(amount: log.amount, drinkType: log.drink, caffeineMg: log.caffeineMg)
+        lastDeletedLog = nil
+    }
+
+    // MARK: - Recent Drinks
+
+    /// Returns the last N unique drink configurations (type + amount combos)
+    func recentDrinks(limit: Int = 3) -> [(drinkType: DrinkType, amount: Double)] {
+        guard let context = modelContext else { return [] }
+
+        let descriptor = FetchDescriptor<WaterLog>(
+            sortBy: [SortDescriptor(\.timestamp, order: .reverse)]
+        )
+
+        guard let logs = try? context.fetch(descriptor) else { return [] }
+
+        var seen = Set<String>()
+        var result: [(drinkType: DrinkType, amount: Double)] = []
+
+        for log in logs {
+            let key = "\(log.drinkType)_\(Int(log.amount))"
+            if !seen.contains(key) {
+                seen.insert(key)
+                result.append((drinkType: log.drink, amount: log.amount))
+            }
+            if result.count >= limit { break }
+        }
+
+        return result
+    }
+
+    // MARK: - Favorites
+
+    func fetchFavorites() -> [FavoriteDrink] {
+        guard let context = modelContext else { return [] }
+        let descriptor = FetchDescriptor<FavoriteDrink>(
+            sortBy: [SortDescriptor(\.sortOrder)]
+        )
+        return (try? context.fetch(descriptor)) ?? []
+    }
+
+    func addFavorite(name: String, drinkType: DrinkType, amount: Double, caffeineMg: Double = 0) {
+        guard let context = modelContext else { return }
+        let existing = fetchFavorites()
+        let fav = FavoriteDrink(
+            name: name,
+            drinkType: drinkType,
+            amount: amount,
+            caffeineAmount: caffeineMg,
+            sortOrder: existing.count
+        )
+        context.insert(fav)
+        try? context.save()
+    }
+
+    func deleteFavorite(_ fav: FavoriteDrink) {
+        guard let context = modelContext else { return }
+        context.delete(fav)
+        try? context.save()
+    }
+
+    // MARK: - Caffeine
+
+    func todayCaffeineTotal() -> Double {
+        todayLogs.reduce(0) { $0 + $1.caffeineMg }
+    }
+
+    // MARK: - Refill Reminder
+
+    private func checkRefillReminder() {
+        guard profile.refillReminderEnabled else { return }
+        let bottleSize = profile.bottleSize
+
+        // Check how much was logged since last "bottle boundary"
+        let totalRaw = todayRawTotal
+        let bottlesFilled = Int(totalRaw / bottleSize)
+        let previousBottles = Int((totalRaw - (todayLogs.first?.amount ?? 0)) / bottleSize)
+
+        if bottlesFilled > previousBottles {
+            // Crossed a bottle boundary — send refill reminder
+            NotificationManager.shared.sendRefillReminder(bottleNumber: bottlesFilled)
+        }
+    }
+
+    // MARK: - Timezone Handling
+
+    private func handleTimezoneChange() {
+        let current = TimeZone.current.identifier
+        let saved = profile.lastTimezoneIdentifier
+
+        if current != saved {
+            print("[AquaFaste] Timezone changed: \(saved) → \(current)")
+            profile.lastTimezoneIdentifier = current
+            // Force refresh — Calendar.current uses the new timezone automatically
+            // so startOfDay calculations will be correct for the new timezone
+        }
     }
 
     // MARK: - Queries
@@ -55,8 +218,10 @@ final class HydrationManager {
     func refreshToday() {
         guard let context = modelContext else { return }
 
-        let startOfDay = Calendar.current.startOfDay(for: .now)
-        let endOfDay = Calendar.current.date(byAdding: .day, value: 1, to: startOfDay)!
+        // Use current calendar which respects the device's timezone
+        let calendar = Calendar.current
+        let startOfDay = calendar.startOfDay(for: .now)
+        let endOfDay = calendar.date(byAdding: .day, value: 1, to: startOfDay)!
 
         let descriptor = FetchDescriptor<WaterLog>(
             predicate: #Predicate<WaterLog> { log in
@@ -69,6 +234,7 @@ final class HydrationManager {
             todayLogs = try context.fetch(descriptor)
             todayTotal = todayLogs.reduce(0) { $0 + $1.effectiveAmount }
             todayRawTotal = todayLogs.reduce(0) { $0 + $1.amount }
+            todayCaffeine = todayLogs.reduce(0) { $0 + $1.caffeineMg }
             progress = profile.dailyGoal > 0 ? todayTotal / profile.dailyGoal : 0
         } catch {
             print("[AquaFaste] Failed to fetch today's logs: \(error)")
@@ -78,8 +244,9 @@ final class HydrationManager {
     func logsForDate(_ date: Date) -> [WaterLog] {
         guard let context = modelContext else { return [] }
 
-        let startOfDay = Calendar.current.startOfDay(for: date)
-        let endOfDay = Calendar.current.date(byAdding: .day, value: 1, to: startOfDay)!
+        let calendar = Calendar.current
+        let startOfDay = calendar.startOfDay(for: date)
+        let endOfDay = calendar.date(byAdding: .day, value: 1, to: startOfDay)!
 
         let descriptor = FetchDescriptor<WaterLog>(
             predicate: #Predicate<WaterLog> { log in
@@ -103,6 +270,267 @@ final class HydrationManager {
             let start = calendar.startOfDay(for: date)
             return (date: start, total: totalForDate(start))
         }
+    }
+
+    // MARK: - Stats Queries
+
+    /// Fetch all logs (optionally limited to a date range)
+    func allLogs(from startDate: Date? = nil, to endDate: Date? = nil) -> [WaterLog] {
+        guard let context = modelContext else { return [] }
+
+        var descriptor: FetchDescriptor<WaterLog>
+
+        if let start = startDate, let end = endDate {
+            descriptor = FetchDescriptor<WaterLog>(
+                predicate: #Predicate<WaterLog> { log in
+                    log.timestamp >= start && log.timestamp < end
+                },
+                sortBy: [SortDescriptor(\.timestamp, order: .forward)]
+            )
+        } else {
+            descriptor = FetchDescriptor<WaterLog>(
+                sortBy: [SortDescriptor(\.timestamp, order: .forward)]
+            )
+        }
+
+        return (try? context.fetch(descriptor)) ?? []
+    }
+
+    /// All-time total effective hydration
+    func allTimeTotalMl() -> Double {
+        allLogs().reduce(0) { $0 + $1.effectiveAmount }
+    }
+
+    /// Average daily intake over all logged days
+    func averageDailyIntake() -> Double {
+        let logs = allLogs()
+        guard !logs.isEmpty else { return 0 }
+
+        let calendar = Calendar.current
+        let grouped = Dictionary(grouping: logs) { calendar.startOfDay(for: $0.timestamp) }
+        let dailyTotals = grouped.values.map { dayLogs in
+            dayLogs.reduce(0.0) { $0 + $1.effectiveAmount }
+        }
+        return dailyTotals.reduce(0, +) / Double(dailyTotals.count)
+    }
+
+    /// Current streak — consecutive days meeting goal ending today or yesterday
+    func computeCurrentStreak() -> Int {
+        let calendar = Calendar.current
+        let today = calendar.startOfDay(for: .now)
+        var streak = 0
+        var checkDate = today
+
+        // If today hasn't met goal yet, start checking from yesterday
+        if totalForDate(today) < profile.dailyGoal {
+            checkDate = calendar.date(byAdding: .day, value: -1, to: today)!
+        }
+
+        while true {
+            let dayTotal = totalForDate(checkDate)
+            if dayTotal >= profile.dailyGoal {
+                streak += 1
+                checkDate = calendar.date(byAdding: .day, value: -1, to: checkDate)!
+            } else {
+                break
+            }
+        }
+        return streak
+    }
+
+    /// Best streak ever
+    func computeBestStreak() -> Int {
+        let logs = allLogs()
+        guard !logs.isEmpty else { return 0 }
+
+        let calendar = Calendar.current
+        let grouped = Dictionary(grouping: logs) { calendar.startOfDay(for: $0.timestamp) }
+
+        guard let earliest = grouped.keys.min() else { return 0 }
+        let today = calendar.startOfDay(for: .now)
+        let totalDays = calendar.dateComponents([.day], from: earliest, to: today).day ?? 0
+
+        var bestStreak = 0
+        var currentStreak = 0
+
+        for dayOffset in 0...totalDays {
+            let date = calendar.date(byAdding: .day, value: dayOffset, to: earliest)!
+            let dayLogs = grouped[calendar.startOfDay(for: date)] ?? []
+            let dayTotal = dayLogs.reduce(0.0) { $0 + $1.effectiveAmount }
+
+            if dayTotal >= profile.dailyGoal {
+                currentStreak += 1
+                bestStreak = max(bestStreak, currentStreak)
+            } else {
+                currentStreak = 0
+            }
+        }
+        return bestStreak
+    }
+
+    /// Goal achievement rate — % of logged days where goal was met
+    func goalAchievementRate() -> Double {
+        let logs = allLogs()
+        guard !logs.isEmpty else { return 0 }
+
+        let calendar = Calendar.current
+        let grouped = Dictionary(grouping: logs) { calendar.startOfDay(for: $0.timestamp) }
+        let metDays = grouped.values.filter { dayLogs in
+            dayLogs.reduce(0.0) { $0 + $1.effectiveAmount } >= profile.dailyGoal
+        }.count
+        return Double(metDays) / Double(grouped.count) * 100
+    }
+
+    /// Time-of-day breakdown — total ml per hour bucket
+    func timeOfDayData() -> [(hour: Int, total: Double)] {
+        let logs = allLogs()
+        let calendar = Calendar.current
+        var buckets = [Int: Double]()
+
+        for log in logs {
+            let hour = calendar.component(.hour, from: log.timestamp)
+            buckets[hour, default: 0] += log.effectiveAmount
+        }
+
+        return (0..<24).map { hour in
+            (hour: hour, total: buckets[hour] ?? 0)
+        }
+    }
+
+    /// Drink type breakdown — total effective ml per type
+    func drinkTypeBreakdown() -> [(type: DrinkType, total: Double)] {
+        let logs = allLogs()
+        var totals = [String: Double]()
+
+        for log in logs {
+            totals[log.drinkType, default: 0] += log.effectiveAmount
+        }
+
+        return totals.compactMap { key, value in
+            guard let type = DrinkType(rawValue: key) else { return nil }
+            return (type: type, total: value)
+        }
+        .sorted { $0.total > $1.total }
+    }
+
+    /// Weekly comparison data — this week vs last week totals
+    func weeklyComparison() -> (thisWeek: Double, lastWeek: Double) {
+        let calendar = Calendar.current
+        let today = calendar.startOfDay(for: .now)
+        let weekday = calendar.component(.weekday, from: today)
+        // Days since Monday (weekday 2 in gregorian)
+        let daysSinceMonday = (weekday + 5) % 7
+        let thisMonday = calendar.date(byAdding: .day, value: -daysSinceMonday, to: today)!
+        let lastMonday = calendar.date(byAdding: .day, value: -7, to: thisMonday)!
+
+        var thisWeekTotal = 0.0
+        var lastWeekTotal = 0.0
+
+        for i in 0..<7 {
+            let thisDay = calendar.date(byAdding: .day, value: i, to: thisMonday)!
+            let lastDay = calendar.date(byAdding: .day, value: i, to: lastMonday)!
+
+            // Only count days up to today for this week
+            if thisDay <= today {
+                thisWeekTotal += totalForDate(thisDay)
+            }
+            lastWeekTotal += totalForDate(lastDay)
+        }
+
+        return (thisWeek: thisWeekTotal, lastWeek: lastWeekTotal)
+    }
+
+    /// Monthly calendar data — daily totals for the given month
+    func monthlyCalendarData(for month: Date) -> [(date: Date, total: Double, ratio: Double)] {
+        let calendar = Calendar.current
+        guard let range = calendar.range(of: .day, in: .month, for: month),
+              let monthStart = calendar.date(from: calendar.dateComponents([.year, .month], from: month))
+        else { return [] }
+
+        return range.map { day in
+            let date = calendar.date(byAdding: .day, value: day - 1, to: monthStart)!
+            let total = totalForDate(date)
+            let ratio = profile.dailyGoal > 0 ? total / profile.dailyGoal : 0
+            return (date: date, total: total, ratio: ratio)
+        }
+    }
+
+    /// Generate insights text based on log data
+    func generateInsights() -> [String] {
+        let logs = allLogs()
+        guard logs.count > 7 else { return ["Log more data to unlock insights!"] }
+
+        var insights: [String] = []
+        let calendar = Calendar.current
+
+        // Weekday vs weekend comparison
+        let grouped = Dictionary(grouping: logs) { calendar.startOfDay(for: $0.timestamp) }
+        var weekdayTotals: [Double] = []
+        var weekendTotals: [Double] = []
+
+        for (date, dayLogs) in grouped {
+            let total = dayLogs.reduce(0.0) { $0 + $1.effectiveAmount }
+            let wd = calendar.component(.weekday, from: date)
+            if wd == 1 || wd == 7 {
+                weekendTotals.append(total)
+            } else {
+                weekdayTotals.append(total)
+            }
+        }
+
+        if !weekdayTotals.isEmpty && !weekendTotals.isEmpty {
+            let avgWeekday = weekdayTotals.reduce(0, +) / Double(weekdayTotals.count)
+            let avgWeekend = weekendTotals.reduce(0, +) / Double(weekendTotals.count)
+            let diff = abs(avgWeekday - avgWeekend) / max(avgWeekday, avgWeekend) * 100
+
+            if diff > 10 {
+                if avgWeekday > avgWeekend {
+                    insights.append("You drink \(Int(diff))% more on weekdays than weekends")
+                } else {
+                    insights.append("You drink \(Int(diff))% more on weekends than weekdays")
+                }
+            }
+        }
+
+        // Peak hour
+        let todData = timeOfDayData()
+        if let peakHour = todData.max(by: { $0.total < $1.total }), peakHour.total > 0 {
+            let formatter = DateFormatter()
+            formatter.dateFormat = "ha"
+            let cal = Calendar.current
+            if let date = cal.date(bySettingHour: peakHour.hour, minute: 0, second: 0, of: .now) {
+                let timeStr = formatter.string(from: date).lowercased()
+                insights.append("Your peak hydration hour is \(timeStr)")
+            }
+        }
+
+        // Most popular drink
+        let breakdown = drinkTypeBreakdown()
+        if let topDrink = breakdown.first, breakdown.count > 1 {
+            let totalAll = breakdown.reduce(0.0) { $0 + $1.total }
+            let pct = Int(topDrink.total / totalAll * 100)
+            insights.append("\(topDrink.type.displayName) makes up \(pct)% of your hydration")
+        }
+
+        // Goal consistency
+        let rate = goalAchievementRate()
+        if rate >= 80 {
+            insights.append("You hit your goal \(Int(rate))% of days — excellent consistency!")
+        } else if rate >= 50 {
+            insights.append("You meet your goal \(Int(rate))% of days — room to improve")
+        } else if rate > 0 {
+            insights.append("Goal met \(Int(rate))% of days — try setting reminders closer together")
+        }
+
+        // Caffeine insight
+        let totalCaffeine = logs.reduce(0.0) { $0 + $1.caffeineMg }
+        let logDays = max(1, grouped.count)
+        let avgCaffeine = totalCaffeine / Double(logDays)
+        if avgCaffeine > 0 {
+            insights.append("Average daily caffeine: \(Int(avgCaffeine)) mg")
+        }
+
+        return insights
     }
 
     // MARK: - Streak

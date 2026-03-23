@@ -86,4 +86,48 @@ enum DrinkType: String, Codable, CaseIterable, Identifiable {
         case .wine: .drinkWine
         }
     }
+
+    /// Caffeine content in mg per 250ml serving
+    /// Based on USDA and published nutrition data
+    var caffeinePer250ml: Double {
+        switch self {
+        case .water: 0
+        case .coffee: 95       // brewed coffee ~95mg per 8oz
+        case .tea: 47          // brewed black tea ~47mg per 8oz
+        case .juice: 0
+        case .milk: 0
+        case .soda: 24         // cola ~24mg per 8oz
+        case .sparklingWater: 0
+        case .coconutWater: 0
+        case .smoothie: 0
+        case .soup: 0
+        case .beer: 0
+        case .wine: 0
+        }
+    }
+
+    /// Whether this drink contains caffeine
+    var hasCaffeine: Bool { caffeinePer250ml > 0 }
+
+    /// Category for grouped display
+    var category: DrinkCategory {
+        switch self {
+        case .water, .sparklingWater, .coconutWater: .water
+        case .coffee, .tea: .hotDrinks
+        case .juice, .smoothie, .milk: .healthy
+        case .soda: .other
+        case .soup: .other
+        case .beer, .wine: .alcohol
+        }
+    }
+}
+
+enum DrinkCategory: String, CaseIterable, Identifiable {
+    case water = "Water"
+    case hotDrinks = "Hot Drinks"
+    case healthy = "Healthy"
+    case alcohol = "Alcohol"
+    case other = "Other"
+
+    var id: String { rawValue }
 }

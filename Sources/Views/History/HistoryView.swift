@@ -6,6 +6,11 @@ struct HistoryView: View {
     @Environment(\.modelContext) private var modelContext
     private let profile = UserProfile.shared
 
+    @State private var editingLog: WaterLog?
+    @State private var editAmount: String = ""
+    @State private var editDrinkType: DrinkType = .water
+    @State private var showEditSheet = false
+
     var body: some View {
         NavigationStack {
             ScrollView {
@@ -18,16 +23,37 @@ struct HistoryView: View {
                     // Weekly chart
                     weeklyChart
 
-                    // Today's details
+                    // Today's details with timeline
                     todaySection
 
                     // Yesterday
                     let yesterday = Calendar.current.date(byAdding: .day, value: -1, to: .now)!
                     daySection(for: yesterday, title: "Yesterday")
+
+                    // Day before yesterday
+                    let dayBefore = Calendar.current.date(byAdding: .day, value: -2, to: .now)!
+                    daySection(for: dayBefore, title: dayBefore.formatted(.dateTime.weekday(.wide)))
                 }
                 .padding()
             }
             .navigationTitle("History")
+            .sheet(isPresented: $showEditSheet) {
+                if let log = editingLog {
+                    EditLogSheet(
+                        log: log,
+                        unit: profile.unit,
+                        onSave: { newAmount, newType in
+                            manager.editLog(log, newAmount: newAmount, newDrinkType: newType)
+                            showEditSheet = false
+                        },
+                        onDelete: {
+                            manager.deleteLog(log)
+                            showEditSheet = false
+                        }
+                    )
+                    .presentationDetents([.medium])
+                }
+            }
         }
     }
 
@@ -48,6 +74,8 @@ struct HistoryView: View {
                 }
                 Spacer()
             }
+            .accessibilityElement(children: .combine)
+            .accessibilityLabel("\(profile.currentStreak) day streak. \(streakMessage)")
 
             // Milestone dots
             HStack(spacing: 4) {
@@ -159,15 +187,23 @@ struct HistoryView: View {
     private func daySection(for date: Date, title: String) -> some View {
         let logs = manager.logsForDate(date)
         let total = logs.reduce(0) { $0 + $1.effectiveAmount }
+        let caffeine = logs.reduce(0) { $0 + $1.caffeineMg }
 
         return VStack(alignment: .leading, spacing: 12) {
             HStack {
                 Text(title)
                     .font(.headline)
                 Spacer()
-                Text(profile.unit.formatAmount(total))
-                    .font(.subheadline.weight(.semibold))
-                    .foregroundStyle(Color.aquaPrimary)
+                VStack(alignment: .trailing, spacing: 2) {
+                    Text(profile.unit.formatAmount(total))
+                        .font(.subheadline.weight(.semibold))
+                        .foregroundStyle(Color.aquaPrimary)
+                    if caffeine > 0 {
+                        Text("\(Int(caffeine))mg ☕")
+                            .font(.caption2)
+                            .foregroundStyle(.brown)
+                    }
+                }
             }
 
             if logs.isEmpty {
@@ -177,12 +213,198 @@ struct HistoryView: View {
                     .frame(maxWidth: .infinity, alignment: .center)
                     .padding(.vertical, 20)
             } else {
-                ForEach(logs, id: \.id) { log in
-                    LogRow(log: log, unit: profile.unit)
+                // Timeline view
+                ForEach(Array(logs.enumerated()), id: \.element.id) { index, log in
+                    HStack(spacing: 12) {
+                        // Timeline connector
+                        VStack(spacing: 0) {
+                            Rectangle()
+                                .fill(index == 0 ? Color.clear : Color.aquaPrimary.opacity(0.2))
+                                .frame(width: 2)
+                            Circle()
+                                .fill(log.drink.color)
+                                .frame(width: 8, height: 8)
+                            Rectangle()
+                                .fill(index == logs.count - 1 ? Color.clear : Color.aquaPrimary.opacity(0.2))
+                                .frame(width: 2)
+                        }
+                        .frame(width: 10, height: 40)
+
+                        Image(systemName: log.drink.iconName)
+                            .font(.body)
+                            .foregroundStyle(log.drink.color)
+                            .frame(width: 24)
+
+                        VStack(alignment: .leading, spacing: 2) {
+                            Text(log.drink.displayName)
+                                .font(.subheadline.weight(.medium))
+                            HStack(spacing: 4) {
+                                Text(log.timestamp, format: .dateTime.hour().minute())
+                                    .font(.caption)
+                                    .foregroundStyle(.secondary)
+                                if log.caffeineMg > 0 {
+                                    Text("• \(Int(log.caffeineMg))mg")
+                                        .font(.caption)
+                                        .foregroundStyle(.brown)
+                                }
+                            }
+                        }
+
+                        Spacer()
+
+                        Text(profile.unit.formatAmount(log.amount))
+                            .font(.subheadline.weight(.semibold))
+                            .foregroundStyle(Color.aquaPrimary)
+                    }
+                    .contentShape(Rectangle())
+                    .contextMenu {
+                        Button {
+                            editingLog = log
+                            editAmount = "\(Int(profile.unit.fromMl(log.amount)))"
+                            editDrinkType = log.drink
+                            showEditSheet = true
+                        } label: {
+                            Label("Edit", systemImage: "pencil")
+                        }
+
+                        Button(role: .destructive) {
+                            withAnimation(.spring(response: 0.4)) {
+                                manager.deleteLog(log)
+                            }
+                        } label: {
+                            Label("Delete", systemImage: "trash")
+                        }
+                    }
                 }
             }
         }
         .padding()
         .background(Color.aquaCardBackground, in: RoundedRectangle(cornerRadius: 16))
+    }
+}
+
+// MARK: - Log Row (simple list row for history)
+
+struct LogRow: View {
+    let log: WaterLog
+    let unit: MeasurementUnit
+
+    var body: some View {
+        HStack(spacing: 12) {
+            Image(systemName: log.drink.iconName)
+                .font(.title3)
+                .foregroundStyle(log.drink.color)
+                .frame(width: 32)
+                .accessibilityHidden(true)
+
+            VStack(alignment: .leading, spacing: 2) {
+                Text(log.drink.displayName)
+                    .font(.subheadline.weight(.medium))
+                Text(log.timestamp, format: .dateTime.hour().minute())
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+            }
+
+            Spacer()
+
+            Text(unit.formatAmount(log.amount))
+                .font(.subheadline.weight(.semibold))
+                .foregroundStyle(Color.aquaPrimary)
+        }
+        .padding(.vertical, 4)
+        .accessibilityElement(children: .combine)
+        .accessibilityLabel("\(log.drink.displayName), \(unit.formatAmount(log.amount)), at \(log.timestamp.formatted(.dateTime.hour().minute()))")
+    }
+}
+
+// MARK: - Edit Log Sheet
+
+struct EditLogSheet: View {
+    let log: WaterLog
+    let unit: MeasurementUnit
+    let onSave: (Double?, DrinkType?) -> Void
+    let onDelete: () -> Void
+
+    @Environment(\.dismiss) private var dismiss
+    @State private var amount: String
+    @State private var selectedDrink: DrinkType
+
+    init(log: WaterLog, unit: MeasurementUnit,
+         onSave: @escaping (Double?, DrinkType?) -> Void,
+         onDelete: @escaping () -> Void) {
+        self.log = log
+        self.unit = unit
+        self.onSave = onSave
+        self.onDelete = onDelete
+        _amount = State(initialValue: "\(Int(unit.fromMl(log.amount)))")
+        _selectedDrink = State(initialValue: log.drink)
+    }
+
+    var body: some View {
+        NavigationStack {
+            Form {
+                Section("Drink Details") {
+                    HStack {
+                        Text("Type")
+                        Spacer()
+                        Picker("", selection: $selectedDrink) {
+                            ForEach(DrinkType.allCases) { drink in
+                                HStack {
+                                    Image(systemName: drink.iconName)
+                                    Text(drink.displayName)
+                                }
+                                .tag(drink)
+                            }
+                        }
+                    }
+
+                    HStack {
+                        Text("Amount")
+                        Spacer()
+                        TextField(unit == .ml ? "ml" : "fl oz", text: $amount)
+                            .keyboardType(.numberPad)
+                            .multilineTextAlignment(.trailing)
+                            .frame(width: 80)
+                        Text(unit.displayName)
+                            .foregroundStyle(.secondary)
+                    }
+
+                    HStack {
+                        Text("Logged at")
+                        Spacer()
+                        Text(log.timestamp, format: .dateTime.hour().minute())
+                            .foregroundStyle(.secondary)
+                    }
+                }
+
+                Section {
+                    Button("Save Changes") {
+                        var newAmount: Double?
+                        var newType: DrinkType?
+
+                        if let val = Double(amount), val > 0 {
+                            let ml = unit.toMl(val)
+                            if ml != log.amount { newAmount = ml }
+                        }
+                        if selectedDrink != log.drink { newType = selectedDrink }
+
+                        onSave(newAmount, newType)
+                    }
+                    .frame(maxWidth: .infinity, alignment: .center)
+
+                    Button("Delete Log", role: .destructive) {
+                        onDelete()
+                    }
+                    .frame(maxWidth: .infinity, alignment: .center)
+                }
+            }
+            .navigationTitle("Edit Log")
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .topBarTrailing) {
+                    Button("Cancel") { dismiss() }
+                }
+            }
+        }
     }
 }

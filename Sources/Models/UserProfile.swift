@@ -171,6 +171,68 @@ final class UserProfile {
         set { defaults.set(newValue, forKey: "af_cups") }
     }
 
+    /// Cup preset names (parallel array with cupPresets)
+    var cupPresetNames: [String] {
+        get {
+            let data = defaults.array(forKey: "af_cup_names") as? [String]
+            return data ?? ["Small", "Medium", "Large"]
+        }
+        set { defaults.set(newValue, forKey: "af_cup_names") }
+    }
+
+    /// Refill reminder — bottle size in ml
+    var bottleSize: Double {
+        get {
+            let val = defaults.double(forKey: "af_bottle_size")
+            return val > 0 ? val : 500
+        }
+        set { defaults.set(newValue, forKey: "af_bottle_size") }
+    }
+
+    /// Whether refill reminders are enabled
+    var refillReminderEnabled: Bool {
+        get { defaults.object(forKey: "af_refill_reminder") == nil ? false : defaults.bool(forKey: "af_refill_reminder") }
+        set { defaults.set(newValue, forKey: "af_refill_reminder") }
+    }
+
+    /// Last saved timezone identifier — for detecting timezone changes
+    var lastTimezoneIdentifier: String {
+        get { defaults.string(forKey: "af_timezone") ?? TimeZone.current.identifier }
+        set { defaults.set(newValue, forKey: "af_timezone") }
+    }
+
+    // MARK: - Notification Preferences
+
+    /// Master toggle — all reminders
+    var remindersEnabled: Bool {
+        get { defaults.object(forKey: "af_reminders_enabled") == nil ? true : defaults.bool(forKey: "af_reminders_enabled") }
+        set { defaults.set(newValue, forKey: "af_reminders_enabled") }
+    }
+
+    /// Morning 'Start your day with water!' reminder
+    var morningReminderEnabled: Bool {
+        get { defaults.object(forKey: "af_morning_reminder") == nil ? true : defaults.bool(forKey: "af_morning_reminder") }
+        set { defaults.set(newValue, forKey: "af_morning_reminder") }
+    }
+
+    /// Evening summary notification
+    var eveningSummaryEnabled: Bool {
+        get { defaults.object(forKey: "af_evening_summary") == nil ? true : defaults.bool(forKey: "af_evening_summary") }
+        set { defaults.set(newValue, forKey: "af_evening_summary") }
+    }
+
+    /// Goal completion celebration
+    var goalCelebrationEnabled: Bool {
+        get { defaults.object(forKey: "af_goal_celebration") == nil ? true : defaults.bool(forKey: "af_goal_celebration") }
+        set { defaults.set(newValue, forKey: "af_goal_celebration") }
+    }
+
+    /// Streak reminder
+    var streakReminderEnabled: Bool {
+        get { defaults.object(forKey: "af_streak_reminder") == nil ? true : defaults.bool(forKey: "af_streak_reminder") }
+        set { defaults.set(newValue, forKey: "af_streak_reminder") }
+    }
+
     private init() {}
 }
 

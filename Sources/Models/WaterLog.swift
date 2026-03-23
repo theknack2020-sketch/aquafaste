@@ -9,6 +9,7 @@ final class WaterLog {
     var drinkType: String       // DrinkType.rawValue
     var hydrationRatio: Double  // cached at log time
     var healthKitUUID: String?  // reference to HK sample
+    var caffeineMg: Double      // caffeine in mg for this log
 
     /// Effective hydration in ml (amount × ratio)
     var effectiveAmount: Double {
@@ -19,11 +20,12 @@ final class WaterLog {
         DrinkType(rawValue: drinkType) ?? .water
     }
 
-    init(amount: Double, drinkType: DrinkType, timestamp: Date = .now) {
+    init(amount: Double, drinkType: DrinkType, timestamp: Date = .now, caffeineMg: Double? = nil) {
         self.id = UUID()
         self.timestamp = timestamp
         self.amount = amount
         self.drinkType = drinkType.rawValue
         self.hydrationRatio = drinkType.hydrationRatio
+        self.caffeineMg = caffeineMg ?? (drinkType.caffeinePer250ml * amount / 250.0)
     }
 }

@@ -34,10 +34,8 @@ final class SubscriptionManager {
             }
         }
 
-        await MainActor.run {
-            self.isSubscribed = hasSubscription
-            self.isLifetime = hasLifetime
-        }
+        self.isSubscribed = hasSubscription
+        self.isLifetime = hasLifetime
     }
 
     private func listenForTransactions() async {
@@ -65,8 +63,37 @@ final class SubscriptionManager {
         }
     }
 
-    func restorePurchases() async {
+    /// Restore purchases and return whether any premium entitlement was found
+    func restorePurchases() async -> Bool {
         try? await AppStore.sync()
         await checkSubscriptionStatus()
+        return isPremium
     }
+
+    // MARK: - Soft Paywall Logic
+
+    /// Date when the user first launched the app (set once)
+    var firstLaunchDate: Date {
+        get {
+            let defaults = UserDefaults.standard
+            if let date = defaults.object(forKey: "af_first_launch") as? Date {
+                return date
+            }
+            let now = Date()
+            defaults.set(now, forKey: "af_first_launch")
+            return now
+        }
+    }
+
+    /// Whether 7+ days have passed since first launch
+    var shouldShowSoftPaywall: Bool {
+        guard !isPremium else { return false }
+        let daysSinceInstall = Calendar.current.dateComponents(
+            [.day], from: firstLaunchDate, to: .now
+        ).day ?? 0
+        return daysSinceInstall >= 7
+    }
+
+    /// Whether the user dismissed the soft paywall this session
+    var softPaywallDismissedThisSession = false
 }
