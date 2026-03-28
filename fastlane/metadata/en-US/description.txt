@@ -1,0 +1,43 @@
+AquaFaste is an honest hydration tracker for people who care about their health — not apps that nag you with ads. No ads. No gimmicks. Just clean, science-based water tracking with HealthKit sync.
+
+PERSONALIZED DAILY GOAL
+Your daily target is calculated using the EFSA-aligned formula — 30 ml per kg body weight, adjusted for your activity level. Choose from five levels (Sedentary to Very Active) or set a custom goal.
+
+12 DRINK TYPES WITH HYDRATION RATIOS
+Not all drinks hydrate equally. AquaFaste tracks Water, Coffee, Tea, Juice, Milk, Soda, Sparkling Water, Coconut Water, Smoothie, Soup, Beer, and Wine — each with a science-based hydration ratio. Milk hydrates 1.5× better than water. Coffee counts at 85%. Every sip is weighted for real hydration.
+
+CAFFEINE TRACKING
+See your daily caffeine total at a glance and get a warning when you pass 400 mg — the FDA-recommended daily limit.
+
+HEALTHKIT SYNC
+Every water log syncs to Apple Health automatically. AquaFaste reads your body weight from HealthKit to keep your daily goal accurate.
+
+SMART REMINDERS
+Configurable reminders during your waking hours. Morning motivation, evening summary, streak protection — all respecting your quiet hours. Smart timing suppresses reminders for 30 minutes after you log.
+
+STREAKS & ACHIEVEMENTS
+Build daily streaks, unlock 12 achievement badges, and celebrate milestones with confetti. Streak freeze protects your progress on tough days.
+
+DETAILED STATISTICS
+• Weekly bar charts with goal line
+• Monthly calendar heatmap
+• Drink type donut chart
+• Time-of-day hydration patterns
+• Caffeine trend analysis
+• Personalized hydration score (0-100)
+
+BEAUTIFUL DESIGN
+6 premium color themes. Animated progress ring with radial glow. Spring animations and haptic feedback on every interaction. Sound effects for logging, celebrations, and milestones.
+
+PRIVACY FIRST
+All data stored locally on your device. No account required. No analytics. No tracking.
+
+PREMIUM (OPTIONAL)
+Free: full tracking, 4 themes, basic reminders, 7-day history.
+Pro: unlimited history, 6 themes, smart reminders, advanced stats, CSV export, streak freeze, caffeine insights, custom drinks.
+
+Available as monthly ($1.99), yearly ($9.99), or lifetime ($19.99) — all with a 7-day free trial.
+
+Privacy Policy: https://theknack2020-sketch.github.io/aquafaste/privacy
+Terms of Use: https://theknack2020-sketch.github.io/aquafaste/terms
+Support: https://theknack2020-sketch.github.io/aquafaste/support

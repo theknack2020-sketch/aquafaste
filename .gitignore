@@ -31,3 +31,7 @@ fastlane/screenshots/
 icon_1024.png
 icon_dark_1024.png
 icon_tinted_1024.png
+
+# Screenshots (large PNGs)
+screenshots/raw/
+screenshots/framed/
