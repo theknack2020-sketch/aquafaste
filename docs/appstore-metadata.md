@@ -48,7 +48,7 @@ su takip,hidrasyon,su hatırlatıcı,günlük hedef,kafein,seri,içecek,su içme
 AquaFaste is an honest hydration tracker built for people who care about their health — not for apps that nag you with ads. No ads. No gimmicks. Just clean, science-based water tracking with HealthKit sync.
 
 SMART DAILY GOAL
-Your daily water target is calculated from your body weight and activity level using the IOM/EFSA research-backed formula (weight × 35 ml × activity multiplier). Choose from five activity levels — Sedentary to Very Active — or set a custom goal. Your body, your number.
+Your daily water target is calculated from your body weight and activity level using the EFSA-aligned formula (weight × 30 ml × activity multiplier). Choose from five activity levels — Sedentary to Very Active — or set a custom goal. Your body, your number.
 
 12 DRINK TYPES WITH HYDRATION RATIOS
 Not all drinks hydrate equally. AquaFaste tracks Water, Coffee, Tea, Juice, Milk, Soda, Sparkling Water, Coconut Water, Smoothie, Soup, Beer, and Wine — each with a science-based hydration ratio. Milk hydrates 1.5× better than water. Beer counts at 40%. Coffee at 85%. Every sip is weighted for real hydration.

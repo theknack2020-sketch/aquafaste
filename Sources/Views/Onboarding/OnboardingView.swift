@@ -130,7 +130,7 @@ struct OnboardingView: View {
             Text("What's your weight?")
                 .font(.title2.weight(.bold))
 
-            Text("Science says 30–35 ml per kg body weight")
+            Text("Based on EFSA guidelines: ~30 ml per kg body weight")
                 .font(.subheadline)
                 .foregroundStyle(.secondary)
 
@@ -152,7 +152,7 @@ struct OnboardingView: View {
                     Text("Recommended: \(goal) ml/day")
                         .font(.subheadline.weight(.medium))
                         .foregroundStyle(Color.aquaPrimary)
-                    Text("Based on \(Int(w)) kg × 30–35 ml/kg")
+                    Text("Based on \(Int(w)) kg × 30 ml/kg (EFSA)")
                         .font(.caption)
                         .foregroundStyle(.secondary)
                 }

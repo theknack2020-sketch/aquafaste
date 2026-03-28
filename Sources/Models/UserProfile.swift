@@ -144,11 +144,20 @@ final class UserProfile {
     }
 
     /// Calculated daily goal in ml
-    /// Formula: weight(kg) × 35ml × activity multiplier
-    /// Based on IOM/EFSA research (hydration-science.md)
+    /// Formula: weight(kg) × 30ml × activity multiplier
+    ///
+    /// Sources:
+    /// - EFSA (2010): AI = 2.5 L/day men, 2.0 L/day women (moderate climate, PAL 1.6)
+    /// - IOM (2004): AI = 3.7 L/day men, 2.7 L/day women (all sources incl. food)
+    /// - Weight-based consensus: 30–35 mL/kg/day base (we use 30 = conservative EFSA-aligned)
+    /// - Activity multiplier scales for exercise-related fluid loss
+    ///
+    /// 70 kg × 30 mL × 1.0 (sedentary) = 2,100 mL ≈ EFSA female AI
+    /// 70 kg × 30 mL × 1.2 (moderate)  = 2,520 mL ≈ EFSA male AI
+    /// 80 kg × 30 mL × 1.35 (active)   = 3,240 mL (within IOM range)
     var dailyGoal: Double {
         if let override = dailyGoalOverride { return override }
-        return weight * 35.0 * activityLevel.multiplier
+        return weight * 30.0 * activityLevel.multiplier
     }
 
     // Streak tracking
