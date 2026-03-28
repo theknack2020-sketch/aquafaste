@@ -40,8 +40,8 @@ struct OnboardingView: View {
             // Deep ocean gradient
             LinearGradient(
                 colors: [
-                    Color(red: 0.02, green: 0.12, blue: 0.35).opacity(0.15),
-                    Color.aquaGradientStart.opacity(0.08),
+                    Color(red: 0.02, green: 0.12, blue: 0.35).opacity(0.35),
+                    Color.aquaGradientStart.opacity(0.22),
                     Color.aquaBackground
                 ],
                 startPoint: .top,
@@ -51,6 +51,7 @@ struct OnboardingView: View {
 
             VStack(spacing: 20) {
                 Spacer()
+                    .frame(height: 20)
 
                 ZStack {
                     Circle()
@@ -110,8 +111,8 @@ struct OnboardingView: View {
         ZStack {
             LinearGradient(
                 colors: [
-                    Color.aquaGradientStart.opacity(0.06),
-                    Color.aquaGradientEnd.opacity(0.04),
+                    Color.aquaGradientStart.opacity(0.18),
+                    Color.aquaGradientEnd.opacity(0.12),
                     Color.aquaBackground
                 ],
                 startPoint: .topLeading,
@@ -182,8 +183,8 @@ struct OnboardingView: View {
         ZStack {
             LinearGradient(
                 colors: [
-                    Color.aquaPrimary.opacity(0.06),
-                    Color.aquaGradientStart.opacity(0.04),
+                    Color.aquaPrimary.opacity(0.18),
+                    Color.aquaGradientStart.opacity(0.12),
                     Color.aquaBackground
                 ],
                 startPoint: .top,
@@ -262,8 +263,8 @@ struct OnboardingView: View {
         ZStack {
             LinearGradient(
                 colors: [
-                    Color.aquaGradientEnd.opacity(0.06),
-                    Color.aquaGradientStart.opacity(0.03),
+                    Color.aquaGradientEnd.opacity(0.18),
+                    Color.aquaGradientStart.opacity(0.10),
                     Color.aquaBackground
                 ],
                 startPoint: .topTrailing,
@@ -420,8 +421,8 @@ struct OnboardingView: View {
         ZStack {
             LinearGradient(
                 colors: [
-                    Color.green.opacity(0.06),
-                    Color.aquaGradientStart.opacity(0.04),
+                    Color.aquaPrimary.opacity(0.18),
+                    Color.aquaGradientStart.opacity(0.12),
                     Color.aquaBackground
                 ],
                 startPoint: .top,
@@ -434,7 +435,7 @@ struct OnboardingView: View {
 
             Image(systemName: "checkmark.circle.fill")
                 .font(.system(size: 64))
-                .foregroundStyle(.green)
+                .foregroundStyle(Color.aquaPrimary)
 
             Text("You're All Set!")
                 .font(.title.weight(.bold))
