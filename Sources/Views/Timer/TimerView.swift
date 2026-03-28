@@ -184,7 +184,7 @@ struct TimerView: View {
                     }
                     .padding()
                 }
-                .navigationTitle("AquaFaste")
+                .navigationTitle(timeBasedGreeting)
                 .toolbar {
                     ToolbarItem(placement: .topBarTrailing) {
                         Button {
@@ -678,6 +678,21 @@ struct TimerView: View {
 
     private var goalReached: Bool { manager.todayTotal >= profile.dailyGoal }
     private var remainingToGoal: Double { max(0, profile.dailyGoal - manager.todayTotal) }
+
+    /// Context-aware greeting that replaces the static "AquaFaste" title
+    private var timeBasedGreeting: String {
+        let hour = Calendar.current.component(.hour, from: Date())
+        let progress = manager.progress
+        if progress >= 1.0 {
+            return "Goal Reached! 🏆"
+        }
+        switch hour {
+        case 5..<12: return "Good Morning 💧"
+        case 12..<17: return "Stay Hydrated ☀️"
+        case 17..<21: return "Evening Sip 🌙"
+        default: return "Night Hydration 🌊"
+        }
+    }
 
     private var motivationalMessage: String {
         let pct = manager.progress
