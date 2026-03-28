@@ -43,8 +43,8 @@ struct TimerView: View {
                 // Water-themed gradient background
                 LinearGradient(
                     colors: [
-                        Color.aquaGradientStart.opacity(0.08),
-                        Color.aquaGradientEnd.opacity(0.04),
+                        Color.aquaGradientStart.opacity(0.30),
+                        Color.aquaGradientEnd.opacity(0.15),
                         Color.aquaBackground
                     ],
                     startPoint: .top,
@@ -56,6 +56,12 @@ struct TimerView: View {
                     VStack(spacing: 20) {
                         // Progress circle with water fill overlay
                         ZStack {
+                            // Radial glow behind progress ring
+                            Circle()
+                                .fill(ThemeManager.shared.effectiveTheme.glowGradient)
+                                .frame(width: 340, height: 340)
+                                .blur(radius: 30)
+
                             CircularProgressView(
                                 progress: manager.progress,
                                 currentAmount: manager.todayTotal,

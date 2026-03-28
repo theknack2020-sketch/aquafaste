@@ -157,7 +157,7 @@ enum AppTheme: String, CaseIterable, Identifiable {
     /// Vertical gradient for full-screen backgrounds (onboarding, paywall)
     var backgroundGradient: LinearGradient {
         LinearGradient(
-            colors: [gradientStart.opacity(0.15), gradientEnd.opacity(0.08)],
+            colors: [gradientStart.opacity(0.35), gradientMid.opacity(0.20), gradientEnd.opacity(0.15)],
             startPoint: .top,
             endPoint: .bottom
         )
@@ -166,7 +166,7 @@ enum AppTheme: String, CaseIterable, Identifiable {
     /// Subtle card overlay gradient
     var cardGradient: LinearGradient {
         LinearGradient(
-            colors: [primary.opacity(0.08), secondary.opacity(0.04)],
+            colors: [primary.opacity(0.12), secondary.opacity(0.06)],
             startPoint: .topLeading,
             endPoint: .bottomTrailing
         )
@@ -175,10 +175,10 @@ enum AppTheme: String, CaseIterable, Identifiable {
     /// Radial glow for depth behind progress ring / hero elements
     var glowGradient: RadialGradient {
         RadialGradient(
-            colors: [primary.opacity(0.30), primary.opacity(0.0)],
+            colors: [primary.opacity(0.45), primary.opacity(0.15), primary.opacity(0.0)],
             center: .center,
-            startRadius: 40,
-            endRadius: 200
+            startRadius: 20,
+            endRadius: 220
         )
     }
 

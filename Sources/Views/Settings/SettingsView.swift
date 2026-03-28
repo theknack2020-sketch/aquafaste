@@ -71,7 +71,7 @@ struct SettingsView: View {
             .background(
                 LinearGradient(
                     colors: [
-                        Color.aquaGradientStart.opacity(0.04),
+                        Color.aquaGradientStart.opacity(0.25),
                         Color.aquaBackground,
                         Color.aquaBackground
                     ],
