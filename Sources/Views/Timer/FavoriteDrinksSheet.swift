@@ -5,6 +5,7 @@ struct FavoriteDrinksSheet: View {
     @Environment(\.dismiss) private var dismiss
 
     private let haptics = HapticManager.shared
+    private let sounds = SoundManager.shared
 
     @State private var showAddSheet = false
     @State private var newName = ""
@@ -52,7 +53,8 @@ struct FavoriteDrinksSheet: View {
                             }
                         }
                         .onDelete { indexSet in
-                            haptics.error()
+                            haptics.deleteDrink()
+                            sounds.playDeleteSound()
                             let favs = manager.fetchFavorites()
                             for index in indexSet {
                                 manager.deleteFavorite(favs[index])
@@ -66,13 +68,17 @@ struct FavoriteDrinksSheet: View {
             .toolbar {
                 ToolbarItem(placement: .topBarLeading) {
                     Button("Done") { dismiss() }
+                        .accessibilityIdentifier("favoritesDoneButton")
                 }
                 ToolbarItem(placement: .topBarTrailing) {
                     Button {
+                        haptics.buttonPress()
                         showAddSheet = true
                     } label: {
                         Image(systemName: "plus")
                     }
+                    .accessibilityLabel("Add new favorite drink")
+                    .accessibilityIdentifier("addFavoriteButton")
                 }
             }
             .alert("New Favorite", isPresented: $showAddSheet) {
@@ -116,13 +122,17 @@ struct FavoriteDrinksSheet: View {
                 .multilineTextAlignment(.center)
 
             Button("Add a Favorite") {
+                haptics.buttonPress()
                 showAddSheet = true
             }
             .buttonStyle(.borderedProminent)
             .tint(Color.aquaPrimary)
+            .accessibilityIdentifier("addFirstFavoriteButton")
 
             Spacer()
         }
         .padding()
+        .accessibilityElement(children: .combine)
+        .accessibilityLabel("No favorites yet. Save your most-used drinks for quick access.")
     }
 }

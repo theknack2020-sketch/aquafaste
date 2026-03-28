@@ -1,70 +1,169 @@
-import SwiftUI
 import Charts
+import SwiftUI
 
 struct StatsView: View {
     @Environment(HydrationManager.self) private var manager
     private let profile = UserProfile.shared
+    private let subscription = SubscriptionManager.shared
+    private let insights = InsightsEngine()
 
     private let haptics = HapticManager.shared
+    private let sounds = SoundManager.shared
 
-    @State private var calendarMonth = Date.now
+    @State private var showPaywall = false
 
     var body: some View {
         NavigationStack {
             Group {
                 if manager.allLogs().count < 3 {
-                    // Empty state — not enough data
-                    VStack(spacing: 20) {
-                        Spacer()
-
-                        ZStack {
-                            Circle()
-                                .fill(Color.aquaPrimary.opacity(0.08))
-                                .frame(width: 120, height: 120)
-                            Image(systemName: "chart.bar.xaxis.ascending")
-                                .font(.system(size: 52))
-                                .foregroundStyle(Color.aquaPrimary.opacity(0.4))
-                                .symbolRenderingMode(.hierarchical)
-                        }
-
-                        VStack(spacing: 8) {
-                            Text("Insights Coming Soon")
-                                .font(.title3.weight(.bold))
-                                .foregroundStyle(Color.aquaTextPrimary)
-                            Text("Drink water for a few days to see insights")
-                                .font(.subheadline)
-                                .foregroundStyle(Color.aquaTextSecondary)
-                            Text("Charts, streaks, drink breakdowns, and\npersonalized insights will appear here.")
-                                .font(.caption)
-                                .foregroundStyle(.tertiary)
-                                .multilineTextAlignment(.center)
-                                .padding(.top, 2)
-                        }
-
-                        Spacer()
-                    }
-                    .frame(maxWidth: .infinity)
-                    .padding()
-                    .accessibilityElement(children: .combine)
-                    .accessibilityLabel("Not enough data for insights yet. Drink water for a few days to see statistics.")
+                    emptyState
                 } else {
-                    ScrollView {
-                        VStack(spacing: 20) {
-                            summaryCards
-                            weeklyChartSection
-                            weeklyComparisonSection
-                            calendarHeatmapSection
-                            timeOfDaySection
-                            drinkBreakdownSection
-                            insightsSection
-                        }
-                        .padding()
-                    }
+                    statsContent
                 }
             }
             .navigationTitle("Statistics")
+            .navigationBarTitleDisplayMode(.large)
             .background(Color.aquaBackground)
+            .aquaBackgroundGradient()
+            .sheet(isPresented: $showPaywall) {
+                PaywallView()
+            }
         }
+    }
+
+    // MARK: - Empty State
+
+    private var emptyState: some View {
+        VStack(spacing: 16) {
+            Spacer()
+
+            Image(systemName: "chart.bar.xaxis")
+                .font(.system(size: 60))
+                .foregroundStyle(Color.aquaPrimary)
+                .symbolEffect(.pulse)
+
+            Text("Not Enough Data Yet")
+                .font(.title3.weight(.bold))
+                .foregroundStyle(Color.aquaTextPrimary)
+
+            Text("Track for 3+ days to see your patterns. The more you log, the smarter your insights.")
+                .font(.subheadline)
+                .foregroundStyle(.secondary)
+                .multilineTextAlignment(.center)
+
+            Spacer()
+        }
+        .frame(maxWidth: .infinity)
+        .padding(40)
+        .accessibilityElement(children: .combine)
+        .accessibilityLabel("Not enough data yet. Track for three or more days to see your patterns.")
+    }
+
+    // MARK: - Stats Content
+
+    private var statsContent: some View {
+        ScrollView {
+            VStack(spacing: 24) {
+                hydrationScoreCard
+                summaryCards
+
+                // This Week
+                let weekData = insights.weeklyBarData(from: manager.allLogs())
+                WeeklyBarChart(data: weekData)
+                weekComparisonBanner(weekData: weekData)
+
+                // Monthly Heatmap
+                let heatmapData = insights.monthlyHeatmapData(from: manager.allLogs())
+                MonthlyHeatmapGrid(data: heatmapData)
+
+                // Drink Breakdown
+                let breakdown = insights.drinkTypeBreakdown(from: manager.allLogs())
+                DrinkTypeDonutChart(data: breakdown)
+
+                // Time Patterns — PRO ONLY
+                if subscription.isPro {
+                    let todData = insights.timeOfDayDistribution(from: manager.allLogs())
+                    TimeOfDayAreaChart(data: todData)
+                } else {
+                    proLockedSection(
+                        title: "Time Patterns",
+                        icon: "clock.fill",
+                        description: "See when you drink most throughout the day"
+                    )
+                }
+
+                // Caffeine Trends — PRO ONLY
+                if subscription.isPro {
+                    let cafData = insights.caffeineWeeklyTrend(from: manager.allLogs())
+                    CaffeineLineChart(data: cafData)
+                } else {
+                    proLockedSection(
+                        title: "Caffeine Trends",
+                        icon: "bolt.fill",
+                        description: "Track your caffeine intake with a safe limit line"
+                    )
+                }
+
+                // Personal Insights
+                insightsSection
+            }
+            .padding()
+        }
+    }
+
+    // MARK: - Hydration Score Card
+
+    private var hydrationScoreCard: some View {
+        let score = insights.hydrationScore(from: manager.allLogs())
+        let scoreColor = scoreGradientColor(score)
+
+        return VStack(spacing: 16) {
+            Text("HYDRATION SCORE")
+                .font(.system(size: 11, weight: .bold, design: .rounded))
+                .tracking(1.5)
+                .foregroundStyle(Color.aquaTextSecondary)
+
+            ZStack {
+                // Background track
+                Circle()
+                    .stroke(Color.aquaPrimary.opacity(0.10), lineWidth: 12)
+                    .frame(width: 130, height: 130)
+
+                // Progress arc
+                Circle()
+                    .trim(from: 0, to: CGFloat(score) / 100.0)
+                    .stroke(
+                        AngularGradient(
+                            colors: [scoreColor.opacity(0.6), scoreColor],
+                            center: .center
+                        ),
+                        style: StrokeStyle(lineWidth: 12, lineCap: .round)
+                    )
+                    .frame(width: 130, height: 130)
+                    .rotationEffect(.degrees(-90))
+
+                // Score number
+                VStack(spacing: 2) {
+                    Text("\(score)")
+                        .font(.system(size: 44, weight: .bold, design: .rounded))
+                        .foregroundStyle(scoreColor)
+                        .contentTransition(.numericText())
+
+                    Text("out of 100")
+                        .font(.system(size: 11, weight: .medium))
+                        .foregroundStyle(Color.aquaTextSecondary)
+                }
+            }
+
+            Text(scoreLabel(score))
+                .font(.subheadline.weight(.semibold))
+                .foregroundStyle(scoreColor)
+        }
+        .frame(maxWidth: .infinity)
+        .aquaCard()
+        .accessibilityElement(children: .combine)
+        .accessibilityLabel("Hydration score \(score) out of 100, \(scoreLabel(score))")
+        .accessibilityIdentifier("hydrationScoreCard")
     }
 
     // MARK: - Summary Cards
@@ -73,11 +172,10 @@ struct StatsView: View {
         let currentStreak = manager.computeCurrentStreak()
         let bestStreak = manager.computeBestStreak()
         let avgDaily = manager.averageDailyIntake()
-        let allTimeTotal = manager.allTimeTotalMl()
         let achievementRate = manager.goalAchievementRate()
+        let allTimeTotal = manager.allTimeTotalMl()
 
         return VStack(spacing: 12) {
-            // Top row: streaks
             HStack(spacing: 12) {
                 StatCard(
                     icon: "flame.fill",
@@ -95,7 +193,6 @@ struct StatsView: View {
                 )
             }
 
-            // Middle row: averages
             HStack(spacing: 12) {
                 StatCard(
                     icon: "chart.line.uptrend.xyaxis",
@@ -113,7 +210,6 @@ struct StatsView: View {
                 )
             }
 
-            // All-time total
             StatCardWide(
                 icon: "drop.fill",
                 iconColor: Color.aquaSecondary,
@@ -124,417 +220,183 @@ struct StatsView: View {
         }
     }
 
-    // MARK: - Weekly Chart
+    // MARK: - Week-over-Week Comparison
 
-    private var weeklyChartSection: some View {
-        let weekData = manager.weeklyData()
-
-        return VStack(alignment: .leading, spacing: 12) {
-            SectionHeader(title: "This Week", icon: "chart.bar.fill")
-
-            Chart(weekData, id: \.date) { item in
-                BarMark(
-                    x: .value("Day", item.date, unit: .day),
-                    y: .value("ml", item.total)
-                )
-                .foregroundStyle(
-                    item.total >= profile.dailyGoal
-                        ? Color.aquaPrimary
-                        : Color.aquaPrimary.opacity(0.35)
-                )
-                .cornerRadius(6)
-
-                // Goal line
-                RuleMark(y: .value("Goal", profile.dailyGoal))
-                    .lineStyle(StrokeStyle(lineWidth: 1, dash: [5, 3]))
-                    .foregroundStyle(Color.aquaTextSecondary.opacity(0.5))
-            }
-            .chartYAxis {
-                AxisMarks(position: .leading) { value in
-                    if let ml = value.as(Double.self) {
-                        AxisValueLabel {
-                            Text(profile.unit.formatAmount(ml))
-                                .font(.caption2)
-                        }
-                        AxisGridLine(stroke: StrokeStyle(lineWidth: 0.5))
-                            .foregroundStyle(Color.gray.opacity(0.2))
-                    }
-                }
-            }
-            .chartXAxis {
-                AxisMarks(values: .stride(by: .day)) { value in
-                    if let date = value.as(Date.self) {
-                        AxisValueLabel {
-                            Text(date, format: .dateTime.weekday(.abbreviated))
-                                .font(.caption2)
-                        }
-                    }
-                }
-            }
-            .chartYScale(domain: 0...(max(profile.dailyGoal * 1.3, weekData.map(\.total).max() ?? 0) * 1.1))
-            .frame(height: 200)
-
-            // Legend
-            HStack(spacing: 16) {
-                LegendDot(color: Color.aquaPrimary, label: "Goal met")
-                LegendDot(color: Color.aquaPrimary.opacity(0.35), label: "Under goal")
-                HStack(spacing: 4) {
-                    Rectangle()
-                        .fill(Color.aquaTextSecondary.opacity(0.5))
-                        .frame(width: 16, height: 1)
-                    Text("Goal")
-                        .font(.caption2)
-                        .foregroundStyle(.secondary)
-                }
-            }
-        }
-        .padding()
-        .background(Color.aquaCardBackground, in: RoundedRectangle(cornerRadius: 16))
-        .shadow(color: Color.black.opacity(0.06), radius: 8, x: 0, y: 3)
-    }
-
-    // MARK: - Weekly Comparison
-
-    private var weeklyComparisonSection: some View {
+    private func weekComparisonBanner(weekData: [(day: String, amount: Double, goal: Double)]) -> some View {
         let comparison = manager.weeklyComparison()
         let diff = comparison.lastWeek > 0
             ? (comparison.thisWeek - comparison.lastWeek) / comparison.lastWeek * 100
             : 0
         let isUp = diff >= 0
 
-        return VStack(alignment: .leading, spacing: 12) {
-            SectionHeader(title: "Weekly Comparison", icon: "arrow.left.arrow.right")
-
-            HStack(spacing: 16) {
-                VStack(spacing: 4) {
-                    Text("This Week")
-                        .font(.caption)
-                        .foregroundStyle(.secondary)
-                    Text(profile.unit.formatAmount(comparison.thisWeek))
-                        .font(.title3.weight(.bold))
-                        .foregroundStyle(Color.aquaPrimary)
-                }
-                .frame(maxWidth: .infinity)
-
-                VStack(spacing: 4) {
-                    Text("vs")
-                        .font(.caption2)
-                        .foregroundStyle(.tertiary)
-
-                    HStack(spacing: 2) {
-                        Image(systemName: isUp ? "arrow.up.right" : "arrow.down.right")
-                            .font(.caption.weight(.bold))
-                        Text("\(abs(Int(diff)))%")
-                            .font(.subheadline.weight(.bold))
-                    }
-                    .foregroundStyle(isUp ? .green : .orange)
-                }
-
-                VStack(spacing: 4) {
-                    Text("Last Week")
-                        .font(.caption)
-                        .foregroundStyle(.secondary)
-                    Text(profile.unit.formatAmount(comparison.lastWeek))
-                        .font(.title3.weight(.bold))
-                        .foregroundStyle(Color.aquaTextSecondary)
-                }
-                .frame(maxWidth: .infinity)
-            }
-        }
-        .padding()
-        .background(Color.aquaCardBackground, in: RoundedRectangle(cornerRadius: 16))
-        .shadow(color: Color.black.opacity(0.06), radius: 8, x: 0, y: 3)
-    }
-
-    // MARK: - Calendar Heatmap
-
-    private var calendarHeatmapSection: some View {
-        let calData = manager.monthlyCalendarData(for: calendarMonth)
-        let calendar = Calendar.current
-        let monthName = calendarMonth.formatted(.dateTime.month(.wide).year())
-
-        // Calculate grid layout
-        let firstDay = calendar.date(from: calendar.dateComponents([.year, .month], from: calendarMonth))!
-        let firstWeekday = (calendar.component(.weekday, from: firstDay) + 5) % 7 // Mon=0
-
-        return VStack(alignment: .leading, spacing: 12) {
-            // Month navigation
-            HStack {
-                Button {
-                    haptics.selectionChanged()
-                    calendarMonth = calendar.date(byAdding: .month, value: -1, to: calendarMonth)!
-                } label: {
-                    Image(systemName: "chevron.left")
-                        .font(.body.weight(.semibold))
-                        .foregroundStyle(Color.aquaPrimary)
-                }
-
-                Spacer()
-
-                Text(monthName)
-                    .font(.headline)
-
-                Spacer()
-
-                Button {
-                    let next = calendar.date(byAdding: .month, value: 1, to: calendarMonth)!
-                    if next <= .now {
-                        haptics.selectionChanged()
-                        calendarMonth = next
-                    }
-                } label: {
-                    Image(systemName: "chevron.right")
-                        .font(.body.weight(.semibold))
-                        .foregroundStyle(Color.aquaPrimary)
-                }
+        return HStack(spacing: 12) {
+            VStack(alignment: .leading, spacing: 2) {
+                Text("vs Last Week")
+                    .font(.caption.weight(.medium))
+                    .foregroundStyle(.secondary)
+                Text(profile.unit.formatAmount(comparison.thisWeek))
+                    .font(.subheadline.weight(.bold))
+                    .foregroundStyle(Color.aquaPrimary)
             }
 
-            // Day headers
-            let dayLabels = ["M", "T", "W", "T", "F", "S", "S"]
-            HStack(spacing: 0) {
-                ForEach(dayLabels.indices, id: \.self) { i in
-                    Text(dayLabels[i])
-                        .font(.caption2.weight(.medium))
-                        .foregroundStyle(.secondary)
-                        .frame(maxWidth: .infinity)
-                }
-            }
+            Spacer()
 
-            // Calendar grid
-            let columns = Array(repeating: GridItem(.flexible(), spacing: 4), count: 7)
-            LazyVGrid(columns: columns, spacing: 4) {
-                // Empty cells for offset
-                ForEach(0..<firstWeekday, id: \.self) { _ in
-                    Color.clear.frame(height: 36)
-                }
-
-                // Day cells
-                ForEach(calData, id: \.date) { day in
-                    let dayNum = calendar.component(.day, from: day.date)
-                    let isFuture = day.date > calendar.startOfDay(for: .now)
-
-                    VStack(spacing: 1) {
-                        Text("\(dayNum)")
-                            .font(.caption2.weight(.medium))
-                            .foregroundStyle(isFuture ? .tertiary : .primary)
-                    }
-                    .frame(maxWidth: .infinity)
-                    .frame(height: 36)
-                    .background(
-                        isFuture
-                            ? Color.clear
-                            : heatmapColor(ratio: day.ratio),
-                        in: RoundedRectangle(cornerRadius: 6)
-                    )
-                }
-            }
-
-            // Legend
             HStack(spacing: 4) {
-                Text("0%")
-                    .font(.system(size: 9))
+                Image(systemName: isUp ? "arrow.up.right" : "arrow.down.right")
+                    .font(.caption.weight(.bold))
+                Text("\(abs(Int(diff)))%")
+                    .font(.subheadline.weight(.bold))
+            }
+            .foregroundStyle(isUp ? .green : .orange)
+
+            Spacer()
+
+            VStack(alignment: .trailing, spacing: 2) {
+                Text("Last Week")
+                    .font(.caption.weight(.medium))
                     .foregroundStyle(.secondary)
-                ForEach([0.0, 0.25, 0.5, 0.75, 1.0], id: \.self) { ratio in
-                    RoundedRectangle(cornerRadius: 2)
-                        .fill(heatmapColor(ratio: ratio))
-                        .frame(width: 16, height: 12)
-                }
-                Text("100%+")
-                    .font(.system(size: 9))
-                    .foregroundStyle(.secondary)
-            }
-            .frame(maxWidth: .infinity, alignment: .center)
-        }
-        .padding()
-        .background(Color.aquaCardBackground, in: RoundedRectangle(cornerRadius: 16))
-        .shadow(color: Color.black.opacity(0.06), radius: 8, x: 0, y: 3)
-    }
-
-    // MARK: - Time of Day
-
-    private var timeOfDaySection: some View {
-        let todData = manager.timeOfDayData()
-        let maxVal = todData.map(\.total).max() ?? 1
-
-        return VStack(alignment: .leading, spacing: 12) {
-            SectionHeader(title: "When You Drink", icon: "clock.fill")
-
-            Chart(todData, id: \.hour) { item in
-                AreaMark(
-                    x: .value("Hour", item.hour),
-                    y: .value("Total", item.total)
-                )
-                .foregroundStyle(
-                    LinearGradient(
-                        colors: [Color.aquaGradientStart.opacity(0.4), Color.aquaGradientEnd.opacity(0.1)],
-                        startPoint: .top,
-                        endPoint: .bottom
-                    )
-                )
-                .interpolationMethod(.catmullRom)
-
-                LineMark(
-                    x: .value("Hour", item.hour),
-                    y: .value("Total", item.total)
-                )
-                .foregroundStyle(Color.aquaPrimary)
-                .interpolationMethod(.catmullRom)
-                .lineStyle(StrokeStyle(lineWidth: 2))
-            }
-            .chartXAxis {
-                AxisMarks(values: [0, 6, 12, 18, 23]) { value in
-                    if let hour = value.as(Int.self) {
-                        AxisValueLabel {
-                            Text(hourLabel(hour))
-                                .font(.caption2)
-                        }
-                    }
-                }
-            }
-            .chartYAxis {
-                AxisMarks(position: .leading) { value in
-                    if let ml = value.as(Double.self) {
-                        AxisValueLabel {
-                            Text(profile.unit.formatAmount(ml))
-                                .font(.caption2)
-                        }
-                        AxisGridLine(stroke: StrokeStyle(lineWidth: 0.5))
-                            .foregroundStyle(Color.gray.opacity(0.2))
-                    }
-                }
-            }
-            .chartYScale(domain: 0...(maxVal * 1.15))
-            .frame(height: 180)
-
-            // Peak hour callout
-            if let peak = todData.max(by: { $0.total < $1.total }), peak.total > 0 {
-                HStack(spacing: 6) {
-                    Image(systemName: "star.fill")
-                        .font(.caption)
-                        .foregroundStyle(.yellow)
-                    Text("Peak: \(hourLabel(peak.hour))")
-                        .font(.caption)
-                        .foregroundStyle(.secondary)
-                }
+                Text(profile.unit.formatAmount(comparison.lastWeek))
+                    .font(.subheadline.weight(.bold))
+                    .foregroundStyle(Color.aquaTextSecondary)
             }
         }
-        .padding()
-        .background(Color.aquaCardBackground, in: RoundedRectangle(cornerRadius: 16))
-        .shadow(color: Color.black.opacity(0.06), radius: 8, x: 0, y: 3)
+        .aquaCard()
+        .accessibilityElement(children: .combine)
+        .accessibilityLabel("Week comparison: this week \(profile.unit.formatAmount(comparison.thisWeek)), last week \(profile.unit.formatAmount(comparison.lastWeek)), \(isUp ? "up" : "down") \(abs(Int(diff))) percent")
     }
 
-    // MARK: - Drink Breakdown
-
-    private var drinkBreakdownSection: some View {
-        let breakdown = manager.drinkTypeBreakdown()
-        let total = breakdown.reduce(0.0) { $0 + $1.total }
-
-        return VStack(alignment: .leading, spacing: 12) {
-            SectionHeader(title: "Drink Breakdown", icon: "chart.pie.fill")
-
-            if breakdown.isEmpty {
-                Text("No data yet")
-                    .font(.subheadline)
-                    .foregroundStyle(.secondary)
-                    .frame(maxWidth: .infinity, alignment: .center)
-                    .padding(.vertical, 20)
-            } else {
-                // Donut chart
-                Chart(breakdown, id: \.type) { item in
-                    SectorMark(
-                        angle: .value("Amount", item.total),
-                        innerRadius: .ratio(0.55),
-                        angularInset: 1.5
-                    )
-                    .foregroundStyle(item.type.color)
-                    .cornerRadius(3)
-                }
-                .frame(height: 180)
-
-                // Breakdown list
-                VStack(spacing: 8) {
-                    ForEach(breakdown.prefix(6), id: \.type) { item in
-                        HStack(spacing: 10) {
-                            Circle()
-                                .fill(item.type.color)
-                                .frame(width: 10, height: 10)
-
-                            Image(systemName: item.type.iconName)
-                                .font(.caption)
-                                .foregroundStyle(item.type.color)
-                                .frame(width: 20)
-
-                            Text(item.type.displayName)
-                                .font(.subheadline)
-
-                            Spacer()
-
-                            Text(profile.unit.formatAmount(item.total))
-                                .font(.caption.weight(.medium))
-                                .foregroundStyle(.secondary)
-
-                            Text("\(total > 0 ? Int(item.total / total * 100) : 0)%")
-                                .font(.caption.weight(.semibold))
-                                .foregroundStyle(Color.aquaPrimary)
-                                .frame(width: 36, alignment: .trailing)
-                        }
-                    }
-                }
-            }
-        }
-        .padding()
-        .background(Color.aquaCardBackground, in: RoundedRectangle(cornerRadius: 16))
-        .shadow(color: Color.black.opacity(0.06), radius: 8, x: 0, y: 3)
-    }
-
-    // MARK: - Insights
+    // MARK: - Insights Section
 
     private var insightsSection: some View {
-        let insights = manager.generateInsights()
+        let items = insights.personalizedInsights(from: manager.allLogs())
 
         return VStack(alignment: .leading, spacing: 12) {
-            SectionHeader(title: "Insights", icon: "lightbulb.fill")
+            HStack(spacing: 6) {
+                RoundedRectangle(cornerRadius: 2)
+                    .fill(
+                        LinearGradient(
+                            colors: [Color.aquaGradientStart, Color.aquaGradientEnd],
+                            startPoint: .top,
+                            endPoint: .bottom
+                        )
+                    )
+                    .frame(width: 3, height: 18)
+                Image(systemName: "lightbulb.fill")
+                    .font(.subheadline)
+                    .foregroundStyle(Color.aquaPrimary)
+                Text("Personal Insights")
+                    .font(.headline)
+            }
+            .accessibilityAddTraits(.isHeader)
 
-            ForEach(insights.indices, id: \.self) { i in
-                HStack(alignment: .top, spacing: 10) {
-                    Image(systemName: insightIcon(for: i))
-                        .font(.body)
-                        .foregroundStyle(insightColor(for: i))
-                        .frame(width: 24)
+            ForEach(items) { item in
+                HStack(alignment: .top, spacing: 12) {
+                    Image(systemName: item.icon)
+                        .font(.title3)
+                        .foregroundStyle(Color.aquaPrimary)
+                        .frame(width: 28, height: 28)
 
-                    Text(insights[i])
-                        .font(.subheadline)
-                        .foregroundStyle(Color.aquaTextPrimary)
+                    VStack(alignment: .leading, spacing: 2) {
+                        Text(item.title)
+                            .font(.caption)
+                            .foregroundStyle(.secondary)
+                        Text(item.value)
+                            .font(.subheadline.weight(.bold))
+                            .foregroundStyle(Color.aquaTextPrimary)
+                        Text(item.subtitle)
+                            .font(.caption2)
+                            .foregroundStyle(.tertiary)
+                    }
+
+                    Spacer()
                 }
                 .padding(.vertical, 4)
 
-                if i < insights.count - 1 {
+                if item.id != items.last?.id {
                     Divider()
                 }
             }
         }
-        .padding()
-        .background(Color.aquaCardBackground, in: RoundedRectangle(cornerRadius: 16))
-        .shadow(color: Color.black.opacity(0.06), radius: 8, x: 0, y: 3)
+        .aquaCard()
+    }
+
+    // MARK: - Pro Locked Section
+
+    private func proLockedSection(title: String, icon: String, description: String) -> some View {
+        VStack(spacing: 12) {
+            HStack(spacing: 6) {
+                RoundedRectangle(cornerRadius: 2)
+                    .fill(
+                        LinearGradient(
+                            colors: [Color.aquaGradientStart, Color.aquaGradientEnd],
+                            startPoint: .top,
+                            endPoint: .bottom
+                        )
+                    )
+                    .frame(width: 3, height: 18)
+                Image(systemName: icon)
+                    .font(.subheadline)
+                    .foregroundStyle(Color.aquaPrimary)
+                Text(title)
+                    .font(.headline)
+                Spacer()
+                Text("PRO")
+                    .font(.system(size: 9, weight: .bold))
+                    .padding(.horizontal, 6)
+                    .padding(.vertical, 2)
+                    .background(Color.orange, in: Capsule())
+                    .foregroundStyle(.white)
+            }
+
+            VStack(spacing: 10) {
+                Image(systemName: "lock.fill")
+                    .font(.title2)
+                    .foregroundStyle(Color(.tertiaryLabel))
+
+                Text(description)
+                    .font(.subheadline)
+                    .foregroundStyle(.secondary)
+                    .multilineTextAlignment(.center)
+
+                Button {
+                    showPaywall = true
+                } label: {
+                    Text("Unlock with Pro")
+                        .font(.caption.weight(.semibold))
+                        .padding(.horizontal, 16)
+                        .padding(.vertical, 8)
+                        .background(Color.aquaGradient, in: Capsule())
+                        .foregroundStyle(.white)
+                }
+                .accessibilityLabel("Unlock \(title) with Pro subscription")
+                .accessibilityIdentifier("statsUnlockProButton")
+            }
+            .frame(maxWidth: .infinity)
+            .padding(.vertical, 20)
+        }
+        .aquaCard()
     }
 
     // MARK: - Helpers
 
-    private func heatmapColor(ratio: Double) -> Color {
-        if ratio <= 0 { return Color.gray.opacity(0.1) }
-        if ratio < 0.25 { return Color.aquaPrimary.opacity(0.15) }
-        if ratio < 0.50 { return Color.aquaPrimary.opacity(0.30) }
-        if ratio < 0.75 { return Color.aquaPrimary.opacity(0.50) }
-        if ratio < 1.0 { return Color.aquaPrimary.opacity(0.70) }
-        return Color.aquaPrimary // 100%+
+    private func scoreGradientColor(_ score: Int) -> Color {
+        switch score {
+        case 0..<30: .red
+        case 30..<50: .orange
+        case 50..<70: .yellow
+        case 70..<85: Color.aquaPrimary
+        default: .green
+        }
     }
 
-    private func hourLabel(_ hour: Int) -> String {
-        let formatter = DateFormatter()
-        formatter.dateFormat = "ha"
-        let cal = Calendar.current
-        let date = cal.date(bySettingHour: hour, minute: 0, second: 0, of: .now) ?? .now
-        return formatter.string(from: date).lowercased()
+    private func scoreLabel(_ score: Int) -> String {
+        switch score {
+        case 0..<30: "Needs Improvement"
+        case 30..<50: "Getting There"
+        case 50..<70: "Good"
+        case 70..<85: "Great"
+        default: "Excellent"
+        }
     }
 
     private func formatLargeVolume(_ ml: Double) -> String {
@@ -552,16 +414,6 @@ struct StatsView: View {
             }
             return String(format: "%.0f fl oz", oz)
         }
-    }
-
-    private func insightIcon(for index: Int) -> String {
-        let icons = ["calendar", "clock.fill", "drop.fill", "target", "sparkles"]
-        return icons[index % icons.count]
-    }
-
-    private func insightColor(for index: Int) -> Color {
-        let colors: [Color] = [.blue, .orange, .cyan, .green, .purple]
-        return colors[index % colors.count]
     }
 }
 
@@ -639,46 +491,5 @@ private struct StatCardWide: View {
         .shadow(color: iconColor.opacity(0.12), radius: 8, x: 0, y: 3)
         .accessibilityElement(children: .combine)
         .accessibilityLabel("\(title): \(value), \(subtitle)")
-    }
-}
-
-private struct SectionHeader: View {
-    let title: String
-    let icon: String
-
-    var body: some View {
-        HStack(spacing: 6) {
-            RoundedRectangle(cornerRadius: 2)
-                .fill(
-                    LinearGradient(
-                        colors: [Color.aquaGradientStart, Color.aquaGradientEnd],
-                        startPoint: .top,
-                        endPoint: .bottom
-                    )
-                )
-                .frame(width: 3, height: 18)
-            Image(systemName: icon)
-                .font(.subheadline)
-                .foregroundStyle(Color.aquaPrimary)
-            Text(title)
-                .font(.headline)
-        }
-        .accessibilityAddTraits(.isHeader)
-    }
-}
-
-private struct LegendDot: View {
-    let color: Color
-    let label: String
-
-    var body: some View {
-        HStack(spacing: 4) {
-            Circle()
-                .fill(color)
-                .frame(width: 8, height: 8)
-            Text(label)
-                .font(.caption2)
-                .foregroundStyle(.secondary)
-        }
     }
 }

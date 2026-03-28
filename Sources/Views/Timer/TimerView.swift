@@ -27,10 +27,15 @@ struct TimerView: View {
     // Staggered fade-in states
     @State private var buttonsAppeared = false
     @State private var customButtonBounce = false
+    @State private var showSoftPaywallSheet = false
+    @State private var sessionLogCount = 0
+
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
     private let profile = UserProfile.shared
     private let subscription = SubscriptionManager.shared
     private let haptics = HapticManager.shared
+    private let sounds = SoundManager.shared
 
     var body: some View {
         NavigationStack {
@@ -59,6 +64,7 @@ struct TimerView: View {
                                 showSplash: $splashTrigger
                             )
                             .frame(height: 300)
+                            .accessibilityIdentifier("progressRing")
 
                             // Water fill animation overlay
                             if showWaterFillAnimation {
@@ -71,6 +77,36 @@ struct TimerView: View {
                             }
                         }
                         .padding(.top, 8)
+
+                        // Motivational micro-copy based on progress
+                        Text(motivationalMessage)
+                            .font(.subheadline)
+                            .foregroundStyle(Color.aquaTextSecondary)
+                            .multilineTextAlignment(.center)
+                            .padding(.horizontal, 20)
+                            .accessibilityLabel("Progress motivation: \(motivationalMessage)")
+
+                        // Empty state for first use of the day
+                        if manager.todayLogs.isEmpty {
+                            VStack(spacing: 16) {
+                                Image(systemName: "drop.fill")
+                                    .font(.system(size: 60))
+                                    .foregroundStyle(Color.aquaPrimary)
+                                    .symbolEffect(.pulse)
+
+                                Text("Start Your Day Hydrated")
+                                    .font(.title3.weight(.bold))
+                                    .foregroundStyle(Color.aquaTextPrimary)
+
+                                Text("Tap a drink below to log your first sip. Every drop counts!")
+                                    .font(.subheadline)
+                                    .foregroundStyle(.secondary)
+                                    .multilineTextAlignment(.center)
+                            }
+                            .padding(40)
+                            .accessibilityElement(children: .combine)
+                            .accessibilityLabel("Start your day hydrated. Tap a drink below to log your first sip.")
+                        }
 
                         // Selected drink indicator with context menu for quick log
                         drinkSelector
@@ -155,6 +191,7 @@ struct TimerView: View {
                         .foregroundStyle(manager.todayLogs.isEmpty ? Color.aquaTextSecondary.opacity(0.3) : Color.aquaPrimary)
                         .accessibilityLabel("Undo last drink")
                         .accessibilityHint(manager.todayLogs.isEmpty ? "No drinks to undo" : "Double tap to undo the last logged drink")
+                        .accessibilityIdentifier("undoButton")
                     }
                 }
 
@@ -226,7 +263,7 @@ struct TimerView: View {
                     }
                 }
 
-                if showConfetti {
+                if showConfetti && !reduceMotion {
                     ConfettiView()
                         .ignoresSafeArea()
                         .allowsHitTesting(false)
@@ -235,6 +272,20 @@ struct TimerView: View {
             .sheet(isPresented: $showPaywall) {
                 PaywallView()
             }
+            .sheet(isPresented: $showSoftPaywallSheet) {
+                PaywallView()
+                    .onDisappear {
+                        subscription.softPaywallDismissedThisSession = true
+                    }
+            }
+            .alert(manager.errorTitle, isPresented: .init(
+                get: { manager.showError },
+                set: { manager.showError = $0 }
+            )) {
+                Button("OK") { }
+            } message: {
+                Text(manager.errorMessage)
+            }
         }
     }
 
@@ -242,7 +293,8 @@ struct TimerView: View {
 
     private var drinkSelector: some View {
         Button {
-            haptics.selectionChanged()
+            haptics.tabChange()
+            haptics.sheetPresented()
             showDrinkPicker = true
         } label: {
             HStack(spacing: 8) {
@@ -283,6 +335,7 @@ struct TimerView: View {
         }
         .accessibilityLabel("Selected drink: \(selectedDrink.displayName)")
         .accessibilityHint("Double tap to change drink type. Long press for quick actions.")
+        .accessibilityIdentifier("drinkSelector")
     }
 
     // MARK: - Recent Drinks
@@ -300,6 +353,7 @@ struct TimerView: View {
                     HStack(spacing: 8) {
                         ForEach(Array(recents.enumerated()), id: \.offset) { _, recent in
                             Button {
+                                haptics.buttonPress()
                                 selectedDrink = recent.drinkType
                                 logDrink(amount: recent.amount)
                             } label: {
@@ -347,7 +401,7 @@ struct TimerView: View {
 
             // Custom amount button with bounce
             Button {
-                haptics.light()
+                haptics.buttonPress()
                 withAnimation(.spring(response: 0.3, dampingFraction: 0.4)) {
                     customButtonBounce = true
                 }
@@ -370,6 +424,7 @@ struct TimerView: View {
             .scaleEffect(customButtonBounce ? 1.2 : 1.0)
             .accessibilityLabel("Log custom amount of \(selectedDrink.displayName)")
             .accessibilityHint("Double tap to enter a custom drink amount")
+            .accessibilityIdentifier("customAmountButton")
             .opacity(buttonsAppeared ? 1 : 0)
             .offset(y: buttonsAppeared ? 0 : 20)
             .animation(
@@ -418,6 +473,7 @@ struct TimerView: View {
                             .foregroundStyle(Color.aquaTextPrimary)
                         Spacer()
                         Button {
+                            haptics.buttonPress()
                             showFavoritesSheet = true
                         } label: {
                             Text("Manage")
@@ -431,6 +487,7 @@ struct TimerView: View {
                         HStack(spacing: 10) {
                             ForEach(favorites, id: \.id) { fav in
                                 Button {
+                                    haptics.buttonPress()
                                     selectedDrink = fav.drink
                                     logDrink(amount: fav.amount, caffeineMg: fav.caffeineAmount)
                                 } label: {
@@ -462,6 +519,7 @@ struct TimerView: View {
 
                             // Add favorite button
                             Button {
+                                haptics.buttonPress()
                                 showAddFavorite = true
                             } label: {
                                 VStack(spacing: 6) {
@@ -523,7 +581,9 @@ struct TimerView: View {
                 ))
                 .contextMenu {
                     Button(role: .destructive) {
-                        withAnimation(.spring(response: 0.4)) {
+                        haptics.deleteDrink()
+                        sounds.playDeleteSound()
+                        withAnimation(.spring(response: 0.4, dampingFraction: 0.8)) {
                             manager.deleteLog(log)
                         }
                     } label: {
@@ -603,12 +663,33 @@ struct TimerView: View {
         .background(Color.aquaCardBackground, in: RoundedRectangle(cornerRadius: 16))
         .shadow(color: Color.aquaPrimary.opacity(0.08), radius: 12, x: 0, y: 4)
         .padding(.top, 4)
+        .accessibilityElement(children: .combine)
+        .accessibilityLabel("Daily summary: \(profile.unit.formatAmount(manager.todayTotal)) total, \(drinkCount) drinks, \(goalMet ? "goal met" : "\(profile.unit.formatAmount(remaining)) remaining")")
+        .accessibilityIdentifier("dailySummaryCard")
     }
 
     // MARK: - Actions
 
     private var goalReached: Bool { manager.todayTotal >= profile.dailyGoal }
     private var remainingToGoal: Double { max(0, profile.dailyGoal - manager.todayTotal) }
+
+    private var motivationalMessage: String {
+        let pct = manager.progress
+        switch pct {
+        case ...0:
+            return "A fresh start! Your first drink makes all the difference."
+        case 0..<0.25:
+            return "Nice start! Keep the momentum going. 💧"
+        case 0.25..<0.50:
+            return "You're getting there! Halfway to your goal. 💪"
+        case 0.50..<0.75:
+            return "Over halfway! Your body is thanking you. ✨"
+        case 0.75..<1.0:
+            return "Almost there! Just a bit more to crush your goal! 🎯"
+        default:
+            return "Goal complete! You're a hydration champion! 🏆"
+        }
+    }
 
     private var streakMotivationText: String {
         let streak = profile.currentStreak
@@ -630,8 +711,13 @@ struct TimerView: View {
         let wasUnderGoal = manager.todayTotal < profile.dailyGoal
         manager.logWater(amount: amount, drinkType: selectedDrink, caffeineMg: caffeineMg)
 
+        // Track session log count for soft paywall
+        sessionLogCount += 1
+        subscription.incrementActionCount()
+
         // Haptic + sound for water logging
-        haptics.waterLogged()
+        haptics.logDrink()
+        sounds.playLogSound()
 
         // Splash animation
         splashTrigger = true
@@ -639,11 +725,11 @@ struct TimerView: View {
         // Water fill animation
         fillAnimationDrink = selectedDrink
         fillAnimationAmount = amount
-        withAnimation(.easeInOut(duration: 0.6)) {
+        withAnimation(.spring(response: 0.5, dampingFraction: 0.8)) {
             showWaterFillAnimation = true
         }
         DispatchQueue.main.asyncAfter(deadline: .now() + 1.2) {
-            withAnimation(.easeOut(duration: 0.3)) {
+            withAnimation(.spring(response: 0.3, dampingFraction: 0.9)) {
                 showWaterFillAnimation = false
             }
         }
@@ -652,17 +738,26 @@ struct TimerView: View {
         if wasUnderGoal && manager.todayTotal >= profile.dailyGoal {
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.4) {
                 haptics.goalComplete()
-                withAnimation(.spring(response: 0.5)) {
+                sounds.playGoalComplete()
+                withAnimation(.spring(response: 0.5, dampingFraction: 0.7)) {
                     showGoalComplete = true
                     showConfetti = true
                 }
+            }
+        }
+
+        // Soft paywall after 3rd log action for free users (non-blocking)
+        if subscription.shouldShowSoftPaywallForAction(actionCount: sessionLogCount) {
+            DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) {
+                showSoftPaywallSheet = true
             }
         }
     }
 
     private func performUndo() {
         guard let undone = manager.undoLastDrink() else { return }
-        haptics.light()
+        haptics.buttonPress()
+        sounds.playDeleteSound()
         undoneAmount = undone.amount
         undoneDrinkName = undone.drink.displayName
         withAnimation(.spring(response: 0.4)) {
@@ -700,7 +795,7 @@ struct QuickAddButton: View {
                     .font(.caption2.weight(.medium))
                 if !name.isEmpty {
                     Text(name)
-                        .font(.system(size: 8))
+                        .font(.system(size: 8, weight: .regular, design: .rounded))
                         .foregroundStyle(.white.opacity(0.7))
                 }
             }
@@ -713,6 +808,7 @@ struct QuickAddButton: View {
         .scaleEffect(isPressed ? 0.88 : 1.0)
         .accessibilityLabel("Log \(unit.formatAmount(amount))\(name.isEmpty ? "" : ", \(name)")")
         .accessibilityHint("Double tap to add to today's hydration")
+        .accessibilityIdentifier("quickAdd\(Int(amount))")
     }
 }
 
@@ -750,6 +846,8 @@ struct UndoToastView: View {
             .padding(.horizontal, 12)
             .padding(.vertical, 6)
             .background(.white, in: Capsule())
+            .accessibilityLabel("Undo removal of \(unit.formatAmount(amount)) \(drinkName)")
+            .accessibilityIdentifier("undoToastButton")
         }
         .padding(.horizontal, 16)
         .padding(.vertical, 12)
@@ -850,10 +948,10 @@ struct SummaryItem: View {
 
             Spacer()
         }
+        .accessibilityElement(children: .combine)
+        .accessibilityLabel("\(label): \(value)")
     }
 }
-
-// MARK: - Water Fill Animation
 
 struct WaterFillAnimationView: View {
     let drinkType: DrinkType
@@ -883,7 +981,7 @@ struct WaterFillAnimationView: View {
             withAnimation(.spring(response: 0.3, dampingFraction: 0.7).delay(0.2)) {
                 iconScale = 1.0
             }
-            withAnimation(.easeOut(duration: 0.3).delay(0.8)) {
+            withAnimation(.spring(response: 0.3, dampingFraction: 0.9).delay(0.8)) {
                 opacity = 0
             }
         }
@@ -942,7 +1040,7 @@ struct GoalCompleteOverlay: View {
                 iconScale = 1.0
                 iconOpacity = 1.0
             }
-            withAnimation(.easeOut(duration: 0.4).delay(0.3)) {
+            withAnimation(.spring(response: 0.4, dampingFraction: 0.7).delay(0.3)) {
                 contentOpacity = 1.0
             }
             UIAccessibility.post(notification: .announcement,

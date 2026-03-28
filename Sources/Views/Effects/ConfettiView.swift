@@ -4,6 +4,9 @@ import SwiftUI
 struct ConfettiView: View {
     @State private var particles: [ConfettiParticle] = []
     @State private var isAnimating = false
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+
+    private let sounds = SoundManager.shared
 
     private let colors: [Color] = [
         .aquaPrimary, .aquaSecondary, .aquaAccent,
@@ -18,13 +21,16 @@ struct ConfettiView: View {
                 }
             }
             .onAppear {
+                guard !reduceMotion else { return }
                 generateParticles(in: geo.size)
-                withAnimation(.easeOut(duration: 3.0)) {
+                sounds.playCelebration()
+                withAnimation(.spring(response: 0.6, dampingFraction: 0.5)) {
                     isAnimating = true
                 }
             }
         }
         .allowsHitTesting(false)
+        .accessibilityHidden(true)
     }
 
     private func generateParticles(in size: CGSize) {
@@ -81,7 +87,7 @@ struct ConfettiPiece: View {
             .rotationEffect(.degrees(isAnimating ? particle.rotation : 0))
             .opacity(isAnimating ? 0 : 1)
             .animation(
-                .easeOut(duration: 2.5)
+                .spring(response: 0.6, dampingFraction: 0.5)
                 .delay(particle.delay),
                 value: isAnimating
             )

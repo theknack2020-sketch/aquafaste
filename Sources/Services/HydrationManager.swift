@@ -13,6 +13,11 @@ final class HydrationManager {
     var progress: Double = 0       // 0.0 - 1.0+
     var todayCaffeine: Double = 0  // mg
 
+    /// Error presentation state
+    var showError = false
+    var errorTitle = ""
+    var errorMessage = ""
+
     /// Last undone log (for undo support)
     var lastDeletedLog: WaterLog?
 
@@ -20,6 +25,14 @@ final class HydrationManager {
         self.modelContext = context
         handleTimezoneChange()
         refreshToday()
+    }
+
+    // MARK: - Error Handling
+
+    private func presentError(title: String, message: String) {
+        errorTitle = title
+        errorMessage = message
+        showError = true
     }
 
     // MARK: - Logging
@@ -36,6 +49,10 @@ final class HydrationManager {
             try context.save()
         } catch {
             print("[AquaFaste] Failed to save water log: \(error)")
+            presentError(
+                title: "Couldn't Save Drink",
+                message: "Couldn't save your drink. Try again?"
+            )
         }
 
         // Write to HealthKit
@@ -72,7 +89,15 @@ final class HydrationManager {
         guard let context = modelContext else { return }
         lastDeletedLog = nil  // can't undo a manual delete
         context.delete(log)
-        try? context.save()
+        do {
+            try context.save()
+        } catch {
+            print("[AquaFaste] Failed to delete log: \(error)")
+            presentError(
+                title: "Couldn't Remove Entry",
+                message: "Couldn't remove that entry. Please try once more."
+            )
+        }
         refreshToday()
     }
 
@@ -84,7 +109,15 @@ final class HydrationManager {
             for log in all {
                 context.delete(log)
             }
-            try? context.save()
+            do {
+                try context.save()
+            } catch {
+                print("[AquaFaste] Failed to delete all logs: \(error)")
+                presentError(
+                    title: "Reset Failed",
+                    message: "Something went wrong. Your data is safe — try again in a moment."
+                )
+            }
         }
         refreshToday()
     }
@@ -99,7 +132,15 @@ final class HydrationManager {
             log.hydrationRatio = type.hydrationRatio
             log.caffeineMg = type.caffeinePer250ml * log.amount / 250.0
         }
-        try? modelContext?.save()
+        do {
+            try modelContext?.save()
+        } catch {
+            print("[AquaFaste] Failed to edit log: \(error)")
+            presentError(
+                title: "Couldn't Save Changes",
+                message: "Couldn't save your drink. Try again?"
+            )
+        }
         refreshToday()
     }
 
@@ -167,13 +208,29 @@ final class HydrationManager {
             sortOrder: existing.count
         )
         context.insert(fav)
-        try? context.save()
+        do {
+            try context.save()
+        } catch {
+            print("[AquaFaste] Failed to save favorite: \(error)")
+            presentError(
+                title: "Couldn't Save Favorite",
+                message: "Couldn't save your drink. Try again?"
+            )
+        }
     }
 
     func deleteFavorite(_ fav: FavoriteDrink) {
         guard let context = modelContext else { return }
         context.delete(fav)
-        try? context.save()
+        do {
+            try context.save()
+        } catch {
+            print("[AquaFaste] Failed to delete favorite: \(error)")
+            presentError(
+                title: "Couldn't Remove Favorite",
+                message: "Couldn't remove that entry. Please try once more."
+            )
+        }
     }
 
     // MARK: - Caffeine

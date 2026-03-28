@@ -13,12 +13,17 @@ struct SettingsView: View {
     @State private var editingCups: [(name: String, size: Double)] = []
 
     private let haptics = HapticManager.shared
+    private let sounds = SoundManager.shared
 
     // Theme
     @AppStorage("af_app_theme") private var selectedThemeRaw: String = AppTheme.ocean.rawValue
     private var selectedTheme: AppTheme {
         AppTheme(rawValue: selectedThemeRaw) ?? .ocean
     }
+
+    // Pro gate
+    @State private var showPaywall = false
+    private let subscription = SubscriptionManager.shared
 
     // Notification setting states (synced from profile)
     @State private var remindersEnabled: Bool = UserProfile.shared.remindersEnabled
@@ -115,6 +120,14 @@ struct SettingsView: View {
             } message: {
                 Text("All hydration data and settings have been reset to defaults.")
             }
+            .alert(manager.errorTitle, isPresented: .init(
+                get: { manager.showError },
+                set: { manager.showError = $0 }
+            )) {
+                Button("OK") { }
+            } message: {
+                Text(manager.errorMessage)
+            }
             .confirmationDialog(
                 "Reset All Data?",
                 isPresented: $showResetConfirmation,
@@ -180,11 +193,17 @@ struct SettingsView: View {
     private var themeSection: some View {
         Section {
             ForEach(AppTheme.allCases) { theme in
+                let isLocked = theme.isPremium && !subscription.isPro
                 Button {
-                    haptics.selectionChanged()
-                    withAnimation(.easeInOut(duration: 0.25)) {
-                        selectedThemeRaw = theme.rawValue
-                        ThemeManager.shared.setTheme(theme)
+                    if isLocked {
+                        haptics.light()
+                        showPaywall = true
+                    } else {
+                        haptics.selectionChanged()
+                        withAnimation(.easeInOut(duration: 0.25)) {
+                            selectedThemeRaw = theme.rawValue
+                            ThemeManager.shared.setTheme(theme)
+                        }
                     }
                 } label: {
                     HStack(spacing: 12) {
@@ -197,31 +216,56 @@ struct SettingsView: View {
                         }
                         .clipShape(RoundedRectangle(cornerRadius: 6))
                         .shadow(color: theme.primary.opacity(0.2), radius: 3, x: 0, y: 1)
+                        .overlay {
+                            if isLocked {
+                                RoundedRectangle(cornerRadius: 6)
+                                    .fill(Color.black.opacity(0.3))
+                                Image(systemName: "lock.fill")
+                                    .font(.caption2)
+                                    .foregroundStyle(.white)
+                            }
+                        }
                         .accessibilityHidden(true)
 
                         Image(systemName: theme.iconName)
-                            .foregroundStyle(theme.primary)
+                            .foregroundStyle(isLocked ? Color(.tertiaryLabel) : theme.primary)
                             .frame(width: 20)
                             .accessibilityHidden(true)
 
                         Text(theme.displayName)
-                            .foregroundStyle(Color.aquaTextPrimary)
+                            .foregroundStyle(isLocked ? Color(.tertiaryLabel) : Color.aquaTextPrimary)
+
+                        if isLocked {
+                            Text("PRO")
+                                .font(.system(size: 9, weight: .bold))
+                                .padding(.horizontal, 6)
+                                .padding(.vertical, 2)
+                                .background(Color.orange, in: Capsule())
+                                .foregroundStyle(.white)
+                        }
 
                         Spacer()
 
-                        if selectedTheme == theme {
+                        if selectedTheme == theme && !isLocked {
                             Image(systemName: "checkmark.circle.fill")
                                 .foregroundStyle(theme.primary)
                                 .accessibilityLabel("Selected")
+                        } else if isLocked {
+                            Image(systemName: "lock.fill")
+                                .font(.caption)
+                                .foregroundStyle(Color(.tertiaryLabel))
                         }
                     }
                 }
-                .accessibilityLabel("\(theme.displayName) theme")
-                .accessibilityAddTraits(selectedTheme == theme ? [.isSelected] : [])
-                .accessibilityHint(selectedTheme == theme ? "Currently active" : "Double tap to activate")
+                .accessibilityLabel("\(theme.displayName) theme\(isLocked ? ", requires Pro" : "")")
+                .accessibilityAddTraits(selectedTheme == theme && !isLocked ? [.isSelected] : [])
+                .accessibilityHint(isLocked ? "Double tap to see Pro plans" : (selectedTheme == theme ? "Currently active" : "Double tap to activate"))
             }
         } header: {
             Label("Theme", systemImage: "paintpalette.fill")
+        }
+        .sheet(isPresented: $showPaywall) {
+            PaywallView()
         }
     }
 
@@ -295,6 +339,7 @@ struct SettingsView: View {
             }
 
             Button {
+                haptics.buttonPress()
                 editingCups = zip(profile.cupPresetNames, profile.cupPresets).map { (name: $0.0, size: $0.1) }
                 // Pad if needed
                 while editingCups.count < profile.cupPresets.count {
@@ -324,7 +369,9 @@ struct SettingsView: View {
             .accessibilityLabel("Refill reminder")
             .accessibilityValue(refillReminderEnabled ? "On" : "Off")
             .accessibilityHint("Reminds you when your bottle is empty")
+            .accessibilityIdentifier("refillReminderToggle")
             .onChange(of: refillReminderEnabled) { _, newValue in
+                haptics.toggleChanged()
                 profile.refillReminderEnabled = newValue
             }
 
@@ -339,6 +386,7 @@ struct SettingsView: View {
                         Text("1000 ml").tag(1000.0)
                     }
                     .onChange(of: bottleSize) { _, newValue in
+                        haptics.sliderChanged()
                         profile.bottleSize = newValue
                     }
                 }
@@ -369,8 +417,9 @@ struct SettingsView: View {
             .accessibilityLabel("Drink reminders")
             .accessibilityValue(remindersEnabled ? "On" : "Off")
             .accessibilityHint("Sends periodic reminders to drink water")
+            .accessibilityIdentifier("drinkRemindersToggle")
             .onChange(of: remindersEnabled) { _, newValue in
-                haptics.selectionChanged()
+                haptics.toggleChanged()
                 profile.remindersEnabled = newValue
                 rescheduleNotifications()
             }
@@ -441,7 +490,11 @@ struct SettingsView: View {
                 Label("Morning Reminder", systemImage: "sunrise.fill")
             }
             .tint(Color.aquaPrimary)
+            .accessibilityLabel("Morning reminder")
+            .accessibilityValue(morningReminderEnabled ? "On" : "Off")
+            .accessibilityIdentifier("morningReminderToggle")
             .onChange(of: morningReminderEnabled) { _, newValue in
+                haptics.toggleChanged()
                 profile.morningReminderEnabled = newValue
                 rescheduleNotifications()
             }
@@ -450,7 +503,11 @@ struct SettingsView: View {
                 Label("Evening Summary", systemImage: "moon.stars.fill")
             }
             .tint(Color.aquaPrimary)
+            .accessibilityLabel("Evening summary notification")
+            .accessibilityValue(eveningSummaryEnabled ? "On" : "Off")
+            .accessibilityIdentifier("eveningSummaryToggle")
             .onChange(of: eveningSummaryEnabled) { _, newValue in
+                haptics.toggleChanged()
                 profile.eveningSummaryEnabled = newValue
                 rescheduleNotifications()
             }
@@ -459,7 +516,11 @@ struct SettingsView: View {
                 Label("Goal Celebration", systemImage: "party.popper.fill")
             }
             .tint(Color.aquaPrimary)
+            .accessibilityLabel("Goal celebration notification")
+            .accessibilityValue(goalCelebrationEnabled ? "On" : "Off")
+            .accessibilityIdentifier("goalCelebrationToggle")
             .onChange(of: goalCelebrationEnabled) { _, newValue in
+                haptics.toggleChanged()
                 profile.goalCelebrationEnabled = newValue
             }
 
@@ -467,9 +528,27 @@ struct SettingsView: View {
                 Label("Streak Reminder", systemImage: "flame.fill")
             }
             .tint(Color.aquaPrimary)
+            .accessibilityLabel("Streak reminder notification")
+            .accessibilityValue(streakReminderEnabled ? "On" : "Off")
+            .accessibilityIdentifier("streakReminderToggle")
             .onChange(of: streakReminderEnabled) { _, newValue in
+                haptics.toggleChanged()
                 profile.streakReminderEnabled = newValue
                 rescheduleNotifications()
+            }
+
+            Toggle(isOn: Binding(
+                get: { sounds.soundEnabled },
+                set: { sounds.soundEnabled = $0 }
+            )) {
+                Label("Sound Effects", systemImage: "speaker.wave.2.fill")
+            }
+            .tint(Color.aquaPrimary)
+            .accessibilityLabel("Sound effects")
+            .accessibilityValue(sounds.soundEnabled ? "On" : "Off")
+            .accessibilityIdentifier("soundEffectsToggle")
+            .onChange(of: sounds.soundEnabled) { _, _ in
+                haptics.toggleChanged()
             }
         } header: {
             Text("Notifications")
@@ -515,12 +594,30 @@ struct SettingsView: View {
     private var exportSection: some View {
         Section {
             Button {
-                exportCSV()
+                haptics.buttonPress()
+                if subscription.isPro {
+                    exportCSV()
+                } else {
+                    haptics.light()
+                    showPaywall = true
+                }
             } label: {
-                Label("Export History as CSV", systemImage: "square.and.arrow.up")
+                HStack {
+                    Label("Export History as CSV", systemImage: "square.and.arrow.up")
+                    Spacer()
+                    if !subscription.isPro {
+                        Text("PRO")
+                            .font(.system(size: 9, weight: .bold))
+                            .padding(.horizontal, 6)
+                            .padding(.vertical, 2)
+                            .background(Color.orange, in: Capsule())
+                            .foregroundStyle(.white)
+                    }
+                }
             }
-            .accessibilityLabel("Export hydration history as CSV file")
-            .accessibilityHint("Creates a CSV file of all your hydration logs for sharing or backup")
+            .accessibilityLabel("Export hydration history as CSV file\(subscription.isPro ? "" : ", requires Pro")")
+            .accessibilityHint(subscription.isPro ? "Creates a CSV file of all your hydration logs for sharing or backup" : "Double tap to see Pro plans")
+            .accessibilityIdentifier("exportCSVButton")
         } header: {
             Text("Data")
         }
@@ -566,6 +663,7 @@ struct SettingsView: View {
         Section("About") {
             // Share App
             Button {
+                haptics.buttonPress()
                 showShareApp = true
             } label: {
                 Label("Share AquaFaste", systemImage: "square.and.arrow.up")
@@ -575,6 +673,7 @@ struct SettingsView: View {
 
             // Rate App
             Button {
+                haptics.buttonPress()
                 if let url = URL(string: "https://apps.apple.com/app/aquafaste/id6743434938?action=write-review") {
                     UIApplication.shared.open(url)
                 }
@@ -586,6 +685,7 @@ struct SettingsView: View {
 
             // Contact Support
             Button {
+                haptics.buttonPress()
                 sendSupportEmail()
             } label: {
                 Label("Contact Support", systemImage: "envelope.fill")
@@ -646,6 +746,7 @@ struct SettingsView: View {
     private var dangerZoneSection: some View {
         Section {
             Button(role: .destructive) {
+                haptics.buttonPress()
                 showResetConfirmation = true
             } label: {
                 Label("Reset All Data", systemImage: "trash.fill")

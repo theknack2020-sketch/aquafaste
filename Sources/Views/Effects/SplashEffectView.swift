@@ -65,31 +65,31 @@ struct SplashEffectView: View {
             )
         }
 
-        // Animate ring 1
-        withAnimation(.easeOut(duration: 0.6)) {
+        // Animate ring 1 — spring for organic feel
+        withAnimation(.spring(response: 0.5, dampingFraction: 0.6)) {
             ringScale = 1.1
             ringOpacity = 0.6
         }
-        withAnimation(.easeOut(duration: 0.6).delay(0.3)) {
+        withAnimation(.spring(response: 0.5, dampingFraction: 0.6).delay(0.3)) {
             ringOpacity = 0
         }
 
-        // Animate ring 2 (delayed)
-        withAnimation(.easeOut(duration: 0.6).delay(0.15)) {
+        // Animate ring 2 (delayed) — spring
+        withAnimation(.spring(response: 0.5, dampingFraction: 0.6).delay(0.15)) {
             ring2Scale = 1.0
             ring2Opacity = 0.4
         }
-        withAnimation(.easeOut(duration: 0.5).delay(0.45)) {
+        withAnimation(.spring(response: 0.5, dampingFraction: 0.6).delay(0.45)) {
             ring2Opacity = 0
         }
 
-        // Animate droplets
+        // Animate droplets with spring
         for i in droplets.indices {
             let delay = Double.random(in: 0...0.15)
-            withAnimation(.easeOut(duration: 0.4).delay(delay)) {
+            withAnimation(.spring(response: 0.5, dampingFraction: 0.6).delay(delay)) {
                 droplets[i].opacity = 0.7
             }
-            withAnimation(.easeOut(duration: 0.4).delay(delay + 0.25)) {
+            withAnimation(.spring(response: 0.5, dampingFraction: 0.6).delay(delay + 0.25)) {
                 droplets[i].opacity = 0
                 droplets[i].offset.height += 20
             }

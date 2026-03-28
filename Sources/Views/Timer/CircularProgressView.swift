@@ -141,6 +141,7 @@ struct CircularProgressView: View {
         .accessibilityLabel(accessibilityProgressLabel)
         .accessibilityValue("\(percentageComplete) percent")
         .accessibilityAddTraits(.updatesFrequently)
+        .accessibilityIdentifier("progressRingView")
         .onChange(of: progress) { oldValue, newValue in
             withAnimation(.spring(response: 0.8, dampingFraction: 0.65, blendDuration: 0.3)) {
                 animatedProgress = newValue

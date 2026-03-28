@@ -5,52 +5,45 @@ struct HistoryView: View {
     @Environment(HydrationManager.self) private var manager
     @Environment(\.modelContext) private var modelContext
     private let profile = UserProfile.shared
+    private let subscription = SubscriptionManager.shared
 
     private let haptics = HapticManager.shared
+    private let sounds = SoundManager.shared
 
     @State private var editingLog: WaterLog?
     @State private var editAmount: String = ""
     @State private var editDrinkType: DrinkType = .water
     @State private var showEditSheet = false
+    @State private var showPaywall = false
 
     var body: some View {
         NavigationStack {
             Group {
                 if manager.todayLogs.isEmpty && manager.logsForDate(Calendar.current.date(byAdding: .day, value: -1, to: .now)!).isEmpty && manager.logsForDate(Calendar.current.date(byAdding: .day, value: -2, to: .now)!).isEmpty && profile.currentStreak == 0 {
                     // Empty state
-                    VStack(spacing: 20) {
+                    VStack(spacing: 16) {
                         Spacer()
 
-                        ZStack {
-                            Circle()
-                                .fill(Color.aquaPrimary.opacity(0.08))
-                                .frame(width: 120, height: 120)
-                            Image(systemName: "drop.circle")
-                                .font(.system(size: 56))
-                                .foregroundStyle(Color.aquaPrimary.opacity(0.4))
-                                .symbolRenderingMode(.hierarchical)
-                        }
+                        Image(systemName: "calendar.badge.clock")
+                            .font(.system(size: 60))
+                            .foregroundStyle(Color.aquaPrimary)
+                            .symbolEffect(.pulse)
 
-                        VStack(spacing: 8) {
-                            Text("No History Yet")
-                                .font(.title3.weight(.bold))
-                                .foregroundStyle(Color.aquaTextPrimary)
-                            Text("Log your first drink to see history")
-                                .font(.subheadline)
-                                .foregroundStyle(Color.aquaTextSecondary)
-                            Text("Your daily logs, streaks, and weekly charts\nwill appear here.")
-                                .font(.caption)
-                                .foregroundStyle(.tertiary)
-                                .multilineTextAlignment(.center)
-                                .padding(.top, 2)
-                        }
+                        Text("No History Yet")
+                            .font(.title3.weight(.bold))
+                            .foregroundStyle(Color.aquaTextPrimary)
+
+                        Text("Your hydration journey starts with the first glass. Head to Hydrate and log a drink!")
+                            .font(.subheadline)
+                            .foregroundStyle(.secondary)
+                            .multilineTextAlignment(.center)
 
                         Spacer()
                     }
                     .frame(maxWidth: .infinity)
-                    .padding()
+                    .padding(40)
                     .accessibilityElement(children: .combine)
-                    .accessibilityLabel("No history yet. Log your first drink to see history.")
+                    .accessibilityLabel("No history yet. Your hydration journey starts with the first glass.")
                 } else {
                     ScrollView {
                         VStack(spacing: 24) {
@@ -72,12 +65,36 @@ struct HistoryView: View {
                             // Day before yesterday
                             let dayBefore = Calendar.current.date(byAdding: .day, value: -2, to: .now)!
                             daySection(for: dayBefore, title: dayBefore.formatted(.dateTime.weekday(.wide)))
+
+                            // Additional days (3-6 days ago)
+                            ForEach(3..<7, id: \.self) { daysAgo in
+                                let date = Calendar.current.date(byAdding: .day, value: -daysAgo, to: .now)!
+                                daySection(for: date, title: date.formatted(.dateTime.weekday(.wide).month(.abbreviated).day()))
+                            }
+
+                            // Pro unlock banner for older history
+                            if !subscription.isPro {
+                                proHistoryBanner
+                            } else {
+                                // Show older days for Pro users (7-29 days ago)
+                                ForEach(7..<30, id: \.self) { daysAgo in
+                                    let date = Calendar.current.date(byAdding: .day, value: -daysAgo, to: .now)!
+                                    let logs = manager.logsForDate(date)
+                                    if !logs.isEmpty {
+                                        daySection(for: date, title: date.formatted(.dateTime.weekday(.wide).month(.abbreviated).day()))
+                                    }
+                                }
+                            }
                         }
                         .padding()
                     }
                 }
             }
             .navigationTitle("History")
+            .aquaBackgroundGradient()
+            .sheet(isPresented: $showPaywall) {
+                PaywallView()
+            }
             .sheet(isPresented: $showEditSheet) {
                 if let log = editingLog {
                     EditLogSheet(
@@ -88,13 +105,22 @@ struct HistoryView: View {
                             showEditSheet = false
                         },
                         onDelete: {
-                            haptics.error()
+                            haptics.deleteDrink()
+                            sounds.playDeleteSound()
                             manager.deleteLog(log)
                             showEditSheet = false
                         }
                     )
                     .presentationDetents([.medium])
                 }
+            }
+            .alert(manager.errorTitle, isPresented: .init(
+                get: { manager.showError },
+                set: { manager.showError = $0 }
+            )) {
+                Button("OK") { }
+            } message: {
+                Text(manager.errorMessage)
             }
         }
     }
@@ -130,10 +156,12 @@ struct HistoryView: View {
                             .font(.system(size: 8))
                             .foregroundStyle(.secondary)
                     }
+                    .accessibilityLabel("\(milestone) day milestone, \(profile.currentStreak >= milestone ? "reached" : "not reached")")
                     if milestone != 100 {
                         Rectangle()
                             .fill(profile.currentStreak >= milestone ? Color.orange.opacity(0.5) : Color.gray.opacity(0.2))
                             .frame(height: 2)
+                            .accessibilityHidden(true)
                     }
                 }
             }
@@ -155,6 +183,45 @@ struct HistoryView: View {
         }
     }
 
+    // MARK: - Pro History Banner
+
+    private var proHistoryBanner: some View {
+        VStack(spacing: 12) {
+            HStack(spacing: 8) {
+                Image(systemName: "lock.fill")
+                    .font(.title3)
+                    .foregroundStyle(.orange)
+                VStack(alignment: .leading, spacing: 2) {
+                    Text("Unlock Full History")
+                        .font(.subheadline.weight(.bold))
+                    Text("Free plan shows the last 7 days. Upgrade to Pro for unlimited history.")
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                }
+            }
+
+            Button {
+                showPaywall = true
+            } label: {
+                Text("See Pro Plans")
+                    .font(.subheadline.weight(.semibold))
+                    .frame(maxWidth: .infinity)
+                    .padding(.vertical, 10)
+                    .background(Color.aquaGradient, in: RoundedRectangle(cornerRadius: 10))
+                    .foregroundStyle(.white)
+            }
+            .accessibilityLabel("See Pro plans to unlock full history")
+            .accessibilityIdentifier("historyProBanner")
+        }
+        .padding()
+        .background(Color.aquaCardBackground, in: RoundedRectangle(cornerRadius: 16))
+        .overlay(
+            RoundedRectangle(cornerRadius: 16)
+                .stroke(Color.orange.opacity(0.3), lineWidth: 1)
+        )
+        .shadow(color: Color.orange.opacity(0.1), radius: 8, x: 0, y: 3)
+    }
+
     // MARK: - Weekly Chart
 
     private var weeklyChart: some View {
@@ -162,6 +229,7 @@ struct HistoryView: View {
             Text("This Week")
                 .font(.headline)
                 .accessibilityAddTraits(.isHeader)
+                .accessibilityIdentifier("weeklyChartHeader")
 
             let weekData = manager.weeklyData()
 
@@ -315,6 +383,7 @@ struct HistoryView: View {
                     .contentShape(Rectangle())
                     .contextMenu {
                         Button {
+                            haptics.buttonPress()
                             editingLog = log
                             editAmount = "\(Int(profile.unit.fromMl(log.amount)))"
                             editDrinkType = log.drink
@@ -324,8 +393,9 @@ struct HistoryView: View {
                         }
 
                         Button(role: .destructive) {
-                            haptics.error()
-                            withAnimation(.spring(response: 0.4)) {
+                            haptics.deleteDrink()
+                            sounds.playDeleteSound()
+                            withAnimation(.spring(response: 0.4, dampingFraction: 0.8)) {
                                 manager.deleteLog(log)
                             }
                         } label: {
@@ -461,6 +531,7 @@ struct EditLogSheet: View {
             .toolbar {
                 ToolbarItem(placement: .topBarTrailing) {
                     Button("Cancel") { dismiss() }
+                        .accessibilityIdentifier("editLogCancelButton")
                 }
             }
         }

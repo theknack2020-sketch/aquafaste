@@ -5,6 +5,7 @@ struct DrinkPickerView: View {
     @Environment(\.dismiss) private var dismiss
 
     private let haptics = HapticManager.shared
+    private let sounds = SoundManager.shared
 
     // Group drinks by category
     private var groupedDrinks: [(category: DrinkCategory, drinks: [DrinkType])] {
@@ -75,8 +76,12 @@ struct DrinkPickerView: View {
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .topBarTrailing) {
-                    Button("Done") { dismiss() }
+                    Button("Done") {
+                        haptics.buttonPress()
+                        dismiss()
+                    }
                         .accessibilityLabel("Done, close drink picker")
+                        .accessibilityIdentifier("drinkPickerDoneButton")
                 }
             }
         }
@@ -143,6 +148,8 @@ struct DrinkPickerView: View {
             }
         )
         .shadow(color: selectedDrink.color.opacity(0.15), radius: 10, x: 0, y: 4)
+        .accessibilityElement(children: .combine)
+        .accessibilityLabel("Selected: \(selectedDrink.displayName), \(Int(selectedDrink.hydrationRatio * 100)) percent hydration\(selectedDrink.hasCaffeine ? ", \(Int(selectedDrink.caffeinePer250ml)) milligrams caffeine" : "")")
     }
 
     // MARK: - Hydration Efficiency

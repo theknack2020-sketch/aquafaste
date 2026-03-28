@@ -46,6 +46,7 @@ struct AnimatedNumberView: View {
                     .contentTransition(.numericText())
             }
         }
+        .animation(.spring(response: 0.3, dampingFraction: 0.8), value: displayedValue)
         .onChange(of: value) { oldVal, newVal in
             startAnimation(from: displayedValue, to: newVal)
         }

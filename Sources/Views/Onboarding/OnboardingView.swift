@@ -12,6 +12,7 @@ struct OnboardingView: View {
 
     private let profile = UserProfile.shared
     private let haptics = HapticManager.shared
+    private let sounds = SoundManager.shared
 
     var body: some View {
         VStack {
@@ -89,12 +90,13 @@ struct OnboardingView: View {
             Spacer()
 
             Button("Get Started") {
-                haptics.light()
-                withAnimation { currentPage = 1 }
+                haptics.buttonPress()
+                withAnimation(.spring(response: 0.5, dampingFraction: 0.8)) { currentPage = 1 }
             }
             .buttonStyle(.borderedProminent)
             .tint(Color.aquaPrimary)
             .controlSize(.large)
+            .accessibilityIdentifier("getStartedButton")
 
             pageIndicator(current: 0)
             }
@@ -161,8 +163,8 @@ struct OnboardingView: View {
                 if let w = Double(weight), w > 0 {
                     profile.weight = w
                 }
-                haptics.light()
-                withAnimation { currentPage = 2 }
+                haptics.buttonPress()
+                withAnimation(.spring(response: 0.5, dampingFraction: 0.8)) { currentPage = 2 }
             }
             .buttonStyle(.borderedProminent)
             .tint(Color.aquaPrimary)
@@ -241,8 +243,8 @@ struct OnboardingView: View {
 
             Button("Next") {
                 profile.activityLevel = selectedActivity
-                haptics.light()
-                withAnimation { currentPage = 3 }
+                haptics.buttonPress()
+                withAnimation(.spring(response: 0.5, dampingFraction: 0.8)) { currentPage = 3 }
             }
             .buttonStyle(.borderedProminent)
             .tint(Color.aquaPrimary)
@@ -338,8 +340,8 @@ struct OnboardingView: View {
                         .foregroundStyle(Color.aquaPrimary)
 
                         Button("Continue Without") {
-                            haptics.light()
-                            withAnimation { currentPage = 4 }
+                            haptics.buttonPress()
+                            withAnimation(.spring(response: 0.5, dampingFraction: 0.8)) { currentPage = 4 }
                         }
                         .buttonStyle(.borderedProminent)
                         .tint(Color.aquaCardBackground)
@@ -358,8 +360,8 @@ struct OnboardingView: View {
                 }
 
                 Button("Continue") {
-                    haptics.light()
-                    withAnimation { currentPage = 4 }
+                    haptics.buttonPress()
+                    withAnimation(.spring(response: 0.5, dampingFraction: 0.8)) { currentPage = 4 }
                 }
                 .buttonStyle(.borderedProminent)
                 .tint(Color.aquaPrimary)
@@ -378,10 +380,12 @@ struct OnboardingView: View {
                 .buttonStyle(.borderedProminent)
                 .tint(Color.aquaPrimary)
                 .controlSize(.large)
+                .accessibilityLabel("Enable hydration reminders")
+                .accessibilityIdentifier("enableRemindersButton")
 
                 Button("Skip for Now") {
-                    haptics.light()
-                    withAnimation { currentPage = 4 }
+                    haptics.buttonPress()
+                    withAnimation(.spring(response: 0.5, dampingFraction: 0.8)) { currentPage = 4 }
                 }
                 .font(.subheadline)
                 .foregroundStyle(.secondary)
@@ -457,7 +461,8 @@ struct OnboardingView: View {
             Spacer()
 
             Button("Start Tracking") {
-                haptics.success()
+                haptics.goalComplete()
+                sounds.playCelebration()
                 profile.onboardingComplete = true
                 Task {
                     let hkAuthorized = await HealthKitManager.shared.requestAuthorization()
@@ -472,6 +477,7 @@ struct OnboardingView: View {
             .tint(Color.aquaPrimary)
             .controlSize(.large)
             .accessibilityLabel("Start tracking your daily hydration")
+            .accessibilityIdentifier("startTrackingButton")
 
             Button("Try Premium Free") {
                 showPaywall = true
@@ -480,6 +486,7 @@ struct OnboardingView: View {
             .foregroundStyle(Color.aquaPrimary)
             .accessibilityLabel("Try premium features free")
             .accessibilityHint("Opens premium subscription options")
+            .accessibilityIdentifier("onboardingTryPremiumButton")
 
             pageIndicator(current: 4)
             }
@@ -520,5 +527,6 @@ struct OnboardingView: View {
             }
         }
         .padding(.bottom, 8)
+        .accessibilityLabel("Page \(current + 1) of \(totalPages)")
     }
 }

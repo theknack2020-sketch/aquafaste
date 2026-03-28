@@ -4,6 +4,12 @@ import UniformTypeIdentifiers
 
 /// Generates CSV data from hydration logs for export
 struct CSVExporter {
+    /// Whether the user has permission to export (Pro feature)
+    @MainActor
+    static var canExport: Bool {
+        SubscriptionManager.shared.isPro
+    }
+
     /// Generate CSV string from water logs
     static func generateCSV(from logs: [WaterLog], unit: MeasurementUnit) -> String {
         var csv = "Date,Time,Drink Type,Amount (\(unit.displayName)),Effective Hydration (\(unit.displayName)),Hydration Ratio\n"

@@ -14,6 +14,29 @@ final class SubscriptionManager {
 
     var isPremium: Bool { isSubscribed || isLifetime }
 
+    /// Public alias for external isPro gate checks
+    var isPro: Bool { isPremium }
+
+    // MARK: - Action Counter (session-scoped soft paywall trigger)
+
+    private(set) var totalActions: Int = 0
+    var softPaywallDismissedThisSession = false
+
+    func incrementActionCount() {
+        totalActions += 1
+    }
+
+    /// Returns true when the user has performed enough actions to warrant a soft paywall nudge.
+    /// - Parameter actionCount: the current session action count
+    /// - Returns: true if actionCount >= 3, user is not premium, and they haven't dismissed this session
+    func shouldShowSoftPaywallForAction(actionCount: Int) -> Bool {
+        guard !isPremium else { return false }
+        guard !softPaywallDismissedThisSession else { return false }
+        return actionCount >= 3
+    }
+
+    // MARK: - Lifecycle
+
     private init() {
         Task { await checkSubscriptionStatus() }
         Task { await listenForTransactions() }
@@ -25,6 +48,8 @@ final class SubscriptionManager {
 
         for await result in Transaction.currentEntitlements {
             guard case .verified(let transaction) = result else { continue }
+
+            if transaction.revocationDate != nil { continue }
 
             if transaction.productID == Self.lifetimeID {
                 hasLifetime = true
@@ -70,7 +95,7 @@ final class SubscriptionManager {
         return isPremium
     }
 
-    // MARK: - Soft Paywall Logic
+    // MARK: - Soft Paywall Logic (time-based)
 
     /// Date when the user first launched the app (set once)
     var firstLaunchDate: Date {
@@ -93,7 +118,4 @@ final class SubscriptionManager {
         ).day ?? 0
         return daysSinceInstall >= 7
     }
-
-    /// Whether the user dismissed the soft paywall this session
-    var softPaywallDismissedThisSession = false
 }

@@ -10,6 +10,10 @@ enum NotificationCategory: String {
     case eveningSummary = "EVENING_SUMMARY"
     case goalComplete = "GOAL_COMPLETE"
     case streakReminder = "STREAK_REMINDER"
+    case weeklySummary = "WEEKLY_SUMMARY"
+    case streakProtection = "STREAK_PROTECTION"
+    case inactivityNudge = "INACTIVITY_NUDGE"
+    case achievementUnlocked = "ACHIEVEMENT_UNLOCKED"
 }
 
 enum NotificationID {
@@ -17,6 +21,9 @@ enum NotificationID {
     static let eveningSummary = "evening_summary"
     static let goalComplete = "goal_complete"
     static let streakReminder = "streak_reminder"
+    static let weeklySummary = "weekly_summary"
+    static let streakProtection = "streak_protection"
+    static let inactivityNudge = "inactivity_nudge"
 
     static func hydrationReminder(day: Int, hour: Int) -> String {
         "hydration_\(day)_\(hour)"
@@ -136,6 +143,98 @@ final class NotificationManager: NSObject, ObservableObject {
         ])
     }
 
+    // MARK: - Message Variants
+
+    /// Morning motivation messages — random selection
+    private static let morningMessages: [(title: String, body: String)] = [
+        ("Rise and Hydrate! 🌅", "Start your day with a glass of water — your body dehydrates overnight."),
+        ("Good Morning! ☀️", "Your body needs water after sleep. A glass now kickstarts your metabolism."),
+        ("Start Strong 💧", "A glass of water first thing sets the tone for a great day."),
+        ("Morning Energy ☕", "Morning hydration = morning energy. Let's go!"),
+        ("Wake Up, Drink Up! 💧", "Your cells are thirsty after 8 hours. Hydrate to feel sharp and focused."),
+    ]
+
+    /// Streak protection messages — with {streak} placeholder
+    private static let streakProtectionMessages: [String] = [
+        "Don't break your {streak}-day streak! 🔥",
+        "Your streak is at risk! One glass keeps it alive.",
+        "{streak} days strong. Keep it going! 💪",
+        "Almost lost it! Quick — log a drink to save your streak.",
+        "Streak alert: Log water now to stay on track. 🏆",
+    ]
+
+    /// Evening summary messages — dynamic based on progress
+    private static let eveningGoalMetMessages: [String] = [
+        "Great day! You drank {amount} today. 🌟",
+        "Hydration champion! {percentage}% of your goal — crushed it! 💧",
+        "Day complete. You logged {count} drinks today. Nice! ✅",
+        "Goal smashed! {amount} logged. Your body thanks you. 🎯",
+        "Another perfect day — {percentage}% hydrated. Keep it up! 🏆",
+    ]
+
+    private static let eveningGoalNotMetMessages: [String] = [
+        "You're {remaining} away from your goal. One more glass?",
+        "Hydration recap: {percentage}% of your goal today. Almost there!",
+        "So close! Just {remaining} more to hit 100%. 🎯",
+        "You drank {amount} today ({percentage}%). A bit more before bed?",
+        "Evening check: {remaining} left to reach your target. 💧",
+    ]
+
+    /// Inactivity nudge messages — for 3+ days absence
+    private static let inactivityMessages: [String] = [
+        "We miss you! 💧 Your hydration tracking is waiting.",
+        "It's been a while. A fresh glass of water awaits.",
+        "Ready to restart? Your body will thank you. 🙏",
+        "Let's build that streak back! One glass to begin. 💪",
+        "Water break — your hydration journey doesn't end here. 🌊",
+    ]
+
+    /// Get a random message for a type, with variable substitution
+    func randomMessage(
+        for type: NotificationCategory,
+        streak: Int = 0,
+        amount: Double = 0,
+        goal: Double = 0,
+        count: Int = 0
+    ) -> (title: String, body: String) {
+        let unit = profile.unit
+
+        switch type {
+        case .morningReminder:
+            return Self.morningMessages.randomElement()!
+
+        case .streakProtection:
+            let template = Self.streakProtectionMessages.randomElement()!
+            let body = template.replacingOccurrences(of: "{streak}", with: "\(streak)")
+            return ("Keep Your Streak! 🔥", body)
+
+        case .eveningSummary:
+            let percentage = goal > 0 ? Int(amount / goal * 100) : 0
+            let remaining = unit.formatAmount(max(0, goal - amount))
+            let formattedAmount = unit.formatAmount(amount)
+            let emoji = percentage >= 100 ? "🎉" : (percentage >= 75 ? "👍" : "💧")
+
+            let templates = amount >= goal ? Self.eveningGoalMetMessages : Self.eveningGoalNotMetMessages
+            let template = templates.randomElement()!
+
+            let body = template
+                .replacingOccurrences(of: "{amount}", with: formattedAmount)
+                .replacingOccurrences(of: "{remaining}", with: remaining)
+                .replacingOccurrences(of: "{percentage}", with: "\(percentage)")
+                .replacingOccurrences(of: "{count}", with: "\(count)")
+                .replacingOccurrences(of: "{emoji}", with: emoji)
+
+            return ("Daily Hydration Summary 🌙", body)
+
+        case .inactivityNudge:
+            let body = Self.inactivityMessages.randomElement()!
+            return ("Time to Hydrate Again 💧", body)
+
+        default:
+            return ("Time to hydrate! 💧", "A glass of water keeps you sharp and energized.")
+        }
+    }
+
     // MARK: - Smart Timing
 
     /// Record that the user just logged water — suppresses imminent reminders
@@ -173,6 +272,12 @@ final class NotificationManager: NSObject, ObservableObject {
         if profile.streakReminderEnabled {
             await scheduleStreakReminder()
         }
+
+        // Weekly summary every Sunday at 8 PM
+        await scheduleWeeklySummary()
+
+        // Streak protection — fires 2 hours before bedtime if streak > 0
+        await scheduleStreakProtection()
 
         await updatePendingCount()
     }
@@ -248,9 +353,10 @@ final class NotificationManager: NSObject, ObservableObject {
     // MARK: - Morning Reminder
 
     private func scheduleMorningReminder() async {
+        let message = randomMessage(for: .morningReminder)
         let content = UNMutableNotificationContent()
-        content.title = "Good Morning! ☀️"
-        content.body = "Start your day with a glass of water. Your body dehydrates overnight — rehydrate to feel sharp and energized."
+        content.title = message.title
+        content.body = message.body
         content.sound = .default
         content.categoryIdentifier = NotificationCategory.morningReminder.rawValue
         content.threadIdentifier = "morning-reminder"
@@ -299,21 +405,17 @@ final class NotificationManager: NSObject, ObservableObject {
     }
 
     /// Fire an immediate evening summary with actual data
-    func sendEveningSummaryNow(todayTotal: Double, goalAmount: Double) {
-        let unit = profile.unit
-        let formattedAmount = unit.formatAmount(todayTotal)
-        let percentage = goalAmount > 0 ? Int(todayTotal / goalAmount * 100) : 0
+    func sendEveningSummaryNow(todayTotal: Double, goalAmount: Double, logCount: Int = 0) {
+        let message = randomMessage(
+            for: .eveningSummary,
+            amount: todayTotal,
+            goal: goalAmount,
+            count: logCount
+        )
 
         let content = UNMutableNotificationContent()
-        content.title = "Daily Hydration Summary 🌙"
-
-        if todayTotal >= goalAmount {
-            content.body = "Amazing! You drank \(formattedAmount) today (\(percentage)% of goal). Keep up the great work! 💧"
-        } else {
-            let remaining = unit.formatAmount(max(0, goalAmount - todayTotal))
-            content.body = "You drank \(formattedAmount) today (\(percentage)% of goal). You're \(remaining) away from your target."
-        }
-
+        content.title = message.title
+        content.body = message.body
         content.sound = .default
         content.categoryIdentifier = NotificationCategory.eveningSummary.rawValue
 
@@ -335,11 +437,28 @@ final class NotificationManager: NSObject, ObservableObject {
         let content = UNMutableNotificationContent()
         content.title = "Goal Complete! 🎉💧"
 
-        if streak > 1 {
-            content.body = "You've hit your daily hydration goal! That's \(streak) days in a row. You're on fire! 🔥"
+        let messages: [String]
+        if streak > 7 {
+            messages = [
+                "You've hit your daily hydration goal! That's \(streak) days in a row. Legendary! 🔥",
+                "Goal crushed — \(streak)-day streak and counting. You're a hydration machine! 🏆",
+                "\(streak) days strong! Your consistency is impressive. Keep dominating! 💪",
+            ]
+        } else if streak > 1 {
+            messages = [
+                "You've hit your daily hydration goal! That's \(streak) days in a row. You're on fire! 🔥",
+                "Daily goal — done. \(streak)-day streak is growing! 💪",
+                "Another day, another goal crushed. \(streak) days and counting! 🌟",
+            ]
         } else {
-            content.body = "You've reached your daily hydration goal. Great job staying hydrated! Your body thanks you."
+            messages = [
+                "You've reached your daily hydration goal. Great job staying hydrated!",
+                "Daily goal achieved! Your body thanks you. Keep it going tomorrow! 💧",
+                "100% hydrated today — that's how it's done! 🎯",
+            ]
         }
+
+        content.body = messages.randomElement()!
 
         content.sound = UNNotificationSound.default
         content.categoryIdentifier = NotificationCategory.goalComplete.rawValue
@@ -361,9 +480,10 @@ final class NotificationManager: NSObject, ObservableObject {
         let streak = profile.currentStreak
         guard streak > 0 else { return }
 
+        let message = randomMessage(for: .streakProtection, streak: streak)
         let content = UNMutableNotificationContent()
-        content.title = "Keep Your Streak Going! 🔥"
-        content.body = streakMessage(for: streak)
+        content.title = message.title
+        content.body = message.body
         content.sound = .default
         content.categoryIdentifier = NotificationCategory.streakReminder.rawValue
         content.threadIdentifier = "streak-reminder"
@@ -430,6 +550,99 @@ final class NotificationManager: NSObject, ObservableObject {
         let dayOfYear = calendar.ordinality(of: .day, in: .year, for: .now) ?? 0
         let index = (hour + dayOfYear) % messages.count
         return messages[index]
+    }
+
+    // MARK: - Weekly Summary (Sundays at 8 PM)
+
+    private func scheduleWeeklySummary() async {
+        let content = UNMutableNotificationContent()
+        content.title = "Weekly Hydration Report 📊"
+        content.body = "Tap to see your week in review — streaks, achievements, and hydration trends."
+        content.sound = .default
+        content.categoryIdentifier = NotificationCategory.weeklySummary.rawValue
+        content.threadIdentifier = "weekly-summary"
+
+        var components = DateComponents()
+        components.weekday = 1  // Sunday
+        components.hour = 20   // 8 PM
+        components.minute = 0
+
+        let trigger = UNCalendarNotificationTrigger(dateMatching: components, repeats: true)
+        let request = UNNotificationRequest(
+            identifier: NotificationID.weeklySummary,
+            content: content,
+            trigger: trigger
+        )
+
+        try? await center.add(request)
+    }
+
+    // MARK: - Streak Protection (2 hours before bedtime if no logs today)
+
+    func scheduleStreakProtection() async {
+        let streak = profile.currentStreak
+        guard streak > 0, profile.streakReminderEnabled else { return }
+
+        // Remove any existing streak protection notification
+        center.removePendingNotificationRequests(withIdentifiers: [NotificationID.streakProtection])
+
+        let message = randomMessage(for: .streakProtection, streak: streak)
+        let content = UNMutableNotificationContent()
+        content.title = message.title
+        content.body = message.body
+        content.sound = .default
+        content.categoryIdentifier = NotificationCategory.streakProtection.rawValue
+        content.threadIdentifier = "streak-protection"
+        content.interruptionLevel = .timeSensitive
+
+        // Fire 2 hours before bedtime
+        let protectionHour = max(0, profile.sleepStart - 2)
+        var components = DateComponents()
+        components.hour = protectionHour
+        components.minute = 0
+
+        let trigger = UNCalendarNotificationTrigger(dateMatching: components, repeats: false)
+        let request = UNNotificationRequest(
+            identifier: NotificationID.streakProtection,
+            content: content,
+            trigger: trigger
+        )
+
+        try? await center.add(request)
+    }
+
+    // MARK: - Inactivity Nudge (after 3+ days of no logs)
+
+    func scheduleInactivityNudge(lastLogDate: Date?) async {
+        // Remove existing inactivity nudge
+        center.removePendingNotificationRequests(withIdentifiers: [NotificationID.inactivityNudge])
+
+        guard let lastLog = lastLogDate else { return }
+
+        let daysSinceLastLog = Calendar.current.dateComponents([.day], from: lastLog, to: .now).day ?? 0
+        guard daysSinceLastLog >= 3 else { return }
+
+        let message = randomMessage(for: .inactivityNudge)
+        let content = UNMutableNotificationContent()
+        content.title = message.title
+        content.body = message.body
+        content.sound = .default
+        content.categoryIdentifier = NotificationCategory.inactivityNudge.rawValue
+        content.threadIdentifier = "inactivity-nudge"
+
+        // Fire tomorrow morning at wake time
+        var components = DateComponents()
+        components.hour = profile.sleepEnd
+        components.minute = 30
+
+        let trigger = UNCalendarNotificationTrigger(dateMatching: components, repeats: false)
+        let request = UNNotificationRequest(
+            identifier: NotificationID.inactivityNudge,
+            content: content,
+            trigger: trigger
+        )
+
+        try? await center.add(request)
     }
 
     // MARK: - Cancel All

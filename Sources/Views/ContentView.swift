@@ -5,14 +5,20 @@ import StoreKit
 struct ContentView: View {
     @State private var hydrationManager = HydrationManager()
     @State private var onboardingDone = UserProfile.shared.onboardingComplete
+    @State private var showAchievementCelebration = false
     @Environment(\.modelContext) private var modelContext
     @Environment(\.scenePhase) private var scenePhase
     @Environment(\.requestReview) private var requestReview
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
     private let subscription = SubscriptionManager.shared
 
     /// Track theme changes to force view refresh
     @AppStorage("af_app_theme") private var currentTheme: String = AppTheme.ocean.rawValue
+    @State private var selectedTab = 0
+
+    private let haptics = HapticManager.shared
+    private let achievementManager = AchievementManager.shared
 
     var body: some View {
         Group {
@@ -32,6 +38,7 @@ struct ContentView: View {
         .environment(hydrationManager)
         .onAppear {
             hydrationManager.setup(context: modelContext)
+            achievementManager.setupAchievements(context: modelContext)
             // Record first launch date (no-op if already set)
             _ = subscription.firstLaunchDate
             if onboardingDone {
@@ -48,6 +55,8 @@ struct ContentView: View {
                 // Refresh data and reschedule on foreground return
                 // This also handles timezone changes — Calendar.current picks up new timezone
                 hydrationManager.refreshToday()
+                // Check achievements with fresh data
+                checkAchievements()
                 Task {
                     await NotificationManager.shared.checkAuthorizationStatus()
                 }
@@ -64,31 +73,59 @@ struct ContentView: View {
         }
         // Force re-render when theme changes via id
         .id(currentTheme)
+        // Achievement celebration overlay
+        .overlay {
+            if showAchievementCelebration, let achievement = achievementManager.pendingCelebration {
+                AchievementCelebrationOverlay(achievement: achievement) {
+                    showAchievementCelebration = false
+                    achievementManager.clearCelebration()
+                }
+                .transition(reduceMotion ? .opacity : .opacity)
+            }
+        }
     }
 
     private var mainApp: some View {
-        TabView {
+        TabView(selection: $selectedTab) {
             TimerView()
                 .tabItem {
                     Label("Hydrate", systemImage: "drop.fill")
                 }
+                .tag(0)
+                .accessibilityIdentifier("hydrateTab")
 
             HistoryView()
                 .tabItem {
                     Label("History", systemImage: "chart.bar.fill")
                 }
+                .tag(1)
+                .accessibilityIdentifier("historyTab")
 
             StatsView()
                 .tabItem {
                     Label("Stats", systemImage: "chart.xyaxis.line")
                 }
+                .tag(2)
+                .accessibilityIdentifier("statsTab")
+
+            AchievementsView()
+                .tabItem {
+                    Label("Trophies", systemImage: "trophy.fill")
+                }
+                .tag(3)
+                .accessibilityIdentifier("trophiesTab")
 
             SettingsView()
                 .tabItem {
                     Label("Settings", systemImage: "gearshape.fill")
                 }
+                .tag(4)
+                .accessibilityIdentifier("settingsTab")
         }
         .tint(Color.aquaPrimary)
+        .onChange(of: selectedTab) { _, _ in
+            haptics.tabChange()
+        }
     }
 
     /// Send evening summary when going to background near bedtime
@@ -103,8 +140,20 @@ struct ContentView: View {
         if hour >= summaryHour && hour <= profile.sleepStart {
             NotificationManager.shared.sendEveningSummaryNow(
                 todayTotal: hydrationManager.todayTotal,
-                goalAmount: profile.dailyGoal
+                goalAmount: profile.dailyGoal,
+                logCount: hydrationManager.todayLogs.count
             )
+        }
+    }
+
+    /// Check achievements after data refresh
+    private func checkAchievements() {
+        let allLogs = hydrationManager.allLogs()
+        let streak = hydrationManager.computeCurrentStreak()
+        achievementManager.checkAndUnlock(logs: allLogs, streak: streak, context: modelContext)
+
+        if achievementManager.pendingCelebration != nil {
+            showAchievementCelebration = true
         }
     }
 
