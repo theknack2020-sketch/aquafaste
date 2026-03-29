@@ -204,9 +204,7 @@ struct OnboardingView: View {
                     haptics.buttonPress()
                     withAnimation(.spring(response: 0.5, dampingFraction: 0.8)) { currentPage = 2 }
                 }
-                .buttonStyle(.borderedProminent)
-                .tint(Color.aquaPrimary)
-                .controlSize(.large)
+                
 
                 pageIndicator(current: 1)
             }
@@ -284,9 +282,7 @@ struct OnboardingView: View {
                     haptics.buttonPress()
                     withAnimation(.spring(response: 0.5, dampingFraction: 0.8)) { currentPage = 3 }
                 }
-                .buttonStyle(.borderedProminent)
-                .tint(Color.aquaPrimary)
-                .controlSize(.large)
+                
 
                 pageIndicator(current: 2)
             }
@@ -350,8 +346,9 @@ struct OnboardingView: View {
                     )
                 }
                 .padding()
-                .background(Color.aquaCardBackground, in: RoundedRectangle(cornerRadius: 16))
-                .shadow(color: Color.aquaPrimary.opacity(0.08), radius: 8, x: 0, y: 3)
+                .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 16))
+                .overlay(RoundedRectangle(cornerRadius: 16).strokeBorder(.white.opacity(0.08), lineWidth: 0.5))
+                .shadow(color: Color.aquaPrimary.opacity(0.1), radius: 10, y: 4)
 
                 Spacer()
 
@@ -401,9 +398,7 @@ struct OnboardingView: View {
                         haptics.buttonPress()
                         withAnimation(.spring(response: 0.5, dampingFraction: 0.8)) { currentPage = 4 }
                     }
-                    .buttonStyle(.borderedProminent)
-                    .tint(Color.aquaPrimary)
-                    .controlSize(.large)
+                    
                 } else {
                     Button("Enable Reminders") {
                         Task {
@@ -415,9 +410,7 @@ struct OnboardingView: View {
                             }
                         }
                     }
-                    .buttonStyle(.borderedProminent)
-                    .tint(Color.aquaPrimary)
-                    .controlSize(.large)
+                    
                     .accessibilityLabel("Enable hydration reminders")
                     .accessibilityIdentifier("enableRemindersButton")
 
@@ -493,8 +486,9 @@ struct OnboardingView: View {
                     )
                 }
                 .padding()
-                .background(Color.aquaCardBackground, in: RoundedRectangle(cornerRadius: 16))
-                .shadow(color: Color.black.opacity(0.06), radius: 6, x: 0, y: 3)
+                .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 16))
+                .overlay(RoundedRectangle(cornerRadius: 16).strokeBorder(.white.opacity(0.08), lineWidth: 0.5))
+                .shadow(color: Color.black.opacity(0.08), radius: 10, y: 4)
 
                 Spacer()
 
@@ -511,9 +505,7 @@ struct OnboardingView: View {
                     }
                     isComplete = true
                 }
-                .buttonStyle(.borderedProminent)
-                .tint(Color.aquaPrimary)
-                .controlSize(.large)
+                
                 .accessibilityLabel("Start tracking your daily hydration")
                 .accessibilityIdentifier("startTrackingButton")
 
