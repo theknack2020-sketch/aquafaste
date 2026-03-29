@@ -248,21 +248,25 @@ struct PaywallView: View {
             HStack {
                 Text("Features")
                     .font(.subheadline.weight(.semibold))
+                    .foregroundStyle(.white.opacity(0.5))
                 Spacer()
                 Text("Free")
                     .font(.caption.weight(.semibold))
-                    .foregroundStyle(Color.aquaTextSecondary)
+                    .foregroundStyle(.white.opacity(0.4))
                     .frame(width: 54)
                 Text("Pro")
                     .font(.caption.weight(.bold))
-                    .foregroundStyle(theme.primary)
+                    .foregroundStyle(
+                        LinearGradient(
+                            colors: [.cyan, .blue],
+                            startPoint: .leading,
+                            endPoint: .trailing
+                        )
+                    )
                     .frame(width: 54)
             }
             .padding(.horizontal, 16)
-            .padding(.vertical, 10)
-            .background(Color.aquaCardBackground)
-
-            Divider()
+            .padding(.vertical, 12)
 
             // Rows
             FeatureRow(feature: "Water & drink tracking", freeValue: .check, proValue: .check)
@@ -278,16 +282,23 @@ struct PaywallView: View {
             FeatureRow(feature: "Caffeine Insights", freeValue: .cross, proValue: .check)
             FeatureRow(feature: "Custom Drinks", freeValue: .cross, proValue: .check)
         }
-        .clipShape(RoundedRectangle(cornerRadius: 16))
         .background(
-            RoundedRectangle(cornerRadius: 16)
-                .fill(.ultraThinMaterial)
-                .shadow(color: Color.black.opacity(0.08), radius: 12, x: 0, y: 4)
+            RoundedRectangle(cornerRadius: 20)
+                .fill(.white.opacity(0.08))
+                .overlay(
+                    RoundedRectangle(cornerRadius: 20)
+                        .strokeBorder(
+                            LinearGradient(
+                                colors: [.white.opacity(0.15), .white.opacity(0.05)],
+                                startPoint: .topLeading,
+                                endPoint: .bottomTrailing
+                            ),
+                            lineWidth: 0.5
+                        )
+                )
         )
-        .overlay(
-            RoundedRectangle(cornerRadius: 16)
-                .stroke(Color(.separator).opacity(0.2), lineWidth: 0.5)
-        )
+        .clipShape(RoundedRectangle(cornerRadius: 20))
+        .shadow(color: .black.opacity(0.3), radius: 24, y: 12)
         .padding(.horizontal)
         .accessibilityLabel("Feature comparison: Free plan vs Pro plan")
     }
@@ -616,7 +627,7 @@ private struct FeatureRow: View {
             HStack {
                 Text(feature)
                     .font(.subheadline)
-                    .foregroundStyle(Color.aquaTextPrimary)
+                    .foregroundStyle(.white.opacity(0.9))
                 Spacer()
                 featureCell(freeValue, isPro: false)
                     .frame(width: 54)
@@ -624,9 +635,12 @@ private struct FeatureRow: View {
                     .frame(width: 54)
             }
             .padding(.horizontal, 16)
-            .padding(.vertical, 10)
+            .padding(.vertical, 11)
 
-            Divider().padding(.leading, 16)
+            Rectangle()
+                .fill(.white.opacity(0.06))
+                .frame(height: 0.5)
+                .padding(.leading, 16)
         }
     }
 
@@ -634,17 +648,17 @@ private struct FeatureRow: View {
     private func featureCell(_ value: FeatureCellValue, isPro: Bool) -> some View {
         switch value {
         case .check:
-            Image(systemName: "checkmark")
-                .font(.caption.weight(.semibold))
-                .foregroundStyle(isPro ? Color.aquaPrimary : .green)
+            Image(systemName: "checkmark.circle.fill")
+                .font(.system(size: 14))
+                .foregroundStyle(isPro ? .cyan : .green)
         case .cross:
             Image(systemName: "xmark")
-                .font(.caption.weight(.semibold))
-                .foregroundStyle(Color(.tertiaryLabel))
+                .font(.system(size: 10, weight: .bold))
+                .foregroundStyle(.red.opacity(0.5))
         case let .text(label):
             Text(label)
-                .font(.caption2.weight(.medium))
-                .foregroundStyle(isPro ? Color.aquaPrimary : Color.aquaTextSecondary)
+                .font(.caption2.weight(.semibold))
+                .foregroundStyle(isPro ? .white : .white.opacity(0.4))
                 .multilineTextAlignment(.center)
         }
     }
