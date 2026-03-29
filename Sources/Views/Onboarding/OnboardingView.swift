@@ -37,45 +37,70 @@ struct OnboardingView: View {
 
     private var welcomePage: some View {
         ZStack {
-            // Deep ocean gradient
-            LinearGradient(
-                colors: [
-                    Color(red: 0.02, green: 0.12, blue: 0.35).opacity(0.35),
-                    Color.aquaGradientStart.opacity(0.22),
-                    Color.aquaBackground
-                ],
-                startPoint: .top,
-                endPoint: .bottom
-            )
-            .ignoresSafeArea()
+            // Rich ambient background
+            ZStack {
+                LinearGradient(
+                    colors: [
+                        Color(red: 0.02, green: 0.10, blue: 0.30),
+                        Color(red: 0.04, green: 0.20, blue: 0.45),
+                        Color(red: 0.08, green: 0.30, blue: 0.55)
+                    ],
+                    startPoint: .topLeading,
+                    endPoint: .bottomTrailing
+                )
+                .ignoresSafeArea()
 
-            VStack(spacing: 20) {
+                // Glow orbs
+                Circle()
+                    .fill(RadialGradient(colors: [Color.cyan.opacity(0.3), .clear], center: .center, startRadius: 10, endRadius: 160))
+                    .frame(width: 320, height: 320)
+                    .offset(x: -80, y: -180)
+                    .blur(radius: 50)
+
+                Circle()
+                    .fill(RadialGradient(colors: [Color.blue.opacity(0.25), .clear], center: .center, startRadius: 10, endRadius: 140))
+                    .frame(width: 280, height: 280)
+                    .offset(x: 100, y: 200)
+                    .blur(radius: 60)
+            }
+
+            VStack(spacing: 24) {
                 Spacer()
                     .frame(height: 20)
 
+                // Premium glow icon
                 ZStack {
+                    ForEach(0..<3, id: \.self) { ring in
+                        Circle()
+                            .stroke(Color.cyan.opacity(0.12 - Double(ring) * 0.03), lineWidth: 1.5)
+                            .frame(width: CGFloat(90 + ring * 30), height: CGFloat(90 + ring * 30))
+                    }
+
                     Circle()
                         .fill(
-                            RadialGradient(
-                                colors: [Color.aquaGradientStart.opacity(0.2), .clear],
-                                center: .center,
-                                startRadius: 20,
-                                endRadius: 80
+                            LinearGradient(
+                                colors: [Color.cyan.opacity(0.2), Color.blue.opacity(0.1)],
+                                startPoint: .topLeading,
+                                endPoint: .bottomTrailing
                             )
                         )
-                        .frame(width: 140, height: 140)
+                        .frame(width: 80, height: 80)
+
                     Image(systemName: "drop.fill")
-                        .font(.system(size: 64))
-                        .foregroundStyle(Color.aquaGradient)
-                        .shadow(color: Color.aquaGradientStart.opacity(0.4), radius: 16, x: 0, y: 4)
+                        .font(.system(size: 42))
+                        .foregroundStyle(
+                            LinearGradient(colors: [.cyan, .blue], startPoint: .top, endPoint: .bottom)
+                        )
+                        .shadow(color: .cyan.opacity(0.5), radius: 16, y: 4)
                 }
 
                 Text("Welcome to AquaFaste")
-                    .font(.title.weight(.bold))
+                    .font(.system(size: 30, weight: .bold, design: .rounded))
+                    .foregroundStyle(.white)
 
                 Text("Your honest hydration companion.\nNo ads. No tricks. Just water.")
-                    .font(.subheadline)
-                    .foregroundStyle(.secondary)
+                    .font(.body)
+                    .foregroundStyle(.white.opacity(0.7))
                     .multilineTextAlignment(.center)
 
                 // Benefit highlights
@@ -85,18 +110,30 @@ struct OnboardingView: View {
                     benefitRow(icon: "sparkles", text: "Better skin, digestion & mood — backed by science")
                 }
                 .padding()
-                .background(Color.aquaCardBackground, in: RoundedRectangle(cornerRadius: 16))
-                .shadow(color: Color.black.opacity(0.06), radius: 6, x: 0, y: 3)
+                .background(.white.opacity(0.08), in: RoundedRectangle(cornerRadius: 16))
+                .overlay(
+                    RoundedRectangle(cornerRadius: 16)
+                        .strokeBorder(.white.opacity(0.1), lineWidth: 0.5)
+                )
 
                 Spacer()
 
-                Button("Get Started") {
+                // Premium CTA button
+                Button {
                     haptics.buttonPress()
                     withAnimation(.spring(response: 0.5, dampingFraction: 0.8)) { currentPage = 1 }
+                } label: {
+                    Text("Get Started")
+                        .font(.headline)
+                        .foregroundStyle(.black)
+                        .frame(maxWidth: .infinity)
+                        .padding(.vertical, 16)
+                        .background(
+                            LinearGradient(colors: [.cyan, .blue.opacity(0.8)], startPoint: .leading, endPoint: .trailing),
+                            in: RoundedRectangle(cornerRadius: 16)
+                        )
                 }
-                .buttonStyle(.borderedProminent)
-                .tint(Color.aquaPrimary)
-                .controlSize(.large)
+                .shadow(color: .cyan.opacity(0.4), radius: 12, y: 6)
                 .accessibilityIdentifier("getStartedButton")
 
                 pageIndicator(current: 0)
