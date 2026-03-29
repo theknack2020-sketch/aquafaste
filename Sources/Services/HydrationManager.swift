@@ -1,6 +1,7 @@
 import Foundation
 import SwiftData
 import SwiftUI
+import TelemetryDeck
 
 @Observable @MainActor
 final class HydrationManager {
@@ -44,6 +45,11 @@ final class HydrationManager {
 
         let log = WaterLog(amount: amount, drinkType: drinkType, caffeineMg: caffeineMg)
         context.insert(log)
+
+        TelemetryDeck.signal("water.logged", parameters: [
+            "amount": "\(Int(amount))",
+            "drinkType": drinkType.rawValue
+        ])
 
         do {
             try context.save()

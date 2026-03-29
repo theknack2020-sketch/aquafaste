@@ -1,5 +1,6 @@
 import StoreKit
 import SwiftUI
+import TelemetryDeck
 
 struct PaywallView: View {
     @Environment(\.dismiss) private var dismiss
@@ -100,7 +101,10 @@ struct PaywallView: View {
             // Dismiss button — ALWAYS visible
             dismissButton
         }
-        .task { await loadProducts() }
+        .task {
+            TelemetryDeck.signal("paywall.viewed")
+            await loadProducts()
+        }
         .disabled(purchaseInProgress)
         .overlay {
             if purchaseInProgress {

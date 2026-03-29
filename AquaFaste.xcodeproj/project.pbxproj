@@ -27,30 +27,25 @@
 		87E69CB56567D61E69339251 /* OnboardingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA67A3781165D0C6E9E1DCA2 /* OnboardingView.swift */; };
 		8E6018C6E0059C7264BC1684 /* DrinkPickerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 64E32075BB81A24842DD16F7 /* DrinkPickerView.swift */; };
 		91312B6A5935C5FC914C49DD /* CSVExporter.swift in Sources */ = {isa = PBXBuildFile; fileRef = D99E899AE3B3F8BA63C28124 /* CSVExporter.swift */; };
-		C061EE25B48591FDBE2B7817 /* Color+Theme.swift in Sources */ = {isa = PBXBuildFile; fileRef = 639F6FB14ABA191E731FB97A /* Color+Theme.swift */; };
-		C92F4EAC73AE40AD442A49DF /* SubscriptionManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 907B9F4319693BDCB6473A05 /* SubscriptionManager.swift */; };
-		F3A4B5C6D7E809F0A1B2C3D4 /* SoundManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1B2C3D4E5F607A8B9C0D1E2 /* SoundManager.swift */; };
-		D22ACF32AAFE7403A8577BFB /* HydrationManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8BD5EB58D472A8D9F57AC9FB /* HydrationManager.swift */; };
-		EE337E8CEE5E8C87EDD2391B /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9E53961F6ED364E0743C76A3 /* ContentView.swift */; };
-		F1E276E0F417D4B2F3A22A83 /* StatsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C3D6B8859930328AEEB9237 /* StatsView.swift */; };
-		F7C17A47628B42CD3BA30B2E /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 750BB1699D32E929EC872DC3 /* Assets.xcassets */; };
-		AA11BB22CC33DD44EE55FF01 /* ChartViews.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA11BB22CC33DD44EE55FF02 /* ChartViews.swift */; };
-		AA11BB22CC33DD44EE55FF03 /* InsightsEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA11BB22CC33DD44EE55FF04 /* InsightsEngine.swift */; };
 		A4C1B1D1E1F10001A1B1C1D1 /* Achievement.swift in Sources */ = {isa = PBXBuildFile; fileRef = A4C1B1D1E1F10002A1B1C1D1 /* Achievement.swift */; };
 		A4C1B1D1E1F10003A1B1C1D1 /* AchievementManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = A4C1B1D1E1F10004A1B1C1D1 /* AchievementManager.swift */; };
 		A4C1B1D1E1F10005A1B1C1D1 /* AchievementsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A4C1B1D1E1F10006A1B1C1D1 /* AchievementsView.swift */; };
 		A4C1B1D1E1F10007A1B1C1D1 /* AchievementBadgeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A4C1B1D1E1F10008A1B1C1D1 /* AchievementBadgeView.swift */; };
+		AA11BB22CC33DD44EE55FF01 /* ChartViews.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA11BB22CC33DD44EE55FF02 /* ChartViews.swift */; };
+		AA11BB22CC33DD44EE55FF03 /* InsightsEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA11BB22CC33DD44EE55FF04 /* InsightsEngine.swift */; };
+		B4781DE7EB65E8B30FC94561 /* TelemetryDeck in Frameworks */ = {isa = PBXBuildFile; productRef = 7D464F88E919E1C32BB534D9 /* TelemetryDeck */; };
+		C061EE25B48591FDBE2B7817 /* Color+Theme.swift in Sources */ = {isa = PBXBuildFile; fileRef = 639F6FB14ABA191E731FB97A /* Color+Theme.swift */; };
+		C92F4EAC73AE40AD442A49DF /* SubscriptionManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 907B9F4319693BDCB6473A05 /* SubscriptionManager.swift */; };
+		D22ACF32AAFE7403A8577BFB /* HydrationManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8BD5EB58D472A8D9F57AC9FB /* HydrationManager.swift */; };
+		EE337E8CEE5E8C87EDD2391B /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9E53961F6ED364E0743C76A3 /* ContentView.swift */; };
+		F1E276E0F417D4B2F3A22A83 /* StatsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C3D6B8859930328AEEB9237 /* StatsView.swift */; };
+		F3A4B5C6D7E809F0A1B2C3D4 /* SoundManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1B2C3D4E5F607A8B9C0D1E2 /* SoundManager.swift */; };
+		F7C17A47628B42CD3BA30B2E /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 750BB1699D32E929EC872DC3 /* Assets.xcassets */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
 		094490CA315436B2932E5DA5 /* DrinkType.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DrinkType.swift; sourceTree = "<group>"; };
-		A4C1B1D1E1F10002A1B1C1D1 /* Achievement.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Achievement.swift; sourceTree = "<group>"; };
-		A4C1B1D1E1F10004A1B1C1D1 /* AchievementManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AchievementManager.swift; sourceTree = "<group>"; };
-		A4C1B1D1E1F10006A1B1C1D1 /* AchievementsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AchievementsView.swift; sourceTree = "<group>"; };
-		A4C1B1D1E1F10008A1B1C1D1 /* AchievementBadgeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AchievementBadgeView.swift; sourceTree = "<group>"; };
 		2C3D6B8859930328AEEB9237 /* StatsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StatsView.swift; sourceTree = "<group>"; };
-		AA11BB22CC33DD44EE55FF02 /* ChartViews.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChartViews.swift; sourceTree = "<group>"; };
-		AA11BB22CC33DD44EE55FF04 /* InsightsEngine.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InsightsEngine.swift; sourceTree = "<group>"; };
 		2C93E4C98BFCE933622517F9 /* UserProfile.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserProfile.swift; sourceTree = "<group>"; };
 		37DE37C8BE49F0DA05788CC0 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
 		38119778A20CE71B8AAB5C99 /* AnimatedNumberView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnimatedNumberView.swift; sourceTree = "<group>"; };
@@ -69,9 +64,15 @@
 		8B05891DD147880EC5761DCB /* HealthKitManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HealthKitManager.swift; sourceTree = "<group>"; };
 		8BD5EB58D472A8D9F57AC9FB /* HydrationManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HydrationManager.swift; sourceTree = "<group>"; };
 		907B9F4319693BDCB6473A05 /* SubscriptionManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SubscriptionManager.swift; sourceTree = "<group>"; };
-		A1B2C3D4E5F607A8B9C0D1E2 /* SoundManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SoundManager.swift; sourceTree = "<group>"; };
 		9E53961F6ED364E0743C76A3 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
+		A1B2C3D4E5F607A8B9C0D1E2 /* SoundManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SoundManager.swift; sourceTree = "<group>"; };
+		A4C1B1D1E1F10002A1B1C1D1 /* Achievement.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Achievement.swift; sourceTree = "<group>"; };
+		A4C1B1D1E1F10004A1B1C1D1 /* AchievementManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AchievementManager.swift; sourceTree = "<group>"; };
+		A4C1B1D1E1F10006A1B1C1D1 /* AchievementsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AchievementsView.swift; sourceTree = "<group>"; };
+		A4C1B1D1E1F10008A1B1C1D1 /* AchievementBadgeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AchievementBadgeView.swift; sourceTree = "<group>"; };
 		A75A9FD04E872827F76168F7 /* WaterLog.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WaterLog.swift; sourceTree = "<group>"; };
+		AA11BB22CC33DD44EE55FF02 /* ChartViews.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChartViews.swift; sourceTree = "<group>"; };
+		AA11BB22CC33DD44EE55FF04 /* InsightsEngine.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InsightsEngine.swift; sourceTree = "<group>"; };
 		AA67A3781165D0C6E9E1DCA2 /* OnboardingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingView.swift; sourceTree = "<group>"; };
 		CC040F7BCA1B1E4C3B14D114 /* HistoryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HistoryView.swift; sourceTree = "<group>"; };
 		D2B1179500E347BB3260ABC5 /* AquaFasteApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AquaFasteApp.swift; sourceTree = "<group>"; };
@@ -81,16 +82,18 @@
 		FF200ED47AE79A4FBB9192B3 /* AquaFaste.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = AquaFaste.app; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
-/* Begin PBXGroup section */
-		A4C1B1D1E1F10009A1B1C1D1 /* Achievements */ = {
-			isa = PBXGroup;
-			children = (
-				A4C1B1D1E1F10008A1B1C1D1 /* AchievementBadgeView.swift */,
-				A4C1B1D1E1F10006A1B1C1D1 /* AchievementsView.swift */,
+/* Begin PBXFrameworksBuildPhase section */
+		3C42F90416E79693F7E2BEC2 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				B4781DE7EB65E8B30FC94561 /* TelemetryDeck in Frameworks */,
 			);
-			path = Achievements;
-			sourceTree = "<group>";
+			runOnlyForDeploymentPostprocessing = 0;
 		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
 		03676D54251FF7AC72D15D17 /* Timer */ = {
 			isa = PBXGroup;
 			children = (
@@ -182,6 +185,15 @@
 			path = Paywall;
 			sourceTree = "<group>";
 		};
+		A4C1B1D1E1F10009A1B1C1D1 /* Achievements */ = {
+			isa = PBXGroup;
+			children = (
+				A4C1B1D1E1F10008A1B1C1D1 /* AchievementBadgeView.swift */,
+				A4C1B1D1E1F10006A1B1C1D1 /* AchievementsView.swift */,
+			);
+			path = Achievements;
+			sourceTree = "<group>";
+		};
 		AAFE48D2B399FA31370292B6 /* Extensions */ = {
 			isa = PBXGroup;
 			children = (
@@ -261,6 +273,7 @@
 			buildPhases = (
 				1EECFF238C988DEFED02F50B /* Sources */,
 				EF4C7D5D298D8DA1DE7E7B95 /* Resources */,
+				3C42F90416E79693F7E2BEC2 /* Frameworks */,
 			);
 			buildRules = (
 			);
@@ -268,6 +281,7 @@
 			);
 			name = AquaFaste;
 			packageProductDependencies = (
+				7D464F88E919E1C32BB534D9 /* TelemetryDeck */,
 			);
 			productName = AquaFaste;
 			productReference = FF200ED47AE79A4FBB9192B3 /* AquaFaste.app */;
@@ -298,7 +312,11 @@
 			);
 			mainGroup = BFAD9209C16DCF5A256897DC;
 			minimizedProjectReferenceProxies = 1;
+			packageReferences = (
+				F525F142912E28F7DF15ABD0 /* XCRemoteSwiftPackageReference "SwiftSDK" */,
+			);
 			preferredProjectObjectVersion = 77;
+			productRefGroup = CC7E80E5392616159D7F0601 /* Products */;
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
@@ -566,6 +584,25 @@
 			defaultConfigurationName = Debug;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		F525F142912E28F7DF15ABD0 /* XCRemoteSwiftPackageReference "SwiftSDK" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/TelemetryDeck/SwiftSDK";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 2.0.0;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		7D464F88E919E1C32BB534D9 /* TelemetryDeck */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = F525F142912E28F7DF15ABD0 /* XCRemoteSwiftPackageReference "SwiftSDK" */;
+			productName = TelemetryDeck;
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = CD1311A5C42E5CA75D0A3748 /* Project object */;
 }

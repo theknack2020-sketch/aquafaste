@@ -1,1 +1,1 @@
-water tracker,hydration,drink reminder,health,daily goal,caffeine,streak,HealthKit,wellness,no ads
+drink,caffeine,streak,daily goal,HealthKit,wellness,intake,fluid,log,habit,fitness,score,oz,cups,ml

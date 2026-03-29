@@ -1,8 +1,6 @@
 import SwiftData
 import SwiftUI
-
-// TODO: Add TelemetryDeck SPM package — then uncomment the import below
-// import TelemetryDeck
+import TelemetryDeck
 
 @main
 struct AquaFasteApp: App {
@@ -10,8 +8,9 @@ struct AquaFasteApp: App {
         // Register notification categories and delegate on launch
         NotificationManager.shared.registerCategories()
 
-        // TelemetryDeck — uncomment after adding SPM package
-        // TelemetryDeck.initialize(config: .init(appID: ProcessInfo.processInfo.environment["TELEMETRYDECK_APP_ID"] ?? ""))
+        // TelemetryDeck — privacy-first analytics
+        let appID = ProcessInfo.processInfo.environment["TELEMETRYDECK_APP_ID"] ?? "aquafaste-default"
+        TelemetryDeck.initialize(config: .init(appID: appID))
     }
 
     var body: some Scene {

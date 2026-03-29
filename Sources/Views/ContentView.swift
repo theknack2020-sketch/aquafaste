@@ -1,6 +1,7 @@
 import StoreKit
 import SwiftData
 import SwiftUI
+import TelemetryDeck
 
 struct ContentView: View {
     @State private var hydrationManager = HydrationManager()
@@ -41,6 +42,7 @@ struct ContentView: View {
             achievementManager.setupAchievements(context: modelContext)
             // Record first launch date (no-op if already set)
             _ = subscription.firstLaunchDate
+            TelemetryDeck.signal("app.launched")
             if onboardingDone {
                 Task {
                     await NotificationManager.shared.scheduleAllNotifications()
