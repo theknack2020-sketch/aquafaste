@@ -23,14 +23,59 @@ struct PaywallView: View {
 
     var body: some View {
         ZStack(alignment: .topTrailing) {
-            // Full-screen gradient background
-            theme.heroGradient
+            // Rich premium background
+            ZStack {
+                LinearGradient(
+                    colors: [
+                        Color(red: 0.02, green: 0.12, blue: 0.28),
+                        Color(red: 0.05, green: 0.18, blue: 0.42),
+                        Color(red: 0.08, green: 0.25, blue: 0.50)
+                    ],
+                    startPoint: .topLeading,
+                    endPoint: .bottomTrailing
+                )
                 .ignoresSafeArea()
-                .opacity(0.15)
 
-            Color.aquaBackground
-                .ignoresSafeArea()
-                .opacity(0.85)
+                // Ambient glow orbs
+                Circle()
+                    .fill(
+                        RadialGradient(
+                            colors: [Color.cyan.opacity(0.3), .clear],
+                            center: .center,
+                            startRadius: 10,
+                            endRadius: 180
+                        )
+                    )
+                    .frame(width: 360, height: 360)
+                    .offset(x: -100, y: -200)
+                    .blur(radius: 60)
+
+                Circle()
+                    .fill(
+                        RadialGradient(
+                            colors: [Color.blue.opacity(0.25), .clear],
+                            center: .center,
+                            startRadius: 10,
+                            endRadius: 200
+                        )
+                    )
+                    .frame(width: 400, height: 400)
+                    .offset(x: 120, y: 300)
+                    .blur(radius: 70)
+
+                Circle()
+                    .fill(
+                        RadialGradient(
+                            colors: [Color.teal.opacity(0.2), .clear],
+                            center: .center,
+                            startRadius: 10,
+                            endRadius: 120
+                        )
+                    )
+                    .frame(width: 240, height: 240)
+                    .offset(x: 80, y: -50)
+                    .blur(radius: 50)
+            }
 
             ScrollView(showsIndicators: false) {
                 VStack(spacing: 28) {
@@ -119,36 +164,57 @@ struct PaywallView: View {
 
     private var headerSection: some View {
         VStack(spacing: 14) {
-            // Glassmorphism icon
+            // Premium glow icon
             ZStack {
+                // Outer glow rings
+                ForEach(0..<3, id: \.self) { ring in
+                    Circle()
+                        .stroke(
+                            LinearGradient(
+                                colors: [
+                                    Color.cyan.opacity(0.15 - Double(ring) * 0.04),
+                                    Color.blue.opacity(0.1 - Double(ring) * 0.03)
+                                ],
+                                startPoint: .topLeading,
+                                endPoint: .bottomTrailing
+                            ),
+                            lineWidth: 1.5
+                        )
+                        .frame(
+                            width: CGFloat(80 + ring * 28),
+                            height: CGFloat(80 + ring * 28)
+                        )
+                }
+
                 Circle()
                     .fill(
                         LinearGradient(
-                            colors: [theme.gradientStart.opacity(0.25), theme.gradientEnd.opacity(0.12)],
+                            colors: [Color.cyan.opacity(0.25), Color.blue.opacity(0.15)],
                             startPoint: .topLeading,
                             endPoint: .bottomTrailing
                         )
                     )
-                    .frame(width: 96, height: 96)
-                    .blur(radius: 1)
-
-                Circle()
-                    .fill(.ultraThinMaterial)
-                    .frame(width: 84, height: 84)
-                    .shadow(color: theme.primary.opacity(0.25), radius: 16, x: 0, y: 6)
+                    .frame(width: 72, height: 72)
 
                 Image(systemName: "drop.fill")
                     .font(.system(size: 38))
-                    .foregroundStyle(theme.gradient)
+                    .foregroundStyle(
+                        LinearGradient(
+                            colors: [.cyan, .blue],
+                            startPoint: .top,
+                            endPoint: .bottom
+                        )
+                    )
+                    .shadow(color: .cyan.opacity(0.5), radius: 12, y: 4)
             }
 
             Text("AquaFaste Pro")
                 .font(.system(size: 32, weight: .bold, design: .rounded))
-                .foregroundStyle(Color.aquaTextPrimary)
+                .foregroundStyle(.white)
 
             Text("Unlock the complete hydration experience")
                 .font(.subheadline)
-                .foregroundStyle(Color.aquaTextSecondary)
+                .foregroundStyle(.white.opacity(0.7))
                 .multilineTextAlignment(.center)
         }
         .padding(.horizontal)
