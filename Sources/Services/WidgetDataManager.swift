@@ -1,5 +1,7 @@
 import Foundation
+#if canImport(WidgetKit)
 import WidgetKit
+#endif
 
 /// Shared data between app and widget via App Group
 enum WidgetDataManager {
@@ -27,7 +29,9 @@ enum WidgetDataManager {
         d?.set(Date().timeIntervalSince1970, forKey: "lastUpdate")
 
         // Trigger widget refresh
+        #if canImport(WidgetKit)
         WidgetCenter.shared.reloadAllTimelines()
+        #endif
     }
 
     // MARK: - Read (from widget)

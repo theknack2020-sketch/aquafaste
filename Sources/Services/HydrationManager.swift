@@ -302,14 +302,15 @@ final class HydrationManager {
             todayCaffeine = todayLogs.reduce(0) { $0 + $1.caffeineMg }
             progress = profile.dailyGoal > 0 ? todayTotal / profile.dailyGoal : 0
 
-            // Update widget data
-            WidgetDataManager.updateWidgetData(
-                todayTotal: todayTotal,
-                dailyGoal: profile.dailyGoal,
-                streak: 0, // streak managed separately
-                lastDrinkTime: todayLogs.first?.timestamp,
-                drinkCount: todayLogs.count
-            )
+            // Update widget data (when widget extension is configured)
+            #if canImport(WidgetKit)
+            if let defaults = UserDefaults(suiteName: "group.com.theknack.aquafaste") {
+                defaults.set(todayTotal, forKey: "todayTotal")
+                defaults.set(profile.dailyGoal, forKey: "dailyGoal")
+                defaults.set(todayLogs.count, forKey: "drinkCount")
+                defaults.set(Date().timeIntervalSince1970, forKey: "lastUpdate")
+            }
+            #endif
         } catch {
             print("[AquaFaste] Failed to fetch today's logs: \(error)")
         }
