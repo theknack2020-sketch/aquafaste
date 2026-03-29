@@ -1,0 +1,36 @@
+included:
+  - Sources
+
+disabled_rules:
+  - line_length
+  - trailing_whitespace
+  - opening_brace
+  - large_tuple
+
+opt_in_rules:
+  - empty_count
+  - closure_spacing
+  - implicit_return
+  - modifier_order
+  - overridden_super_call
+  - private_over_fileprivate
+  - sorted_imports
+  - vertical_whitespace_closing_braces
+
+force_cast: warning
+force_try: warning
+identifier_name:
+  min_length: 1
+  max_length: 60
+type_body_length:
+  warning: 800
+  error: 1200
+file_length:
+  warning: 1100
+  error: 1500
+function_body_length:
+  warning: 120
+  error: 200
+cyclomatic_complexity:
+  warning: 15
+  error: 25

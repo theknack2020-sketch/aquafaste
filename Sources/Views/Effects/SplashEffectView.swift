@@ -51,16 +51,16 @@ struct SplashEffectView: View {
         ring2Opacity = 0
 
         // Generate droplets
-        droplets = (0..<8).map { i in
-            let angle = Double(i) * (.pi * 2 / 8) + Double.random(in: -0.3...0.3)
-            let distance = CGFloat.random(in: 40...80)
+        droplets = (0 ..< 8).map { i in
+            let angle = Double(i) * (.pi * 2 / 8) + Double.random(in: -0.3 ... 0.3)
+            let distance = CGFloat.random(in: 40 ... 80)
             return SplashDroplet(
                 id: i,
                 offset: CGSize(
                     width: cos(angle) * distance,
                     height: sin(angle) * distance
                 ),
-                size: CGFloat.random(in: 4...8),
+                size: CGFloat.random(in: 4 ... 8),
                 opacity: 0
             )
         }
@@ -85,7 +85,7 @@ struct SplashEffectView: View {
 
         // Animate droplets with spring
         for i in droplets.indices {
-            let delay = Double.random(in: 0...0.15)
+            let delay = Double.random(in: 0 ... 0.15)
             withAnimation(.spring(response: 0.5, dampingFraction: 0.6).delay(delay)) {
                 droplets[i].opacity = 0.7
             }

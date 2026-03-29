@@ -45,7 +45,7 @@ final class AchievementManager {
 
         // Timing
         ("early_bird", "Early Bird", "Log a drink before 7:00 AM", "sunrise.fill", .timing, .bronze),
-        ("night_owl", "Night Hydrator", "Log a drink after 10:00 PM", "moon.fill", .timing, .bronze),
+        ("night_owl", "Night Hydrator", "Log a drink after 10:00 PM", "moon.fill", .timing, .bronze)
     ]
 
     // MARK: - Setup
@@ -151,48 +151,60 @@ final class AchievementManager {
 
         switch achievement.id {
         // MARK: Streak achievements
+
         case "streak_3":
             return streak >= 3
+
         case "streak_7":
             return streak >= 7
+
         case "streak_30":
             return streak >= 30
+
         case "streak_100":
             return streak >= 100
 
         // MARK: Volume achievements — today's total raw ml
+
         case "volume_1000":
             let todayTotal = todayRawTotal(logs: logs, calendar: calendar, today: today)
             return todayTotal >= 1000
+
         case "volume_3000":
             let todayTotal = todayRawTotal(logs: logs, calendar: calendar, today: today)
             return todayTotal >= 3000
 
         // MARK: Variety achievements — unique drink types ever logged
+
         case "variety_5":
             let uniqueTypes = Set(logs.map(\.drinkType))
             return uniqueTypes.count >= 5
+
         case "variety_10":
             let uniqueTypes = Set(logs.map(\.drinkType))
             return uniqueTypes.count >= 10
 
         // MARK: Consistency — 7 consecutive days at 100% goal
+
         case "consistency_7":
             // Already checked by streak ≥ 7 (streak = consecutive goal-met days)
             return streak >= 7
 
         // MARK: Caffeine — no caffeine today
+
         case "caffeine_0":
             let todayLogs = logs.filter { calendar.isDate($0.timestamp, inSameDayAs: today) }
             guard !todayLogs.isEmpty else { return false }
             return todayLogs.allSatisfy { $0.caffeineMg <= 0 }
 
         // MARK: Timing
+
         case "early_bird":
             return logs.contains { log in
                 let hour = calendar.component(.hour, from: log.timestamp)
                 return hour < 7
             }
+
         case "night_owl":
             return logs.contains { log in
                 let hour = calendar.component(.hour, from: log.timestamp)

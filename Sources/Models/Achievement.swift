@@ -12,7 +12,9 @@ enum AchievementCategory: String, Codable, CaseIterable, Identifiable {
     case caffeine
     case timing
 
-    var id: String { rawValue }
+    var id: String {
+        rawValue
+    }
 
     var displayName: String {
         switch self {
@@ -86,7 +88,9 @@ final class Achievement {
     var categoryRaw: String
     var tierRaw: String
 
-    var isUnlocked: Bool { unlockedAt != nil }
+    var isUnlocked: Bool {
+        unlockedAt != nil
+    }
 
     var category: AchievementCategory {
         get { AchievementCategory(rawValue: categoryRaw) ?? .streak }
@@ -111,8 +115,8 @@ final class Achievement {
         self.title = title
         self.subtitle = subtitle
         self.iconName = iconName
-        self.categoryRaw = category.rawValue
-        self.tierRaw = tier.rawValue
+        categoryRaw = category.rawValue
+        tierRaw = tier.rawValue
         self.unlockedAt = unlockedAt
     }
 }

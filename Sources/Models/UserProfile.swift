@@ -7,7 +7,9 @@ enum ActivityLevel: String, Codable, CaseIterable, Identifiable {
     case active
     case veryActive
 
-    var id: String { rawValue }
+    var id: String {
+        rawValue
+    }
 
     var displayName: String {
         switch self {
@@ -160,7 +162,7 @@ final class UserProfile {
         return weight * 30.0 * activityLevel.multiplier
     }
 
-    // Streak tracking
+    /// Streak tracking
     var currentStreak: Int {
         get { defaults.integer(forKey: "af_streak") }
         set { defaults.set(newValue, forKey: "af_streak") }

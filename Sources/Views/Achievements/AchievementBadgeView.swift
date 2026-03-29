@@ -133,7 +133,7 @@ struct AchievementCelebrationOverlay: View {
                 .onTapGesture { dismiss() }
 
             // Confetti
-            if showConfetti && !reduceMotion {
+            if showConfetti, !reduceMotion {
                 ConfettiView()
                     .ignoresSafeArea()
                     .allowsHitTesting(false)

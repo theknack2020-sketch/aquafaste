@@ -222,7 +222,7 @@ struct StatsView: View {
 
     // MARK: - Week-over-Week Comparison
 
-    private func weekComparisonBanner(weekData: [(day: String, amount: Double, goal: Double)]) -> some View {
+    private func weekComparisonBanner(weekData _: [(day: String, amount: Double, goal: Double)]) -> some View {
         let comparison = manager.weeklyComparison()
         let diff = comparison.lastWeek > 0
             ? (comparison.thisWeek - comparison.lastWeek) / comparison.lastWeek * 100
@@ -381,20 +381,20 @@ struct StatsView: View {
 
     private func scoreGradientColor(_ score: Int) -> Color {
         switch score {
-        case 0..<30: .red
-        case 30..<50: .orange
-        case 50..<70: .yellow
-        case 70..<85: Color.aquaPrimary
+        case 0 ..< 30: .red
+        case 30 ..< 50: .orange
+        case 50 ..< 70: .yellow
+        case 70 ..< 85: Color.aquaPrimary
         default: .green
         }
     }
 
     private func scoreLabel(_ score: Int) -> String {
         switch score {
-        case 0..<30: "Needs Improvement"
-        case 30..<50: "Getting There"
-        case 50..<70: "Good"
-        case 70..<85: "Great"
+        case 0 ..< 30: "Needs Improvement"
+        case 30 ..< 50: "Getting There"
+        case 50 ..< 70: "Good"
+        case 70 ..< 85: "Great"
         default: "Excellent"
         }
     }

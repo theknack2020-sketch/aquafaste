@@ -58,7 +58,7 @@ struct WeeklyBarChart: View {
                     }
                 }
             }
-            .chartYScale(domain: 0...chartYMax)
+            .chartYScale(domain: 0 ... chartYMax)
             .frame(height: 200)
 
             // Legend
@@ -110,7 +110,7 @@ struct MonthlyHeatmapGrid: View {
 
             LazyVGrid(columns: columns, spacing: 6) {
                 // Leading padding for grid alignment
-                ForEach(0..<leadingPadding, id: \.self) { _ in
+                ForEach(0 ..< leadingPadding, id: \.self) { _ in
                     Color.clear
                         .frame(height: 28)
                 }
@@ -251,7 +251,7 @@ struct TimeOfDayAreaChart: View {
                         LinearGradient(
                             colors: [
                                 Color.aquaGradientStart.opacity(0.4),
-                                Color.aquaGradientEnd.opacity(0.08),
+                                Color.aquaGradientEnd.opacity(0.08)
                             ],
                             startPoint: .top,
                             endPoint: .bottom
@@ -290,7 +290,7 @@ struct TimeOfDayAreaChart: View {
                     }
                 }
             }
-            .chartYScale(domain: 0...(chartYMax * 1.15))
+            .chartYScale(domain: 0 ... (chartYMax * 1.15))
             .frame(height: 180)
 
             // Peak hour callout
@@ -392,7 +392,7 @@ struct CaffeineLineChart: View {
                     }
                 }
             }
-            .chartYScale(domain: 0...chartYMax)
+            .chartYScale(domain: 0 ... chartYMax)
             .frame(height: 180)
 
             // Average callout

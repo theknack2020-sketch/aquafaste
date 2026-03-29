@@ -47,11 +47,11 @@ struct AnimatedNumberView: View {
             }
         }
         .animation(.spring(response: 0.3, dampingFraction: 0.8), value: displayedValue)
-        .onChange(of: value) { oldVal, newVal in
+        .onChange(of: value) { _, newVal in
             startAnimation(from: displayedValue, to: newVal)
         }
         .onAppear {
-            if displayedValue == 0 && value > 0 {
+            if displayedValue == 0, value > 0 {
                 startAnimation(from: 0, to: value)
             } else {
                 displayedValue = value

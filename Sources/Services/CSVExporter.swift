@@ -3,7 +3,7 @@ import SwiftUI
 import UniformTypeIdentifiers
 
 /// Generates CSV data from hydration logs for export
-struct CSVExporter {
+enum CSVExporter {
     /// Whether the user has permission to export (Pro feature)
     @MainActor
     static var canExport: Bool {

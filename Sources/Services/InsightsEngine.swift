@@ -29,7 +29,7 @@ final class InsightsEngine {
 
         let grouped = Dictionary(grouping: logs) { calendar.startOfDay(for: $0.timestamp) }
 
-        return (0..<7).reversed().map { daysAgo in
+        return (0 ..< 7).reversed().map { daysAgo in
             let date = calendar.date(byAdding: .day, value: -daysAgo, to: today)!
             let dayLogs = grouped[date] ?? []
             let total = dayLogs.reduce(0.0) { $0 + $1.effectiveAmount }
@@ -48,7 +48,7 @@ final class InsightsEngine {
 
         let grouped = Dictionary(grouping: logs) { calendar.startOfDay(for: $0.timestamp) }
 
-        return (0..<30).reversed().map { daysAgo in
+        return (0 ..< 30).reversed().map { daysAgo in
             let date = calendar.date(byAdding: .day, value: -daysAgo, to: today)!
             let dayLogs = grouped[date] ?? []
             let total = dayLogs.reduce(0.0) { $0 + $1.effectiveAmount }
@@ -91,7 +91,7 @@ final class InsightsEngine {
         let uniqueDays = Set(logs.map { calendar.startOfDay(for: $0.timestamp) }).count
         let divisor = max(Double(uniqueDays), 1)
 
-        return (0..<24).map { hour in
+        return (0 ..< 24).map { hour in
             (hour: hour, amount: (buckets[hour] ?? 0) / divisor)
         }
     }
@@ -106,7 +106,7 @@ final class InsightsEngine {
 
         let grouped = Dictionary(grouping: logs) { calendar.startOfDay(for: $0.timestamp) }
 
-        return (0..<7).reversed().map { daysAgo in
+        return (0 ..< 7).reversed().map { daysAgo in
             let date = calendar.date(byAdding: .day, value: -daysAgo, to: today)!
             let dayLogs = grouped[date] ?? []
             let caffeine = dayLogs.reduce(0.0) { $0 + $1.caffeineMg }
@@ -127,9 +127,9 @@ final class InsightsEngine {
         // Component 1: Goal completion rate (40 points)
         let grouped = Dictionary(grouping: logs) { calendar.startOfDay(for: $0.timestamp) }
         let totalDays = max(grouped.count, 1)
-        let metDays = grouped.values.filter { dayLogs in
+        let metDays = grouped.values.count(where: { dayLogs in
             dayLogs.reduce(0.0) { $0 + $1.effectiveAmount } >= goal
-        }.count
+        })
         let completionRate = Double(metDays) / Double(totalDays)
         let completionScore = completionRate * 40
 
@@ -141,7 +141,7 @@ final class InsightsEngine {
         let variance = dailyTotals.reduce(0.0) { $0 + pow($1 - avg, 2) } / Double(dailyTotals.count)
         let stdDev = sqrt(variance)
         let cv = avg > 0 ? stdDev / avg : 1.0 // coefficient of variation
-        let consistencyScore = max(0, (1 - cv)) * 30
+        let consistencyScore = max(0, 1 - cv) * 30
 
         // Component 3: Drink variety (15 points)
         let uniqueTypes = Set(logs.map(\.drinkType)).count
@@ -150,7 +150,7 @@ final class InsightsEngine {
         // Component 4: Recent activity — logged in last 3 days (15 points)
         let today = calendar.startOfDay(for: .now)
         let threeDaysAgo = calendar.date(byAdding: .day, value: -3, to: today)!
-        let recentDays = grouped.keys.filter { $0 >= threeDaysAgo }.count
+        let recentDays = grouped.keys.count(where: { $0 >= threeDaysAgo })
         let recencyScore = min(Double(recentDays) / 3.0, 1.0) * 15
 
         let total = completionScore + consistencyScore + varietyScore + recencyScore
@@ -227,7 +227,8 @@ final class InsightsEngine {
             if dayTotal >= goal {
                 if let prev = previousDate,
                    let expected = calendar.date(byAdding: .day, value: 1, to: prev),
-                   calendar.isDate(date, inSameDayAs: expected) {
+                   calendar.isDate(date, inSameDayAs: expected)
+                {
                     currentStreak += 1
                 } else {
                     currentStreak = 1
@@ -273,17 +274,16 @@ final class InsightsEngine {
         }
 
         // 6. Goal achievement rate
-        let metDays = grouped.values.filter { dayLogs in
+        let metDays = grouped.values.count(where: { dayLogs in
             dayLogs.reduce(0.0) { $0 + $1.effectiveAmount } >= goal
-        }.count
+        })
         let rate = Double(metDays) / Double(max(grouped.count, 1)) * 100
-        let rateSubtitle: String
-        if rate >= 80 {
-            rateSubtitle = "Excellent consistency!"
+        let rateSubtitle = if rate >= 80 {
+            "Excellent consistency!"
         } else if rate >= 50 {
-            rateSubtitle = "Good progress, keep going"
+            "Good progress, keep going"
         } else {
-            rateSubtitle = "Try setting more reminders"
+            "Try setting more reminders"
         }
         items.append(InsightItem(
             icon: "checkmark.seal.fill",

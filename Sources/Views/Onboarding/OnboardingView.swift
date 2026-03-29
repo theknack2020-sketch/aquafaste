@@ -70,36 +70,36 @@ struct OnboardingView: View {
                         .shadow(color: Color.aquaGradientStart.opacity(0.4), radius: 16, x: 0, y: 4)
                 }
 
-            Text("Welcome to AquaFaste")
-                .font(.title.weight(.bold))
+                Text("Welcome to AquaFaste")
+                    .font(.title.weight(.bold))
 
-            Text("Your honest hydration companion.\nNo ads. No tricks. Just water.")
-                .font(.subheadline)
-                .foregroundStyle(.secondary)
-                .multilineTextAlignment(.center)
+                Text("Your honest hydration companion.\nNo ads. No tricks. Just water.")
+                    .font(.subheadline)
+                    .foregroundStyle(.secondary)
+                    .multilineTextAlignment(.center)
 
-            // Benefit highlights
-            VStack(alignment: .leading, spacing: 10) {
-                benefitRow(icon: "brain.head.profile.fill", text: "Boost focus & energy by staying hydrated")
-                benefitRow(icon: "heart.fill", text: "Support heart health with consistent water intake")
-                benefitRow(icon: "sparkles", text: "Better skin, digestion & mood — backed by science")
-            }
-            .padding()
-            .background(Color.aquaCardBackground, in: RoundedRectangle(cornerRadius: 16))
-            .shadow(color: Color.black.opacity(0.06), radius: 6, x: 0, y: 3)
+                // Benefit highlights
+                VStack(alignment: .leading, spacing: 10) {
+                    benefitRow(icon: "brain.head.profile.fill", text: "Boost focus & energy by staying hydrated")
+                    benefitRow(icon: "heart.fill", text: "Support heart health with consistent water intake")
+                    benefitRow(icon: "sparkles", text: "Better skin, digestion & mood — backed by science")
+                }
+                .padding()
+                .background(Color.aquaCardBackground, in: RoundedRectangle(cornerRadius: 16))
+                .shadow(color: Color.black.opacity(0.06), radius: 6, x: 0, y: 3)
 
-            Spacer()
+                Spacer()
 
-            Button("Get Started") {
-                haptics.buttonPress()
-                withAnimation(.spring(response: 0.5, dampingFraction: 0.8)) { currentPage = 1 }
-            }
-            .buttonStyle(.borderedProminent)
-            .tint(Color.aquaPrimary)
-            .controlSize(.large)
-            .accessibilityIdentifier("getStartedButton")
+                Button("Get Started") {
+                    haptics.buttonPress()
+                    withAnimation(.spring(response: 0.5, dampingFraction: 0.8)) { currentPage = 1 }
+                }
+                .buttonStyle(.borderedProminent)
+                .tint(Color.aquaPrimary)
+                .controlSize(.large)
+                .accessibilityIdentifier("getStartedButton")
 
-            pageIndicator(current: 0)
+                pageIndicator(current: 0)
             }
             .padding()
         }
@@ -121,57 +121,57 @@ struct OnboardingView: View {
             .ignoresSafeArea()
 
             VStack(spacing: 20) {
-            Spacer()
+                Spacer()
 
-            Image(systemName: "scalemass.fill")
-                .font(.system(size: 48))
-                .foregroundStyle(Color.aquaPrimary)
+                Image(systemName: "scalemass.fill")
+                    .font(.system(size: 48))
+                    .foregroundStyle(Color.aquaPrimary)
 
-            Text("What's your weight?")
-                .font(.title2.weight(.bold))
+                Text("What's your weight?")
+                    .font(.title2.weight(.bold))
 
-            Text("Based on EFSA guidelines: ~30 ml per kg body weight")
-                .font(.subheadline)
-                .foregroundStyle(.secondary)
-
-            HStack(alignment: .firstTextBaseline, spacing: 4) {
-                TextField("70", text: $weight)
-                    .font(.system(size: 56, weight: .bold, design: .rounded))
-                    .keyboardType(.numberPad)
-                    .multilineTextAlignment(.center)
-                    .frame(width: 140)
-
-                Text("kg")
-                    .font(.title3)
+                Text("Based on EFSA guidelines: ~30 ml per kg body weight")
+                    .font(.subheadline)
                     .foregroundStyle(.secondary)
-            }
 
-            if let w = Double(weight), w > 0 {
-                let goal = Int(w * 35.0 * selectedActivity.multiplier)
-                VStack(spacing: 4) {
-                    Text("Recommended: \(goal) ml/day")
-                        .font(.subheadline.weight(.medium))
-                        .foregroundStyle(Color.aquaPrimary)
-                    Text("Based on \(Int(w)) kg × 30 ml/kg (EFSA)")
-                        .font(.caption)
+                HStack(alignment: .firstTextBaseline, spacing: 4) {
+                    TextField("70", text: $weight)
+                        .font(.system(size: 56, weight: .bold, design: .rounded))
+                        .keyboardType(.numberPad)
+                        .multilineTextAlignment(.center)
+                        .frame(width: 140)
+
+                    Text("kg")
+                        .font(.title3)
                         .foregroundStyle(.secondary)
                 }
-            }
 
-            Spacer()
-
-            Button("Next") {
                 if let w = Double(weight), w > 0 {
-                    profile.weight = w
+                    let goal = Int(w * 35.0 * selectedActivity.multiplier)
+                    VStack(spacing: 4) {
+                        Text("Recommended: \(goal) ml/day")
+                            .font(.subheadline.weight(.medium))
+                            .foregroundStyle(Color.aquaPrimary)
+                        Text("Based on \(Int(w)) kg × 30 ml/kg (EFSA)")
+                            .font(.caption)
+                            .foregroundStyle(.secondary)
+                    }
                 }
-                haptics.buttonPress()
-                withAnimation(.spring(response: 0.5, dampingFraction: 0.8)) { currentPage = 2 }
-            }
-            .buttonStyle(.borderedProminent)
-            .tint(Color.aquaPrimary)
-            .controlSize(.large)
 
-            pageIndicator(current: 1)
+                Spacer()
+
+                Button("Next") {
+                    if let w = Double(weight), w > 0 {
+                        profile.weight = w
+                    }
+                    haptics.buttonPress()
+                    withAnimation(.spring(response: 0.5, dampingFraction: 0.8)) { currentPage = 2 }
+                }
+                .buttonStyle(.borderedProminent)
+                .tint(Color.aquaPrimary)
+                .controlSize(.large)
+
+                pageIndicator(current: 1)
             }
             .padding()
         }
@@ -193,65 +193,65 @@ struct OnboardingView: View {
             .ignoresSafeArea()
 
             VStack(spacing: 20) {
-            Spacer()
+                Spacer()
 
-            Image(systemName: "figure.run")
-                .font(.system(size: 48))
-                .foregroundStyle(Color.aquaPrimary)
+                Image(systemName: "figure.run")
+                    .font(.system(size: 48))
+                    .foregroundStyle(Color.aquaPrimary)
 
-            Text("How active are you?")
-                .font(.title2.weight(.bold))
+                Text("How active are you?")
+                    .font(.title2.weight(.bold))
 
-            Text("Active people lose more water through sweat\nand need up to 50% more hydration")
-                .font(.caption)
-                .foregroundStyle(.secondary)
-                .multilineTextAlignment(.center)
-                .padding(.horizontal)
+                Text("Active people lose more water through sweat\nand need up to 50% more hydration")
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+                    .multilineTextAlignment(.center)
+                    .padding(.horizontal)
 
-            VStack(spacing: 8) {
-                ForEach(ActivityLevel.allCases) { level in
-                    Button {
-                        haptics.selectionChanged()
-                        selectedActivity = level
-                    } label: {
-                        HStack {
-                            VStack(alignment: .leading, spacing: 2) {
-                                Text(level.displayName)
-                                    .font(.subheadline.weight(.medium))
-                                Text(level.description)
-                                    .font(.caption)
-                                    .foregroundStyle(.secondary)
+                VStack(spacing: 8) {
+                    ForEach(ActivityLevel.allCases) { level in
+                        Button {
+                            haptics.selectionChanged()
+                            selectedActivity = level
+                        } label: {
+                            HStack {
+                                VStack(alignment: .leading, spacing: 2) {
+                                    Text(level.displayName)
+                                        .font(.subheadline.weight(.medium))
+                                    Text(level.description)
+                                        .font(.caption)
+                                        .foregroundStyle(.secondary)
+                                }
+                                Spacer()
+                                if selectedActivity == level {
+                                    Image(systemName: "checkmark.circle.fill")
+                                        .foregroundStyle(Color.aquaPrimary)
+                                }
                             }
-                            Spacer()
-                            if selectedActivity == level {
-                                Image(systemName: "checkmark.circle.fill")
-                                    .foregroundStyle(Color.aquaPrimary)
-                            }
+                            .padding()
+                            .background(
+                                selectedActivity == level
+                                    ? Color.aquaPrimary.opacity(0.1)
+                                    : Color.aquaCardBackground,
+                                in: RoundedRectangle(cornerRadius: 12)
+                            )
+                            .foregroundStyle(Color.aquaTextPrimary)
                         }
-                        .padding()
-                        .background(
-                            selectedActivity == level
-                                ? Color.aquaPrimary.opacity(0.1)
-                                : Color.aquaCardBackground,
-                            in: RoundedRectangle(cornerRadius: 12)
-                        )
-                        .foregroundStyle(Color.aquaTextPrimary)
                     }
                 }
-            }
 
-            Spacer()
+                Spacer()
 
-            Button("Next") {
-                profile.activityLevel = selectedActivity
-                haptics.buttonPress()
-                withAnimation(.spring(response: 0.5, dampingFraction: 0.8)) { currentPage = 3 }
-            }
-            .buttonStyle(.borderedProminent)
-            .tint(Color.aquaPrimary)
-            .controlSize(.large)
+                Button("Next") {
+                    profile.activityLevel = selectedActivity
+                    haptics.buttonPress()
+                    withAnimation(.spring(response: 0.5, dampingFraction: 0.8)) { currentPage = 3 }
+                }
+                .buttonStyle(.borderedProminent)
+                .tint(Color.aquaPrimary)
+                .controlSize(.large)
 
-            pageIndicator(current: 2)
+                pageIndicator(current: 2)
             }
             .padding()
         }
@@ -273,126 +273,126 @@ struct OnboardingView: View {
             .ignoresSafeArea()
 
             VStack(spacing: 20) {
-            Spacer()
+                Spacer()
 
-            Image(systemName: "bell.badge.fill")
-                .font(.system(size: 56))
-                .foregroundStyle(Color.aquaPrimary)
-                .symbolRenderingMode(.hierarchical)
+                Image(systemName: "bell.badge.fill")
+                    .font(.system(size: 56))
+                    .foregroundStyle(Color.aquaPrimary)
+                    .symbolRenderingMode(.hierarchical)
 
-            Text("Stay on Track")
-                .font(.title.weight(.bold))
+                Text("Stay on Track")
+                    .font(.title.weight(.bold))
 
-            Text("People who use reminders drink 40% more water on average. Smart reminders during waking hours — never at night.")
-                .font(.subheadline)
-                .foregroundStyle(.secondary)
-                .multilineTextAlignment(.center)
-                .padding(.horizontal, 8)
+                Text("People who use reminders drink 40% more water on average. Smart reminders during waking hours — never at night.")
+                    .font(.subheadline)
+                    .foregroundStyle(.secondary)
+                    .multilineTextAlignment(.center)
+                    .padding(.horizontal, 8)
 
-            // Benefits list
-            VStack(alignment: .leading, spacing: 12) {
-                notificationBenefit(
-                    icon: "clock.fill",
-                    title: "Smart Timing",
-                    description: "Reminders every 1-2 hours, only during waking hours"
-                )
-                notificationBenefit(
-                    icon: "moon.fill",
-                    title: "Quiet Hours",
-                    description: "No notifications while you sleep"
-                )
-                notificationBenefit(
-                    icon: "trophy.fill",
-                    title: "Celebrations",
-                    description: "Get notified when you hit your daily goal"
-                )
-                notificationBenefit(
-                    icon: "flame.fill",
-                    title: "Streak Protection",
-                    description: "Reminders to keep your streak alive"
-                )
-            }
-            .padding()
-            .background(Color.aquaCardBackground, in: RoundedRectangle(cornerRadius: 16))
-            .shadow(color: Color.aquaPrimary.opacity(0.08), radius: 8, x: 0, y: 3)
+                // Benefits list
+                VStack(alignment: .leading, spacing: 12) {
+                    notificationBenefit(
+                        icon: "clock.fill",
+                        title: "Smart Timing",
+                        description: "Reminders every 1-2 hours, only during waking hours"
+                    )
+                    notificationBenefit(
+                        icon: "moon.fill",
+                        title: "Quiet Hours",
+                        description: "No notifications while you sleep"
+                    )
+                    notificationBenefit(
+                        icon: "trophy.fill",
+                        title: "Celebrations",
+                        description: "Get notified when you hit your daily goal"
+                    )
+                    notificationBenefit(
+                        icon: "flame.fill",
+                        title: "Streak Protection",
+                        description: "Reminders to keep your streak alive"
+                    )
+                }
+                .padding()
+                .background(Color.aquaCardBackground, in: RoundedRectangle(cornerRadius: 16))
+                .shadow(color: Color.aquaPrimary.opacity(0.08), radius: 8, x: 0, y: 3)
 
-            Spacer()
+                Spacer()
 
-            if notificationDenied {
-                // Graceful denial handling with inline guidance
-                VStack(spacing: 10) {
-                    HStack(spacing: 8) {
-                        Image(systemName: "bell.slash")
-                            .foregroundStyle(.orange)
-                        Text("Notifications Blocked")
-                            .font(.subheadline.weight(.semibold))
-                    }
-
-                    Text("No worries! You can enable reminders anytime in\nSettings → AquaFaste → Notifications")
-                        .font(.caption)
-                        .foregroundStyle(.secondary)
-                        .multilineTextAlignment(.center)
-
-                    HStack(spacing: 12) {
-                        Button("Open Settings") {
-                            NotificationManager.shared.openNotificationSettings()
+                if notificationDenied {
+                    // Graceful denial handling with inline guidance
+                    VStack(spacing: 10) {
+                        HStack(spacing: 8) {
+                            Image(systemName: "bell.slash")
+                                .foregroundStyle(.orange)
+                            Text("Notifications Blocked")
+                                .font(.subheadline.weight(.semibold))
                         }
-                        .font(.caption.weight(.medium))
-                        .foregroundStyle(Color.aquaPrimary)
 
-                        Button("Continue Without") {
-                            haptics.buttonPress()
-                            withAnimation(.spring(response: 0.5, dampingFraction: 0.8)) { currentPage = 4 }
-                        }
-                        .buttonStyle(.borderedProminent)
-                        .tint(Color.aquaCardBackground)
-                        .foregroundStyle(Color.aquaTextPrimary)
-                        .controlSize(.regular)
-                    }
-                }
-            } else if notificationGranted {
-                VStack(spacing: 4) {
-                    Image(systemName: "checkmark.circle.fill")
-                        .font(.title2)
-                        .foregroundStyle(.green)
-                    Text("Reminders enabled!")
-                        .font(.subheadline.weight(.medium))
-                        .foregroundStyle(.green)
-                }
+                        Text("No worries! You can enable reminders anytime in\nSettings → AquaFaste → Notifications")
+                            .font(.caption)
+                            .foregroundStyle(.secondary)
+                            .multilineTextAlignment(.center)
 
-                Button("Continue") {
-                    haptics.buttonPress()
-                    withAnimation(.spring(response: 0.5, dampingFraction: 0.8)) { currentPage = 4 }
-                }
-                .buttonStyle(.borderedProminent)
-                .tint(Color.aquaPrimary)
-                .controlSize(.large)
-            } else {
-                Button("Enable Reminders") {
-                    Task {
-                        let granted = await NotificationManager.shared.requestAuthorization()
-                        notificationGranted = granted
-                        notificationDenied = !granted
-                        if granted {
-                            NotificationManager.shared.registerCategories()
+                        HStack(spacing: 12) {
+                            Button("Open Settings") {
+                                NotificationManager.shared.openNotificationSettings()
+                            }
+                            .font(.caption.weight(.medium))
+                            .foregroundStyle(Color.aquaPrimary)
+
+                            Button("Continue Without") {
+                                haptics.buttonPress()
+                                withAnimation(.spring(response: 0.5, dampingFraction: 0.8)) { currentPage = 4 }
+                            }
+                            .buttonStyle(.borderedProminent)
+                            .tint(Color.aquaCardBackground)
+                            .foregroundStyle(Color.aquaTextPrimary)
+                            .controlSize(.regular)
                         }
                     }
-                }
-                .buttonStyle(.borderedProminent)
-                .tint(Color.aquaPrimary)
-                .controlSize(.large)
-                .accessibilityLabel("Enable hydration reminders")
-                .accessibilityIdentifier("enableRemindersButton")
+                } else if notificationGranted {
+                    VStack(spacing: 4) {
+                        Image(systemName: "checkmark.circle.fill")
+                            .font(.title2)
+                            .foregroundStyle(.green)
+                        Text("Reminders enabled!")
+                            .font(.subheadline.weight(.medium))
+                            .foregroundStyle(.green)
+                    }
 
-                Button("Skip for Now") {
-                    haptics.buttonPress()
-                    withAnimation(.spring(response: 0.5, dampingFraction: 0.8)) { currentPage = 4 }
-                }
-                .font(.subheadline)
-                .foregroundStyle(.secondary)
-            }
+                    Button("Continue") {
+                        haptics.buttonPress()
+                        withAnimation(.spring(response: 0.5, dampingFraction: 0.8)) { currentPage = 4 }
+                    }
+                    .buttonStyle(.borderedProminent)
+                    .tint(Color.aquaPrimary)
+                    .controlSize(.large)
+                } else {
+                    Button("Enable Reminders") {
+                        Task {
+                            let granted = await NotificationManager.shared.requestAuthorization()
+                            notificationGranted = granted
+                            notificationDenied = !granted
+                            if granted {
+                                NotificationManager.shared.registerCategories()
+                            }
+                        }
+                    }
+                    .buttonStyle(.borderedProminent)
+                    .tint(Color.aquaPrimary)
+                    .controlSize(.large)
+                    .accessibilityLabel("Enable hydration reminders")
+                    .accessibilityIdentifier("enableRemindersButton")
 
-            pageIndicator(current: 3)
+                    Button("Skip for Now") {
+                        haptics.buttonPress()
+                        withAnimation(.spring(response: 0.5, dampingFraction: 0.8)) { currentPage = 4 }
+                    }
+                    .font(.subheadline)
+                    .foregroundStyle(.secondary)
+                }
+
+                pageIndicator(current: 3)
             }
             .padding()
         }
@@ -431,65 +431,65 @@ struct OnboardingView: View {
             .ignoresSafeArea()
 
             VStack(spacing: 20) {
-            Spacer()
+                Spacer()
 
-            Image(systemName: "checkmark.circle.fill")
-                .font(.system(size: 64))
-                .foregroundStyle(Color.aquaPrimary)
+                Image(systemName: "checkmark.circle.fill")
+                    .font(.system(size: 64))
+                    .foregroundStyle(Color.aquaPrimary)
 
-            Text("You're All Set!")
-                .font(.title.weight(.bold))
+                Text("You're All Set!")
+                    .font(.title.weight(.bold))
 
-            let goal = profile.dailyGoal
-            Text("Your daily goal: \(profile.unit.formatAmount(goal))")
-                .font(.title3)
-                .foregroundStyle(Color.aquaPrimary)
+                let goal = profile.dailyGoal
+                Text("Your daily goal: \(profile.unit.formatAmount(goal))")
+                    .font(.title3)
+                    .foregroundStyle(Color.aquaPrimary)
 
-            VStack(alignment: .leading, spacing: 8) {
-                summaryRow(icon: "scalemass.fill", text: "\(Int(profile.weight)) kg")
-                summaryRow(icon: "figure.run", text: profile.activityLevel.displayName)
-                summaryRow(
-                    icon: "bell.fill",
-                    text: notificationGranted
-                        ? "Reminders every \(profile.reminderInterval / 60) hours"
-                        : "Reminders off"
-                )
-            }
-            .padding()
-            .background(Color.aquaCardBackground, in: RoundedRectangle(cornerRadius: 16))
-            .shadow(color: Color.black.opacity(0.06), radius: 6, x: 0, y: 3)
-
-            Spacer()
-
-            Button("Start Tracking") {
-                haptics.goalComplete()
-                sounds.playCelebration()
-                profile.onboardingComplete = true
-                Task {
-                    let hkAuthorized = await HealthKitManager.shared.requestAuthorization()
-                    if !hkAuthorized {
-                        print("[AquaFaste] HealthKit not authorized — continuing without sync")
-                    }
-                    await NotificationManager.shared.scheduleAllNotifications()
+                VStack(alignment: .leading, spacing: 8) {
+                    summaryRow(icon: "scalemass.fill", text: "\(Int(profile.weight)) kg")
+                    summaryRow(icon: "figure.run", text: profile.activityLevel.displayName)
+                    summaryRow(
+                        icon: "bell.fill",
+                        text: notificationGranted
+                            ? "Reminders every \(profile.reminderInterval / 60) hours"
+                            : "Reminders off"
+                    )
                 }
-                isComplete = true
-            }
-            .buttonStyle(.borderedProminent)
-            .tint(Color.aquaPrimary)
-            .controlSize(.large)
-            .accessibilityLabel("Start tracking your daily hydration")
-            .accessibilityIdentifier("startTrackingButton")
+                .padding()
+                .background(Color.aquaCardBackground, in: RoundedRectangle(cornerRadius: 16))
+                .shadow(color: Color.black.opacity(0.06), radius: 6, x: 0, y: 3)
 
-            Button("Try Premium Free") {
-                showPaywall = true
-            }
-            .font(.subheadline)
-            .foregroundStyle(Color.aquaPrimary)
-            .accessibilityLabel("Try premium features free")
-            .accessibilityHint("Opens premium subscription options")
-            .accessibilityIdentifier("onboardingTryPremiumButton")
+                Spacer()
 
-            pageIndicator(current: 4)
+                Button("Start Tracking") {
+                    haptics.goalComplete()
+                    sounds.playCelebration()
+                    profile.onboardingComplete = true
+                    Task {
+                        let hkAuthorized = await HealthKitManager.shared.requestAuthorization()
+                        if !hkAuthorized {
+                            print("[AquaFaste] HealthKit not authorized — continuing without sync")
+                        }
+                        await NotificationManager.shared.scheduleAllNotifications()
+                    }
+                    isComplete = true
+                }
+                .buttonStyle(.borderedProminent)
+                .tint(Color.aquaPrimary)
+                .controlSize(.large)
+                .accessibilityLabel("Start tracking your daily hydration")
+                .accessibilityIdentifier("startTrackingButton")
+
+                Button("Try Premium Free") {
+                    showPaywall = true
+                }
+                .font(.subheadline)
+                .foregroundStyle(Color.aquaPrimary)
+                .accessibilityLabel("Try premium features free")
+                .accessibilityHint("Opens premium subscription options")
+                .accessibilityIdentifier("onboardingTryPremiumButton")
+
+                pageIndicator(current: 4)
             }
             .padding()
         }
@@ -521,7 +521,7 @@ struct OnboardingView: View {
 
     private func pageIndicator(current: Int) -> some View {
         HStack(spacing: 6) {
-            ForEach(0..<totalPages, id: \.self) { i in
+            ForEach(0 ..< totalPages, id: \.self) { i in
                 Circle()
                     .fill(i == current ? Color.aquaPrimary : Color.aquaPrimary.opacity(0.3))
                     .frame(width: 8, height: 8)

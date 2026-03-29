@@ -129,7 +129,7 @@ struct TimerView: View {
                         }
 
                         // Encouragement when close to goal
-                        if !goalReached && remainingToGoal > 0 && remainingToGoal <= profile.dailyGoal * 0.2 {
+                        if !goalReached, remainingToGoal > 0, remainingToGoal <= profile.dailyGoal * 0.2 {
                             HStack(spacing: 6) {
                                 Image(systemName: "sparkles")
                                     .foregroundStyle(.yellow)
@@ -162,7 +162,7 @@ struct TimerView: View {
                         favoritesSection
 
                         // Soft paywall — non-blocking nudge after 7 days
-                        if subscription.shouldShowSoftPaywall && !subscription.softPaywallDismissedThisSession {
+                        if subscription.shouldShowSoftPaywall, !subscription.softPaywallDismissedThisSession {
                             SoftPaywallBanner {
                                 withAnimation {
                                     subscription.softPaywallDismissedThisSession = true
@@ -269,7 +269,7 @@ struct TimerView: View {
                     }
                 }
 
-                if showConfetti && !reduceMotion {
+                if showConfetti, !reduceMotion {
                     ConfettiView()
                         .ignoresSafeArea()
                         .allowsHitTesting(false)
@@ -288,7 +288,7 @@ struct TimerView: View {
                 get: { manager.showError },
                 set: { manager.showError = $0 }
             )) {
-                Button("OK") { }
+                Button("OK") {}
             } message: {
                 Text(manager.errorMessage)
             }
@@ -400,7 +400,7 @@ struct TimerView: View {
                 .offset(y: buttonsAppeared ? 0 : 20)
                 .animation(
                     .spring(response: 0.5, dampingFraction: 0.7)
-                    .delay(Double(index) * 0.08),
+                        .delay(Double(index) * 0.08),
                     value: buttonsAppeared
                 )
             }
@@ -435,7 +435,7 @@ struct TimerView: View {
             .offset(y: buttonsAppeared ? 0 : 20)
             .animation(
                 .spring(response: 0.5, dampingFraction: 0.7)
-                .delay(Double(profile.cupPresets.count) * 0.08),
+                    .delay(Double(profile.cupPresets.count) * 0.08),
                 value: buttonsAppeared
             )
         }
@@ -676,8 +676,13 @@ struct TimerView: View {
 
     // MARK: - Actions
 
-    private var goalReached: Bool { manager.todayTotal >= profile.dailyGoal }
-    private var remainingToGoal: Double { max(0, profile.dailyGoal - manager.todayTotal) }
+    private var goalReached: Bool {
+        manager.todayTotal >= profile.dailyGoal
+    }
+
+    private var remainingToGoal: Double {
+        max(0, profile.dailyGoal - manager.todayTotal)
+    }
 
     /// Context-aware greeting that replaces the static "AquaFaste" title
     private var timeBasedGreeting: String {
@@ -687,9 +692,9 @@ struct TimerView: View {
             return "Goal Reached! 🏆"
         }
         switch hour {
-        case 5..<12: return "Good Morning 💧"
-        case 12..<17: return "Stay Hydrated ☀️"
-        case 17..<21: return "Evening Sip 🌙"
+        case 5 ..< 12: return "Good Morning 💧"
+        case 12 ..< 17: return "Stay Hydrated ☀️"
+        case 17 ..< 21: return "Evening Sip 🌙"
         default: return "Night Hydration 🌊"
         }
     }
@@ -699,13 +704,13 @@ struct TimerView: View {
         switch pct {
         case ...0:
             return "A fresh start! Your first drink makes all the difference."
-        case 0..<0.25:
+        case 0 ..< 0.25:
             return "Nice start! Keep the momentum going. 💧"
-        case 0.25..<0.50:
+        case 0.25 ..< 0.50:
             return "You're getting there! Halfway to your goal. 💪"
-        case 0.50..<0.75:
+        case 0.50 ..< 0.75:
             return "Over halfway! Your body is thanking you. ✨"
-        case 0.75..<1.0:
+        case 0.75 ..< 1.0:
             return "Almost there! Just a bit more to crush your goal! 🎯"
         default:
             return "Goal complete! You're a hydration champion! 🏆"
@@ -717,13 +722,13 @@ struct TimerView: View {
         switch streak {
         case 1: return "Day 1! Every journey starts here 💧"
         case 2: return "Day 2! Building momentum 💪"
-        case 3...6: return "\(streak)-day streak! Keep it going 🔥"
+        case 3 ... 6: return "\(streak)-day streak! Keep it going 🔥"
         case 7: return "Hydration hero! Day 7 🏆"
-        case 8...13: return "\(streak) days strong! 🌟"
-        case 14...29: return "\(streak) days! You're unstoppable 💎"
+        case 8 ... 13: return "\(streak) days strong! 🌟"
+        case 14 ... 29: return "\(streak) days! You're unstoppable 💎"
         case 30: return "Legendary! Day 30 👑"
-        case 31...59: return "\(streak)-day streak! Over a month! 👑"
-        case 60...99: return "\(streak) days! Incredible discipline 🎯"
+        case 31 ... 59: return "\(streak)-day streak! Over a month! 👑"
+        case 60 ... 99: return "\(streak) days! Incredible discipline 🎯"
         default: return "\(streak)-day legendary streak! 🌊"
         }
     }
@@ -756,7 +761,7 @@ struct TimerView: View {
         }
 
         // Goal complete celebration
-        if wasUnderGoal && manager.todayTotal >= profile.dailyGoal {
+        if wasUnderGoal, manager.todayTotal >= profile.dailyGoal {
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.4) {
                 haptics.goalComplete()
                 sounds.playGoalComplete()
@@ -1065,7 +1070,7 @@ struct GoalCompleteOverlay: View {
                 contentOpacity = 1.0
             }
             UIAccessibility.post(notification: .announcement,
-                               argument: "Goal complete! You've reached your daily hydration goal.")
+                                 argument: "Goal complete! You've reached your daily hydration goal.")
         }
     }
 }

@@ -8,10 +8,10 @@ final class HydrationManager {
     let profile = UserProfile.shared
 
     var todayLogs: [WaterLog] = []
-    var todayTotal: Double = 0     // effective ml
-    var todayRawTotal: Double = 0  // raw ml
-    var progress: Double = 0       // 0.0 - 1.0+
-    var todayCaffeine: Double = 0  // mg
+    var todayTotal: Double = 0 // effective ml
+    var todayRawTotal: Double = 0 // raw ml
+    var progress: Double = 0 // 0.0 - 1.0+
+    var todayCaffeine: Double = 0 // mg
 
     /// Error presentation state
     var showError = false
@@ -22,7 +22,7 @@ final class HydrationManager {
     var lastDeletedLog: WaterLog?
 
     func setup(context: ModelContext) {
-        self.modelContext = context
+        modelContext = context
         handleTimezoneChange()
         refreshToday()
     }
@@ -70,7 +70,7 @@ final class HydrationManager {
         NotificationManager.shared.recordWaterLog()
 
         // Goal completion notification
-        if wasUnderGoal && todayTotal >= profile.dailyGoal {
+        if wasUnderGoal, todayTotal >= profile.dailyGoal {
             NotificationManager.shared.sendGoalCompleteNotification(
                 streak: profile.currentStreak
             )
@@ -87,7 +87,7 @@ final class HydrationManager {
 
     func deleteLog(_ log: WaterLog) {
         guard let context = modelContext else { return }
-        lastDeletedLog = nil  // can't undo a manual delete
+        lastDeletedLog = nil // can't undo a manual delete
         context.delete(log)
         do {
             try context.save()
@@ -322,7 +322,7 @@ final class HydrationManager {
     /// Last 7 days totals for weekly chart
     func weeklyData() -> [(date: Date, total: Double)] {
         let calendar = Calendar.current
-        return (0..<7).reversed().map { daysAgo in
+        return (0 ..< 7).reversed().map { daysAgo in
             let date = calendar.date(byAdding: .day, value: -daysAgo, to: .now)!
             let start = calendar.startOfDay(for: date)
             return (date: start, total: totalForDate(start))
@@ -335,17 +335,15 @@ final class HydrationManager {
     func allLogs(from startDate: Date? = nil, to endDate: Date? = nil) -> [WaterLog] {
         guard let context = modelContext else { return [] }
 
-        var descriptor: FetchDescriptor<WaterLog>
-
-        if let start = startDate, let end = endDate {
-            descriptor = FetchDescriptor<WaterLog>(
+        let descriptor = if let start = startDate, let end = endDate {
+            FetchDescriptor<WaterLog>(
                 predicate: #Predicate<WaterLog> { log in
                     log.timestamp >= start && log.timestamp < end
                 },
                 sortBy: [SortDescriptor(\.timestamp, order: .forward)]
             )
         } else {
-            descriptor = FetchDescriptor<WaterLog>(
+            FetchDescriptor<WaterLog>(
                 sortBy: [SortDescriptor(\.timestamp, order: .forward)]
             )
         }
@@ -410,7 +408,7 @@ final class HydrationManager {
         var bestStreak = 0
         var currentStreak = 0
 
-        for dayOffset in 0...totalDays {
+        for dayOffset in 0 ... totalDays {
             let date = calendar.date(byAdding: .day, value: dayOffset, to: earliest)!
             let dayLogs = grouped[calendar.startOfDay(for: date)] ?? []
             let dayTotal = dayLogs.reduce(0.0) { $0 + $1.effectiveAmount }
@@ -432,9 +430,9 @@ final class HydrationManager {
 
         let calendar = Calendar.current
         let grouped = Dictionary(grouping: logs) { calendar.startOfDay(for: $0.timestamp) }
-        let metDays = grouped.values.filter { dayLogs in
+        let metDays = grouped.values.count(where: { dayLogs in
             dayLogs.reduce(0.0) { $0 + $1.effectiveAmount } >= profile.dailyGoal
-        }.count
+        })
         return Double(metDays) / Double(grouped.count) * 100
     }
 
@@ -449,7 +447,7 @@ final class HydrationManager {
             buckets[hour, default: 0] += log.effectiveAmount
         }
 
-        return (0..<24).map { hour in
+        return (0 ..< 24).map { hour in
             (hour: hour, total: buckets[hour] ?? 0)
         }
     }
@@ -483,7 +481,7 @@ final class HydrationManager {
         var thisWeekTotal = 0.0
         var lastWeekTotal = 0.0
 
-        for i in 0..<7 {
+        for i in 0 ..< 7 {
             let thisDay = calendar.date(byAdding: .day, value: i, to: thisMonday)!
             let lastDay = calendar.date(byAdding: .day, value: i, to: lastMonday)!
 
@@ -535,7 +533,7 @@ final class HydrationManager {
             }
         }
 
-        if !weekdayTotals.isEmpty && !weekendTotals.isEmpty {
+        if !weekdayTotals.isEmpty, !weekendTotals.isEmpty {
             let avgWeekday = weekdayTotals.reduce(0, +) / Double(weekdayTotals.count)
             let avgWeekend = weekendTotals.reduce(0, +) / Double(weekendTotals.count)
             let diff = abs(avgWeekday - avgWeekend) / max(avgWeekday, avgWeekend) * 100

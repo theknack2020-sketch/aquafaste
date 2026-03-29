@@ -1,6 +1,6 @@
 import Foundation
-import UserNotifications
 import SwiftUI
+import UserNotifications
 
 // MARK: - Notification Categories & Identifiers
 
@@ -139,7 +139,7 @@ final class NotificationManager: NSObject, ObservableObject {
             morningCategory,
             eveningCategory,
             goalCategory,
-            streakCategory,
+            streakCategory
         ])
     }
 
@@ -151,7 +151,7 @@ final class NotificationManager: NSObject, ObservableObject {
         ("Good Morning! ☀️", "Your body needs water after sleep. A glass now kickstarts your metabolism."),
         ("Start Strong 💧", "A glass of water first thing sets the tone for a great day."),
         ("Morning Energy ☕", "Morning hydration = morning energy. Let's go!"),
-        ("Wake Up, Drink Up! 💧", "Your cells are thirsty after 8 hours. Hydrate to feel sharp and focused."),
+        ("Wake Up, Drink Up! 💧", "Your cells are thirsty after 8 hours. Hydrate to feel sharp and focused.")
     ]
 
     /// Streak protection messages — with {streak} placeholder
@@ -160,7 +160,7 @@ final class NotificationManager: NSObject, ObservableObject {
         "Your streak is at risk! One glass keeps it alive.",
         "{streak} days strong. Keep it going! 💪",
         "Almost lost it! Quick — log a drink to save your streak.",
-        "Streak alert: Log water now to stay on track. 🏆",
+        "Streak alert: Log water now to stay on track. 🏆"
     ]
 
     /// Evening summary messages — dynamic based on progress
@@ -169,7 +169,7 @@ final class NotificationManager: NSObject, ObservableObject {
         "Hydration champion! {percentage}% of your goal — crushed it! 💧",
         "Day complete. You logged {count} drinks today. Nice! ✅",
         "Goal smashed! {amount} logged. Your body thanks you. 🎯",
-        "Another perfect day — {percentage}% hydrated. Keep it up! 🏆",
+        "Another perfect day — {percentage}% hydrated. Keep it up! 🏆"
     ]
 
     private static let eveningGoalNotMetMessages: [String] = [
@@ -177,7 +177,7 @@ final class NotificationManager: NSObject, ObservableObject {
         "Hydration recap: {percentage}% of your goal today. Almost there!",
         "So close! Just {remaining} more to hit 100%. 🎯",
         "You drank {amount} today ({percentage}%). A bit more before bed?",
-        "Evening check: {remaining} left to reach your target. 💧",
+        "Evening check: {remaining} left to reach your target. 💧"
     ]
 
     /// Inactivity nudge messages — for 3+ days absence
@@ -186,7 +186,7 @@ final class NotificationManager: NSObject, ObservableObject {
         "It's been a while. A fresh glass of water awaits.",
         "Ready to restart? Your body will thank you. 🙏",
         "Let's build that streak back! One glass to begin. 💪",
-        "Water break — your hydration journey doesn't end here. 🌊",
+        "Water break — your hydration journey doesn't end here. 🌊"
     ]
 
     /// Get a random message for a type, with variable substitution
@@ -294,7 +294,7 @@ final class NotificationManager: NSObject, ObservableObject {
         let hourIncrement = max(1, intervalMinutes / 60)
 
         // Schedule for today and tomorrow (iOS limits to 64 pending notifications)
-        for dayOffset in 0...1 {
+        for dayOffset in 0 ... 1 {
             guard let day = calendar.date(byAdding: .day, value: dayOffset, to: now) else { continue }
             let startOfDay = calendar.startOfDay(for: day)
 
@@ -319,7 +319,7 @@ final class NotificationManager: NSObject, ObservableObject {
                 }
 
                 // Smart timing: skip if user logged recently and reminder is within 30 min
-                if shouldSuppressReminder && reminderDate.timeIntervalSince(now) < 30 * 60 {
+                if shouldSuppressReminder, reminderDate.timeIntervalSince(now) < 30 * 60 {
                     hour += hourIncrement
                     continue
                 }
@@ -437,24 +437,23 @@ final class NotificationManager: NSObject, ObservableObject {
         let content = UNMutableNotificationContent()
         content.title = "Goal Complete! 🎉💧"
 
-        let messages: [String]
-        if streak > 7 {
-            messages = [
+        let messages: [String] = if streak > 7 {
+            [
                 "You've hit your daily hydration goal! That's \(streak) days in a row. Legendary! 🔥",
                 "Goal crushed — \(streak)-day streak and counting. You're a hydration machine! 🏆",
-                "\(streak) days strong! Your consistency is impressive. Keep dominating! 💪",
+                "\(streak) days strong! Your consistency is impressive. Keep dominating! 💪"
             ]
         } else if streak > 1 {
-            messages = [
+            [
                 "You've hit your daily hydration goal! That's \(streak) days in a row. You're on fire! 🔥",
                 "Daily goal — done. \(streak)-day streak is growing! 💪",
-                "Another day, another goal crushed. \(streak) days and counting! 🌟",
+                "Another day, another goal crushed. \(streak) days and counting! 🌟"
             ]
         } else {
-            messages = [
+            [
                 "You've reached your daily hydration goal. Great job staying hydrated!",
                 "Daily goal achieved! Your body thanks you. Keep it going tomorrow! 💧",
-                "100% hydrated today — that's how it's done! 🎯",
+                "100% hydrated today — that's how it's done! 🎯"
             ]
         }
 
@@ -506,20 +505,20 @@ final class NotificationManager: NSObject, ObservableObject {
 
     private func streakMessage(for streak: Int) -> String {
         switch streak {
-        case 1...2:
-            return "You've got a \(streak)-day streak! Don't break it — log some water today. 💧"
-        case 3...6:
-            return "Your \(streak)-day streak is building momentum! Keep it going. 💪"
-        case 7...13:
-            return "A whole week of hydration! Your \(streak)-day streak is impressive. Keep pushing! 🌟"
-        case 14...29:
-            return "\(streak) days strong! You're building a real habit. Don't stop now! 🏆"
-        case 30...59:
-            return "\(streak)-day streak — that's over a month! You're a hydration champion. 👑"
-        case 60...99:
-            return "Incredible \(streak)-day streak! You're in the top tier of hydration. 🎯"
+        case 1 ... 2:
+            "You've got a \(streak)-day streak! Don't break it — log some water today. 💧"
+        case 3 ... 6:
+            "Your \(streak)-day streak is building momentum! Keep it going. 💪"
+        case 7 ... 13:
+            "A whole week of hydration! Your \(streak)-day streak is impressive. Keep pushing! 🌟"
+        case 14 ... 29:
+            "\(streak) days strong! You're building a real habit. Don't stop now! 🏆"
+        case 30 ... 59:
+            "\(streak)-day streak — that's over a month! You're a hydration champion. 👑"
+        case 60 ... 99:
+            "Incredible \(streak)-day streak! You're in the top tier of hydration. 🎯"
         default:
-            return "\(streak) days — legendary streak! Keep this going forever. 🌊"
+            "\(streak) days — legendary streak! Keep this going forever. 🌊"
         }
     }
 
@@ -542,7 +541,7 @@ final class NotificationManager: NSObject, ObservableObject {
             ("Stay sharp! 🎯", "Dehydration drops cognitive performance by up to 25%."),
             ("Your body needs you 💪", "Every cell in your body needs water to function."),
             ("Refill time! 🔄", "Top up your water bottle and take a few sips."),
-            ("Glow up! ✨", "Hydrated skin is happy skin. Drink some water."),
+            ("Glow up! ✨", "Hydrated skin is happy skin. Drink some water.")
         ]
 
         // Use hour + day-of-year for rotation so messages vary across hours and days
@@ -563,8 +562,8 @@ final class NotificationManager: NSObject, ObservableObject {
         content.threadIdentifier = "weekly-summary"
 
         var components = DateComponents()
-        components.weekday = 1  // Sunday
-        components.hour = 20   // 8 PM
+        components.weekday = 1 // Sunday
+        components.hour = 20 // 8 PM
         components.minute = 0
 
         let trigger = UNCalendarNotificationTrigger(dateMatching: components, repeats: true)
@@ -694,7 +693,7 @@ final class NotificationManager: NSObject, ObservableObject {
 extension NotificationManager: UNUserNotificationCenterDelegate {
     /// Show notifications even when app is in foreground
     nonisolated func userNotificationCenter(
-        _ center: UNUserNotificationCenter,
+        _: UNUserNotificationCenter,
         willPresent notification: UNNotification
     ) async -> UNNotificationPresentationOptions {
         // Don't show hydration reminders in foreground — user is actively using the app
@@ -708,7 +707,7 @@ extension NotificationManager: UNUserNotificationCenterDelegate {
 
     /// Handle notification tap and action button responses
     nonisolated func userNotificationCenter(
-        _ center: UNUserNotificationCenter,
+        _: UNUserNotificationCenter,
         didReceive response: UNNotificationResponse
     ) async {
         let actionID = response.actionIdentifier

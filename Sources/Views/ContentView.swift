@@ -1,6 +1,6 @@
-import SwiftUI
-import SwiftData
 import StoreKit
+import SwiftData
+import SwiftUI
 
 struct ContentView: View {
     @State private var hydrationManager = HydrationManager()
@@ -137,7 +137,7 @@ struct ContentView: View {
         let summaryHour = max(0, profile.sleepStart - 1)
 
         // Send summary if within 1 hour of bedtime
-        if hour >= summaryHour && hour <= profile.sleepStart {
+        if hour >= summaryHour, hour <= profile.sleepStart {
             NotificationManager.shared.sendEveningSummaryNow(
                 todayTotal: hydrationManager.todayTotal,
                 goalAmount: profile.dailyGoal,

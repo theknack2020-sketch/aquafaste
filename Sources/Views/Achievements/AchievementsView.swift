@@ -1,5 +1,5 @@
-import SwiftUI
 import SwiftData
+import SwiftUI
 
 /// Grid view displaying all achievements grouped by category.
 struct AchievementsView: View {
@@ -10,7 +10,7 @@ struct AchievementsView: View {
 
     private let columns = [
         GridItem(.flexible(), spacing: 12),
-        GridItem(.flexible(), spacing: 12),
+        GridItem(.flexible(), spacing: 12)
     ]
 
     var body: some View {

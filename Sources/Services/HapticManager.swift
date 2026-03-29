@@ -1,5 +1,5 @@
-import UIKit
 import AudioToolbox
+import UIKit
 
 /// Centralized haptic + sound feedback for the app.
 /// All feedback fires on MainActor to avoid threading issues with UIKit generators.

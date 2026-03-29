@@ -7,7 +7,7 @@ struct DrinkPickerView: View {
     private let haptics = HapticManager.shared
     private let sounds = SoundManager.shared
 
-    // Group drinks by category
+    /// Group drinks by category
     private var groupedDrinks: [(category: DrinkCategory, drinks: [DrinkType])] {
         let grouped = Dictionary(grouping: DrinkType.allCases) { $0.category }
         return DrinkCategory.allCases.compactMap { category in
@@ -80,8 +80,8 @@ struct DrinkPickerView: View {
                         haptics.buttonPress()
                         dismiss()
                     }
-                        .accessibilityLabel("Done, close drink picker")
-                        .accessibilityIdentifier("drinkPickerDoneButton")
+                    .accessibilityLabel("Done, close drink picker")
+                    .accessibilityIdentifier("drinkPickerDoneButton")
                 }
             }
         }
@@ -156,18 +156,18 @@ struct DrinkPickerView: View {
 
     private func hydrationEfficiencyText(for drink: DrinkType) -> String {
         switch drink {
-        case .water: return "Pure hydration — the gold standard"
-        case .coffee: return "Coffee: 85% hydration • mild diuretic"
-        case .tea: return "Tea: 90% hydration • less caffeine than coffee"
-        case .juice: return "Juice: 130% hydration • electrolytes boost"
-        case .milk: return "Milk: 150% hydration • superior to water (research)"
-        case .soda: return "Soda: 70% hydration • sugar + caffeine reduce effect"
-        case .sparklingWater: return "Same as still water — 100% hydration"
-        case .coconutWater: return "Coconut: 110% hydration • natural electrolytes"
-        case .smoothie: return "Smoothie: 90% hydration • nutrient-rich"
-        case .soup: return "Soup: 80% hydration • sodium affects ratio"
-        case .beer: return "Beer: 40% hydration • alcohol is dehydrating"
-        case .wine: return "Wine: 30% hydration • high alcohol reduces effect"
+        case .water: "Pure hydration — the gold standard"
+        case .coffee: "Coffee: 85% hydration • mild diuretic"
+        case .tea: "Tea: 90% hydration • less caffeine than coffee"
+        case .juice: "Juice: 130% hydration • electrolytes boost"
+        case .milk: "Milk: 150% hydration • superior to water (research)"
+        case .soda: "Soda: 70% hydration • sugar + caffeine reduce effect"
+        case .sparklingWater: "Same as still water — 100% hydration"
+        case .coconutWater: "Coconut: 110% hydration • natural electrolytes"
+        case .smoothie: "Smoothie: 90% hydration • nutrient-rich"
+        case .soup: "Soup: 80% hydration • sodium affects ratio"
+        case .beer: "Beer: 40% hydration • alcohol is dehydrating"
+        case .wine: "Wine: 30% hydration • high alcohol reduces effect"
         }
     }
 }
@@ -202,12 +202,12 @@ struct DrinkTile: View {
                                     colors: [drink.color.opacity(0.3), drink.color.opacity(0.12)],
                                     startPoint: .topLeading,
                                     endPoint: .bottomTrailing
-                                  )
+                                )
                                 : LinearGradient(
                                     colors: [drink.color.opacity(0.12), drink.color.opacity(0.06)],
                                     startPoint: .topLeading,
                                     endPoint: .bottomTrailing
-                                  )
+                                )
                         )
                         .frame(width: 52, height: 52)
                         .shadow(color: drink.color.opacity(isSelected ? 0.3 : 0.1), radius: isSelected ? 8 : 4, x: 0, y: 2)
@@ -240,7 +240,7 @@ struct DrinkTile: View {
                         .font(.system(size: 10, weight: .semibold))
                         .foregroundStyle(
                             drink.hydrationRatio >= 1.0 ? .green :
-                            drink.hydrationRatio >= 0.7 ? Color.aquaPrimary : .orange
+                                drink.hydrationRatio >= 0.7 ? Color.aquaPrimary : .orange
                         )
                 }
             }

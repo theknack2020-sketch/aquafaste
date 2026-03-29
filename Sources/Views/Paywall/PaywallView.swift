@@ -1,5 +1,5 @@
-import SwiftUI
 import StoreKit
+import SwiftUI
 
 struct PaywallView: View {
     @Environment(\.dismiss) private var dismiss
@@ -288,7 +288,7 @@ struct PaywallView: View {
                 } label: {
                     HStack(spacing: 8) {
                         Image(systemName: wantsTrial && product.subscription?.introductoryOffer != nil
-                              ? "gift.fill" : "crown.fill")
+                            ? "gift.fill" : "crown.fill")
                             .font(.subheadline)
 
                         Text(ctaText(for: product))
@@ -321,7 +321,8 @@ struct PaywallView: View {
     private var trialEndDate: some View {
         Group {
             if wantsTrial, let product = selectedProduct,
-               product.subscription?.introductoryOffer != nil {
+               product.subscription?.introductoryOffer != nil
+            {
                 let endDate = Calendar.current.date(byAdding: .day, value: 7, to: .now) ?? .now
                 VStack(spacing: 4) {
                     Text("Trial ends \(endDate, format: .dateTime.month().day().year())")
@@ -435,10 +436,10 @@ struct PaywallView: View {
 
     private var subscriptionTermsText: String {
         "Payment will be charged to your Apple ID account at confirmation of purchase. " +
-        "Subscriptions automatically renew unless auto-renew is turned off at least 24 hours before the end of the current period. " +
-        "Your account will be charged for renewal within 24 hours prior to the end of the current period. " +
-        "You can manage and cancel your subscriptions by going to your account settings on the App Store after purchase. " +
-        "Any unused portion of a free trial period will be forfeited when you purchase a subscription."
+            "Subscriptions automatically renew unless auto-renew is turned off at least 24 hours before the end of the current period. " +
+            "Your account will be charged for renewal within 24 hours prior to the end of the current period. " +
+            "You can manage and cancel your subscriptions by going to your account settings on the App Store after purchase. " +
+            "Any unused portion of a free trial period will be forfeited when you purchase a subscription."
     }
 
     // MARK: - Helpers
@@ -497,30 +498,30 @@ struct PaywallView: View {
 
     private func productSortOrder(_ product: Product) -> Int {
         switch product.id {
-        case SubscriptionManager.monthlyID: return 0
-        case SubscriptionManager.yearlyID: return 1
-        case SubscriptionManager.lifetimeID: return 2
-        default: return 3
+        case SubscriptionManager.monthlyID: 0
+        case SubscriptionManager.yearlyID: 1
+        case SubscriptionManager.lifetimeID: 2
+        default: 3
         }
     }
 
     private func planBadge(for product: Product) -> String? {
         switch product.id {
-        case SubscriptionManager.yearlyID: return "Most Popular"
-        case SubscriptionManager.lifetimeID: return "Best Value"
-        default: return nil
+        case SubscriptionManager.yearlyID: "Most Popular"
+        case SubscriptionManager.lifetimeID: "Best Value"
+        default: nil
         }
     }
 
     private func planSavings(for product: Product) -> String? {
         switch product.id {
-        case SubscriptionManager.yearlyID: return "Save 58%"
-        default: return nil
+        case SubscriptionManager.yearlyID: "Save 58%"
+        default: nil
         }
     }
 
     private func ctaText(for product: Product) -> String {
-        if wantsTrial && product.subscription?.introductoryOffer != nil {
+        if wantsTrial, product.subscription?.introductoryOffer != nil {
             return "Start Free Trial"
         }
         return "Subscribe Now"
@@ -570,7 +571,7 @@ private struct FeatureRow: View {
             Image(systemName: "xmark")
                 .font(.caption.weight(.semibold))
                 .foregroundStyle(Color(.tertiaryLabel))
-        case .text(let label):
+        case let .text(label):
             Text(label)
                 .font(.caption2.weight(.medium))
                 .foregroundStyle(isPro ? Color.aquaPrimary : Color.aquaTextSecondary)
@@ -624,7 +625,8 @@ private struct PlanCard: View {
 
                     HStack(spacing: 6) {
                         if let intro = product.subscription?.introductoryOffer,
-                           intro.paymentMode == .freeTrial {
+                           intro.paymentMode == .freeTrial
+                        {
                             Text("7-day free trial")
                                 .font(.caption)
                                 .foregroundStyle(theme.primary)
@@ -709,7 +711,7 @@ private struct TestimonialCard: View {
     var body: some View {
         VStack(spacing: 10) {
             HStack(spacing: 2) {
-                ForEach(0..<rating, id: \.self) { _ in
+                ForEach(0 ..< rating, id: \.self) { _ in
                     Image(systemName: "star.fill")
                         .font(.caption)
                         .foregroundStyle(.yellow)

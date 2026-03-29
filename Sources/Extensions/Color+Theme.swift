@@ -7,10 +7,12 @@ enum AppTheme: String, CaseIterable, Identifiable {
     case forest
     case berry
     case sunset
-    case aurora   // Premium
+    case aurora // Premium
     case midnight // Premium
 
-    var id: String { rawValue }
+    var id: String {
+        rawValue
+    }
 
     var displayName: String {
         switch self {
@@ -49,41 +51,41 @@ enum AppTheme: String, CaseIterable, Identifiable {
 
     /// Premium-only themes
     static var premiumThemes: [AppTheme] {
-        allCases.filter { $0.isPremium }
+        allCases.filter(\.isPremium)
     }
 
     // MARK: - Primary Colors
 
     var primary: Color {
         switch self {
-        case .ocean: Color(red: 0.04, green: 0.52, blue: 1.0)           // #0A84FF
-        case .forest: Color(red: 0.20, green: 0.70, blue: 0.35)          // #33B359
-        case .berry: Color(red: 0.70, green: 0.22, blue: 0.55)           // #B33A8D
-        case .sunset: Color(red: 0.95, green: 0.45, blue: 0.20)          // #F27333
-        case .aurora: Color(red: 0.30, green: 0.85, blue: 0.75)          // #4DD9BF
-        case .midnight: Color(red: 0.40, green: 0.35, blue: 0.90)        // #6659E6
+        case .ocean: Color(red: 0.04, green: 0.52, blue: 1.0) // #0A84FF
+        case .forest: Color(red: 0.20, green: 0.70, blue: 0.35) // #33B359
+        case .berry: Color(red: 0.70, green: 0.22, blue: 0.55) // #B33A8D
+        case .sunset: Color(red: 0.95, green: 0.45, blue: 0.20) // #F27333
+        case .aurora: Color(red: 0.30, green: 0.85, blue: 0.75) // #4DD9BF
+        case .midnight: Color(red: 0.40, green: 0.35, blue: 0.90) // #6659E6
         }
     }
 
     var secondary: Color {
         switch self {
-        case .ocean: Color(red: 0.20, green: 0.83, blue: 0.87)           // #32D4DE
-        case .forest: Color(red: 0.40, green: 0.82, blue: 0.50)          // #66D180
-        case .berry: Color(red: 0.90, green: 0.40, blue: 0.65)           // #E666A6
-        case .sunset: Color(red: 1.0, green: 0.72, blue: 0.30)           // #FFB84D
-        case .aurora: Color(red: 0.55, green: 0.50, blue: 0.95)          // #8C80F2
-        case .midnight: Color(red: 0.65, green: 0.55, blue: 1.0)         // #A68CFF
+        case .ocean: Color(red: 0.20, green: 0.83, blue: 0.87) // #32D4DE
+        case .forest: Color(red: 0.40, green: 0.82, blue: 0.50) // #66D180
+        case .berry: Color(red: 0.90, green: 0.40, blue: 0.65) // #E666A6
+        case .sunset: Color(red: 1.0, green: 0.72, blue: 0.30) // #FFB84D
+        case .aurora: Color(red: 0.55, green: 0.50, blue: 0.95) // #8C80F2
+        case .midnight: Color(red: 0.65, green: 0.55, blue: 1.0) // #A68CFF
         }
     }
 
     var accent: Color {
         switch self {
-        case .ocean: Color(red: 0.0, green: 0.79, blue: 0.86)            // #00C9DB
-        case .forest: Color(red: 0.55, green: 0.85, blue: 0.25)          // #8CD940
-        case .berry: Color(red: 0.95, green: 0.30, blue: 0.50)           // #F24D80
-        case .sunset: Color(red: 0.98, green: 0.35, blue: 0.45)          // #FA5973
-        case .aurora: Color(red: 0.20, green: 0.95, blue: 0.60)          // #33F299
-        case .midnight: Color(red: 0.85, green: 0.70, blue: 1.0)         // #D9B3FF
+        case .ocean: Color(red: 0.0, green: 0.79, blue: 0.86) // #00C9DB
+        case .forest: Color(red: 0.55, green: 0.85, blue: 0.25) // #8CD940
+        case .berry: Color(red: 0.95, green: 0.30, blue: 0.50) // #F24D80
+        case .sunset: Color(red: 0.98, green: 0.35, blue: 0.45) // #FA5973
+        case .aurora: Color(red: 0.20, green: 0.95, blue: 0.60) // #33F299
+        case .midnight: Color(red: 0.85, green: 0.70, blue: 1.0) // #D9B3FF
         }
     }
 
@@ -184,11 +186,10 @@ enum AppTheme: String, CaseIterable, Identifiable {
 
     /// Onboarding page gradient — each page gets a distinct feel
     func onboardingGradient(page: Int) -> LinearGradient {
-        let colors: [Color]
-        switch page % 3 {
-        case 0: colors = [gradientStart, gradientMid]
-        case 1: colors = [gradientMid, gradientEnd]
-        default: colors = [gradientEnd, gradientStart]
+        let colors: [Color] = switch page % 3 {
+        case 0: [gradientStart, gradientMid]
+        case 1: [gradientMid, gradientEnd]
+        default: [gradientEnd, gradientStart]
         }
         return LinearGradient(
             colors: colors,
@@ -279,10 +280,11 @@ final class ThemeManager {
 
     init() {
         if let raw = UserDefaults.standard.string(forKey: "af_app_theme"),
-           let theme = AppTheme(rawValue: raw) {
-            self.current = theme
+           let theme = AppTheme(rawValue: raw)
+        {
+            current = theme
         } else {
-            self.current = .ocean
+            current = .ocean
         }
     }
 
@@ -295,7 +297,7 @@ final class ThemeManager {
 
     /// Returns the effective theme (falls back to ocean if premium expired)
     var effectiveTheme: AppTheme {
-        if current.isPremium && !isPro {
+        if current.isPremium, !isPro {
             return .ocean
         }
         return current
@@ -306,22 +308,38 @@ final class ThemeManager {
 
 @MainActor
 extension Color {
-    // Primary palette — resolves to active theme
-    static var aquaPrimary: Color { ThemeManager.shared.effectiveTheme.primary }
-    static var aquaSecondary: Color { ThemeManager.shared.effectiveTheme.secondary }
-    static var aquaAccent: Color { ThemeManager.shared.effectiveTheme.accent }
-    static var aquaTertiary: Color { ThemeManager.shared.effectiveTheme.tertiary }
+    /// Primary palette — resolves to active theme
+    static var aquaPrimary: Color {
+        ThemeManager.shared.effectiveTheme.primary
+    }
 
-    // Gradient stops
-    static var aquaGradientStart: Color { ThemeManager.shared.effectiveTheme.gradientStart }
-    static var aquaGradientEnd: Color { ThemeManager.shared.effectiveTheme.gradientEnd }
+    static var aquaSecondary: Color {
+        ThemeManager.shared.effectiveTheme.secondary
+    }
 
-    // Aqua gradient (dynamic)
+    static var aquaAccent: Color {
+        ThemeManager.shared.effectiveTheme.accent
+    }
+
+    static var aquaTertiary: Color {
+        ThemeManager.shared.effectiveTheme.tertiary
+    }
+
+    /// Gradient stops
+    static var aquaGradientStart: Color {
+        ThemeManager.shared.effectiveTheme.gradientStart
+    }
+
+    static var aquaGradientEnd: Color {
+        ThemeManager.shared.effectiveTheme.gradientEnd
+    }
+
+    /// Aqua gradient (dynamic)
     static var aquaGradient: LinearGradient {
         ThemeManager.shared.effectiveTheme.gradient
     }
 
-    // Hero gradient (3-stop)
+    /// Hero gradient (3-stop)
     static var aquaHeroGradient: LinearGradient {
         ThemeManager.shared.effectiveTheme.heroGradient
     }
@@ -366,8 +384,7 @@ extension Color {
 extension View {
     /// Applies the standard card style: rounded corners, shadow, background
     func aquaCard(theme: AppTheme = ThemeManager.shared.effectiveTheme) -> some View {
-        self
-            .padding(16)
+        padding(16)
             .background(
                 RoundedRectangle(cornerRadius: 20, style: .continuous)
                     .fill(theme.cardBackground)
@@ -377,8 +394,7 @@ extension View {
 
     /// Applies glass morphism card style
     func aquaGlassCard(theme: AppTheme = ThemeManager.shared.effectiveTheme) -> some View {
-        self
-            .padding(16)
+        padding(16)
             .background(
                 RoundedRectangle(cornerRadius: 20, style: .continuous)
                     .fill(theme.glassBackground)
@@ -392,8 +408,7 @@ extension View {
 
     /// Standard section header style
     func aquaSectionHeader(theme: AppTheme = ThemeManager.shared.effectiveTheme) -> some View {
-        self
-            .font(.system(size: 13, weight: .semibold, design: .rounded))
+        font(.system(size: 13, weight: .semibold, design: .rounded))
             .textCase(.uppercase)
             .tracking(1.2)
             .foregroundStyle(theme.primary.opacity(0.70))
@@ -401,8 +416,7 @@ extension View {
 
     /// Eyebrow pill badge (above headings)
     func aquaEyebrow(theme: AppTheme = ThemeManager.shared.effectiveTheme) -> some View {
-        self
-            .font(.system(size: 11, weight: .semibold, design: .rounded))
+        font(.system(size: 11, weight: .semibold, design: .rounded))
             .textCase(.uppercase)
             .tracking(1.5)
             .foregroundStyle(theme.primary)
@@ -416,30 +430,27 @@ extension View {
 
     /// Hero title style
     func aquaHeroTitle() -> some View {
-        self
-            .font(.system(size: 34, weight: .bold, design: .rounded))
+        font(.system(size: 34, weight: .bold, design: .rounded))
             .foregroundStyle(.primary)
     }
 
     /// Gradient background for full-screen views
     func aquaBackgroundGradient(theme: AppTheme = ThemeManager.shared.effectiveTheme) -> some View {
-        self
-            .background(
-                theme.backgroundGradient
-                    .ignoresSafeArea()
-            )
+        background(
+            theme.backgroundGradient
+                .ignoresSafeArea()
+        )
     }
 
     /// Subtle gradient header area
     func aquaHeaderGradient(theme: AppTheme = ThemeManager.shared.effectiveTheme) -> some View {
-        self
-            .background(
-                LinearGradient(
-                    colors: [theme.gradientStart.opacity(0.12), .clear],
-                    startPoint: .top,
-                    endPoint: .bottom
-                )
-                .ignoresSafeArea()
+        background(
+            LinearGradient(
+                colors: [theme.gradientStart.opacity(0.12), .clear],
+                startPoint: .top,
+                endPoint: .bottom
             )
+            .ignoresSafeArea()
+        )
     }
 }

@@ -9,7 +9,7 @@ struct SettingsView: View {
     @State private var showGoalEditor = false
     @State private var showCupEditor = false
 
-    // Cup editing
+    /// Cup editing
     @State private var editingCups: [(name: String, size: Double)] = []
 
     private let haptics = HapticManager.shared
@@ -48,7 +48,7 @@ struct SettingsView: View {
     @State private var showResetConfirmation = false
     @State private var showResetSuccess = false
 
-    // Email
+    /// Email
     @State private var showMailError = false
 
     var body: some View {
@@ -124,7 +124,7 @@ struct SettingsView: View {
                 get: { manager.showError },
                 set: { manager.showError = $0 }
             )) {
-                Button("OK") { }
+                Button("OK") {}
             } message: {
                 Text(manager.errorMessage)
             }
@@ -246,7 +246,7 @@ struct SettingsView: View {
 
                         Spacer()
 
-                        if selectedTheme == theme && !isLocked {
+                        if selectedTheme == theme, !isLocked {
                             Image(systemName: "checkmark.circle.fill")
                                 .foregroundStyle(theme.primary)
                                 .accessibilityLabel("Selected")
@@ -451,7 +451,7 @@ struct SettingsView: View {
 
             // Sleep start picker
             Picker(selection: $sleepStart) {
-                ForEach(19..<25, id: \.self) { hour in
+                ForEach(19 ..< 25, id: \.self) { hour in
                     Text(formatHour(hour % 24)).tag(hour % 24)
                 }
             } label: {
@@ -469,7 +469,7 @@ struct SettingsView: View {
 
             // Sleep end picker
             Picker(selection: $sleepEnd) {
-                ForEach(5..<11, id: \.self) { hour in
+                ForEach(5 ..< 11, id: \.self) { hour in
                     Text(formatHour(hour)).tag(hour)
                 }
             } label: {
@@ -553,7 +553,7 @@ struct SettingsView: View {
         } header: {
             Text("Notifications")
         } footer: {
-            if remindersEnabled && notificationManager.authStatus == .authorized {
+            if remindersEnabled, notificationManager.authStatus == .authorized {
                 Text("Smart timing: reminders are suppressed for 30 minutes after you log a drink.")
             }
         }
@@ -871,9 +871,9 @@ struct CupSizeEditor: View {
                             get: { unit.fromMl(cups[index].size) },
                             set: { cups[index].size = unit.toMl($0) }
                         ), format: .number)
-                        .keyboardType(.numberPad)
-                        .multilineTextAlignment(.trailing)
-                        .frame(width: 70)
+                            .keyboardType(.numberPad)
+                            .multilineTextAlignment(.trailing)
+                            .frame(width: 70)
 
                         Text(unit.displayName)
                             .font(.caption)
@@ -910,9 +910,9 @@ struct CupSizeEditor: View {
 struct ShareSheet: UIViewControllerRepresentable {
     let items: [Any]
 
-    func makeUIViewController(context: Context) -> UIActivityViewController {
+    func makeUIViewController(context _: Context) -> UIActivityViewController {
         UIActivityViewController(activityItems: items, applicationActivities: nil)
     }
 
-    func updateUIViewController(_ uiViewController: UIActivityViewController, context: Context) {}
+    func updateUIViewController(_: UIActivityViewController, context _: Context) {}
 }

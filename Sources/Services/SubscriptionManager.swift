@@ -12,10 +12,14 @@ final class SubscriptionManager {
     static let yearlyID = "com.theknack.aquafaste.premium.yearly"
     static let lifetimeID = "com.theknack.aquafaste.premium.lifetime"
 
-    var isPremium: Bool { isSubscribed || isLifetime }
+    var isPremium: Bool {
+        isSubscribed || isLifetime
+    }
 
     /// Public alias for external isPro gate checks
-    var isPro: Bool { isPremium }
+    var isPro: Bool {
+        isPremium
+    }
 
     // MARK: - Action Counter (session-scoped soft paywall trigger)
 
@@ -47,25 +51,26 @@ final class SubscriptionManager {
         var hasLifetime = false
 
         for await result in Transaction.currentEntitlements {
-            guard case .verified(let transaction) = result else { continue }
+            guard case let .verified(transaction) = result else { continue }
 
             if transaction.revocationDate != nil { continue }
 
             if transaction.productID == Self.lifetimeID {
                 hasLifetime = true
             } else if transaction.productID == Self.monthlyID ||
-                      transaction.productID == Self.yearlyID {
+                transaction.productID == Self.yearlyID
+            {
                 hasSubscription = true
             }
         }
 
-        self.isSubscribed = hasSubscription
-        self.isLifetime = hasLifetime
+        isSubscribed = hasSubscription
+        isLifetime = hasLifetime
     }
 
     private func listenForTransactions() async {
         for await result in Transaction.updates {
-            guard case .verified(_) = result else { continue }
+            guard case .verified = result else { continue }
             await checkSubscriptionStatus()
         }
     }
@@ -74,8 +79,8 @@ final class SubscriptionManager {
         let result = try await product.purchase()
 
         switch result {
-        case .success(let verification):
-            guard case .verified(let transaction) = verification else { return false }
+        case let .success(verification):
+            guard case let .verified(transaction) = verification else { return false }
             await transaction.finish()
             await checkSubscriptionStatus()
             return true
@@ -99,15 +104,13 @@ final class SubscriptionManager {
 
     /// Date when the user first launched the app (set once)
     var firstLaunchDate: Date {
-        get {
-            let defaults = UserDefaults.standard
-            if let date = defaults.object(forKey: "af_first_launch") as? Date {
-                return date
-            }
-            let now = Date()
-            defaults.set(now, forKey: "af_first_launch")
-            return now
+        let defaults = UserDefaults.standard
+        if let date = defaults.object(forKey: "af_first_launch") as? Date {
+            return date
         }
+        let now = Date()
+        defaults.set(now, forKey: "af_first_launch")
+        return now
     }
 
     /// Whether 7+ days have passed since first launch

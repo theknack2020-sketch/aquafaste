@@ -13,11 +13,11 @@ final class SoundManager {
     // MARK: - System Sound IDs
 
     private enum SoundID {
-        static let logDrink: SystemSoundID = 1104     // subtle key click
-        static let delete: SystemSoundID = 1155       // delete swoosh
+        static let logDrink: SystemSoundID = 1104 // subtle key click
+        static let delete: SystemSoundID = 1155 // delete swoosh
         static let goalComplete: SystemSoundID = 1025 // positive chime
-        static let error: SystemSoundID = 1053        // error tone
-        static let celebration: SystemSoundID = 1026  // celebration flourish
+        static let error: SystemSoundID = 1053 // error tone
+        static let celebration: SystemSoundID = 1026 // celebration flourish
     }
 
     private init() {}

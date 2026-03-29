@@ -1,5 +1,5 @@
-import SwiftUI
 import Charts
+import SwiftUI
 
 struct HistoryView: View {
     @Environment(HydrationManager.self) private var manager
@@ -19,7 +19,7 @@ struct HistoryView: View {
     var body: some View {
         NavigationStack {
             Group {
-                if manager.todayLogs.isEmpty && manager.logsForDate(Calendar.current.date(byAdding: .day, value: -1, to: .now)!).isEmpty && manager.logsForDate(Calendar.current.date(byAdding: .day, value: -2, to: .now)!).isEmpty && profile.currentStreak == 0 {
+                if manager.todayLogs.isEmpty, manager.logsForDate(Calendar.current.date(byAdding: .day, value: -1, to: .now)!).isEmpty, manager.logsForDate(Calendar.current.date(byAdding: .day, value: -2, to: .now)!).isEmpty, profile.currentStreak == 0 {
                     // Empty state
                     VStack(spacing: 16) {
                         Spacer()
@@ -67,7 +67,7 @@ struct HistoryView: View {
                             daySection(for: dayBefore, title: dayBefore.formatted(.dateTime.weekday(.wide)))
 
                             // Additional days (3-6 days ago)
-                            ForEach(3..<7, id: \.self) { daysAgo in
+                            ForEach(3 ..< 7, id: \.self) { daysAgo in
                                 let date = Calendar.current.date(byAdding: .day, value: -daysAgo, to: .now)!
                                 daySection(for: date, title: date.formatted(.dateTime.weekday(.wide).month(.abbreviated).day()))
                             }
@@ -77,7 +77,7 @@ struct HistoryView: View {
                                 proHistoryBanner
                             } else {
                                 // Show older days for Pro users (7-29 days ago)
-                                ForEach(7..<30, id: \.self) { daysAgo in
+                                ForEach(7 ..< 30, id: \.self) { daysAgo in
                                     let date = Calendar.current.date(byAdding: .day, value: -daysAgo, to: .now)!
                                     let logs = manager.logsForDate(date)
                                     if !logs.isEmpty {
@@ -118,7 +118,7 @@ struct HistoryView: View {
                 get: { manager.showError },
                 set: { manager.showError = $0 }
             )) {
-                Button("OK") { }
+                Button("OK") {}
             } message: {
                 Text(manager.errorMessage)
             }
@@ -173,13 +173,13 @@ struct HistoryView: View {
 
     private var streakMessage: String {
         switch profile.currentStreak {
-        case 1...2: return "Just getting started!"
-        case 3...6: return "Building momentum!"
-        case 7...13: return "One week strong!"
-        case 14...29: return "Two weeks of hydration!"
-        case 30...59: return "A whole month! Amazing!"
-        case 60...99: return "Two months! Incredible!"
-        default: return "Legendary streak!"
+        case 1 ... 2: "Just getting started!"
+        case 3 ... 6: "Building momentum!"
+        case 7 ... 13: "One week strong!"
+        case 14 ... 29: "Two weeks of hydration!"
+        case 30 ... 59: "A whole month! Amazing!"
+        case 60 ... 99: "Two months! Incredible!"
+        default: "Legendary streak!"
         }
     }
 
@@ -265,7 +265,7 @@ struct HistoryView: View {
                     }
                 }
             }
-            .chartYScale(domain: 0...(profile.dailyGoal * 1.3))
+            .chartYScale(domain: 0 ... (profile.dailyGoal * 1.3))
             .frame(height: 180)
 
             // Goal line label
@@ -459,7 +459,8 @@ struct EditLogSheet: View {
 
     init(log: WaterLog, unit: MeasurementUnit,
          onSave: @escaping (Double?, DrinkType?) -> Void,
-         onDelete: @escaping () -> Void) {
+         onDelete: @escaping () -> Void)
+    {
         self.log = log
         self.unit = unit
         self.onSave = onSave

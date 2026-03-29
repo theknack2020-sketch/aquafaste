@@ -258,7 +258,7 @@ struct WaveView: View {
 
         // Bubble/sparkle effect — small circles that float upward
         let bubbleCount = 5
-        for i in 0..<bubbleCount {
+        for i in 0 ..< bubbleCount {
             let phase = Double(i) / Double(bubbleCount)
             let bubbleX = size.width * (0.15 + 0.7 * frac(phase + time * 0.08))
             let cyclePos = frac(phase * 2.3 + time * 0.15)

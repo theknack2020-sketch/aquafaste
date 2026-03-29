@@ -1,5 +1,6 @@
-import SwiftUI
 import SwiftData
+import SwiftUI
+
 // TODO: Add TelemetryDeck SPM package — then uncomment the import below
 // import TelemetryDeck
 

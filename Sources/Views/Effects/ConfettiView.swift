@@ -34,17 +34,17 @@ struct ConfettiView: View {
     }
 
     private func generateParticles(in size: CGSize) {
-        particles = (0..<60).map { i in
+        particles = (0 ..< 60).map { i in
             ConfettiParticle(
                 id: i,
                 color: colors[i % colors.count],
-                startX: size.width * 0.5 + CGFloat.random(in: -40...40),
+                startX: size.width * 0.5 + CGFloat.random(in: -40 ... 40),
                 startY: size.height * 0.35,
-                endX: CGFloat.random(in: -size.width * 0.4...size.width * 1.4),
+                endX: CGFloat.random(in: -size.width * 0.4 ... size.width * 1.4),
                 endY: size.height + 40,
-                rotation: Double.random(in: 0...720),
-                scale: CGFloat.random(in: 0.4...1.0),
-                delay: Double.random(in: 0...0.4),
+                rotation: Double.random(in: 0 ... 720),
+                scale: CGFloat.random(in: 0.4 ... 1.0),
+                delay: Double.random(in: 0 ... 0.4),
                 shape: ConfettiShape.allCases[i % ConfettiShape.allCases.count]
             )
         }
@@ -88,7 +88,7 @@ struct ConfettiPiece: View {
             .opacity(isAnimating ? 0 : 1)
             .animation(
                 .spring(response: 0.6, dampingFraction: 0.5)
-                .delay(particle.delay),
+                    .delay(particle.delay),
                 value: isAnimating
             )
     }
