@@ -1,4 +1,5 @@
 import SwiftUI
+import TipKit
 
 struct TimerView: View {
     @Environment(HydrationManager.self) private var manager

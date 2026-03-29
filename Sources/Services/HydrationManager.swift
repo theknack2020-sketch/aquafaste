@@ -5,6 +5,8 @@ import TelemetryDeck
 
 @Observable @MainActor
 final class HydrationManager {
+    static let shared = HydrationManager()
+
     private var modelContext: ModelContext?
     let profile = UserProfile.shared
 

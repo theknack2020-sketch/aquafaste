@@ -1,6 +1,7 @@
 import SwiftData
 import SwiftUI
 import TelemetryDeck
+import TipKit
 
 @main
 struct AquaFasteApp: App {
@@ -11,6 +12,11 @@ struct AquaFasteApp: App {
         // TelemetryDeck — privacy-first analytics
         let appID = ProcessInfo.processInfo.environment["TELEMETRYDECK_APP_ID"] ?? "aquafaste-default"
         TelemetryDeck.initialize(config: .init(appID: appID))
+
+        // TipKit
+        try? Tips.configure([
+            .displayFrequency(.daily),
+        ])
     }
 
     var body: some Scene {
