@@ -301,6 +301,15 @@ final class HydrationManager {
             todayRawTotal = todayLogs.reduce(0) { $0 + $1.amount }
             todayCaffeine = todayLogs.reduce(0) { $0 + $1.caffeineMg }
             progress = profile.dailyGoal > 0 ? todayTotal / profile.dailyGoal : 0
+
+            // Update widget data
+            WidgetDataManager.updateWidgetData(
+                todayTotal: todayTotal,
+                dailyGoal: profile.dailyGoal,
+                streak: 0, // streak managed separately
+                lastDrinkTime: todayLogs.first?.timestamp,
+                drinkCount: todayLogs.count
+            )
         } catch {
             print("[AquaFaste] Failed to fetch today's logs: \(error)")
         }
