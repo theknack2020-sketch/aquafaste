@@ -75,9 +75,9 @@ struct FavoriteDrinksSheet: View {
                         haptics.buttonPress()
                         showAddSheet = true
                     } label: {
-                        Image(systemName: "plus")
+                        Label("Add new favorite drink", systemImage: "plus")
+                            .labelStyle(.iconOnly)
                     }
-                    .accessibilityLabel("Add new favorite drink")
                     .accessibilityIdentifier("addFavoriteButton")
                 }
             }

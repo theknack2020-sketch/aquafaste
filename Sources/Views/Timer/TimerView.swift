@@ -191,12 +191,12 @@ struct TimerView: View {
                         Button {
                             performUndo()
                         } label: {
-                            Image(systemName: "arrow.uturn.backward")
+                            Label("Undo last drink", systemImage: "arrow.uturn.backward")
+                                .labelStyle(.iconOnly)
                                 .font(.body)
                         }
                         .disabled(manager.todayLogs.isEmpty)
                         .foregroundStyle(manager.todayLogs.isEmpty ? Color.aquaTextSecondary.opacity(0.3) : Color.aquaPrimary)
-                        .accessibilityLabel("Undo last drink")
                         .accessibilityHint(manager.todayLogs.isEmpty ? "No drinks to undo" : "Double tap to undo the last logged drink")
                         .accessibilityIdentifier("undoButton")
                     }
