@@ -17,11 +17,13 @@
 		3E3FAF3DCA13C5D441B57F72 /* DailyRewardManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = DF2A6F489047A36FECFBEB67 /* DailyRewardManager.swift */; };
 		4336CC82008C7DC7EEE49047 /* AquaFasteApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = D2B1179500E347BB3260ABC5 /* AquaFasteApp.swift */; };
 		45295B1B16BFEF8C84786F47 /* ConfettiView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F5B1066AF26C017905EA7780 /* ConfettiView.swift */; };
+		47879D003ACD8E6473768EC2 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EED0FC11C0E31F21E36B243D /* Foundation.framework */; };
 		488D9D44D7B1327D6560B1F6 /* AnimatedNumberView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 38119778A20CE71B8AAB5C99 /* AnimatedNumberView.swift */; };
 		4AC871072DF977C741E2486A /* NotificationManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 86C5866E6BD40B542DE9A32C /* NotificationManager.swift */; };
 		4C8E0D9F616AF2159CBFF98F /* UserProfile.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C93E4C98BFCE933622517F9 /* UserProfile.swift */; };
 		4F40A8813B8F0D20C2718ED4 /* HealthKitManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8B05891DD147880EC5761DCB /* HealthKitManager.swift */; };
 		52B828EC189D51C261E887C8 /* AppIntents.swift in Sources */ = {isa = PBXBuildFile; fileRef = B60E485C4318ACF20B5A503E /* AppIntents.swift */; };
+		5BACD7EC886D149238FB1713 /* WidgetDataManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = A4CAB8F3D42606893E0ECE6F /* WidgetDataManager.swift */; };
 		5D835073B41862D3A787B879 /* HydrationShareCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = 173DD671A77A121399E37B84 /* HydrationShareCard.swift */; };
 		66F404E2CBA6107CF415C9E2 /* WaterLog.swift in Sources */ = {isa = PBXBuildFile; fileRef = A75A9FD04E872827F76168F7 /* WaterLog.swift */; };
 		768F7B817D2887BA5A714942 /* CircularProgressView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8399794D5980AA14C03688C3 /* CircularProgressView.swift */; };
@@ -42,8 +44,10 @@
 		AA11BB22CC33DD44EE55FF03 /* InsightsEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA11BB22CC33DD44EE55FF04 /* InsightsEngine.swift */; };
 		B4781DE7EB65E8B30FC94561 /* TelemetryDeck in Frameworks */ = {isa = PBXBuildFile; productRef = 7D464F88E919E1C32BB534D9 /* TelemetryDeck */; };
 		C061EE25B48591FDBE2B7817 /* Color+Theme.swift in Sources */ = {isa = PBXBuildFile; fileRef = 639F6FB14ABA191E731FB97A /* Color+Theme.swift */; };
+		C71683746AA226C13382730A /* AquaFasteWidget.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5B280A7FD291C9509DFDFA25 /* AquaFasteWidget.swift */; };
 		C92F4EAC73AE40AD442A49DF /* SubscriptionManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 907B9F4319693BDCB6473A05 /* SubscriptionManager.swift */; };
 		D22ACF32AAFE7403A8577BFB /* HydrationManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8BD5EB58D472A8D9F57AC9FB /* HydrationManager.swift */; };
+		EDC6D1713A312653B02A129A /* AquaFasteWidgetExtension.appex in Embed App Extensions */ = {isa = PBXBuildFile; fileRef = 0062DB7FCE43E87B6E994F3A /* AquaFasteWidgetExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		EE337E8CEE5E8C87EDD2391B /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9E53961F6ED364E0743C76A3 /* ContentView.swift */; };
 		F1E276E0F417D4B2F3A22A83 /* StatsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C3D6B8859930328AEEB9237 /* StatsView.swift */; };
 		F3A4B5C6D7E809F0A1B2C3D4 /* SoundManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1B2C3D4E5F607A8B9C0D1E2 /* SoundManager.swift */; };
@@ -51,7 +55,32 @@
 		F9DF8D0F270EBCF6217DB800 /* AppTips.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9579C3BF4FD19A6EED8B412F /* AppTips.swift */; };
 /* End PBXBuildFile section */
 
+/* Begin PBXContainerItemProxy section */
+		9CD889FDEB4DFAAC6BEE88C3 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = CD1311A5C42E5CA75D0A3748 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 998654B59F1EB9E65DAD080C;
+			remoteInfo = AquaFasteWidgetExtension;
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		B88C69B612C784F8ED1D66CB /* Embed App Extensions */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 13;
+			files = (
+				EDC6D1713A312653B02A129A /* AquaFasteWidgetExtension.appex in Embed App Extensions */,
+			);
+			name = "Embed App Extensions";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
+
 /* Begin PBXFileReference section */
+		0062DB7FCE43E87B6E994F3A /* AquaFasteWidgetExtension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = AquaFasteWidgetExtension.appex; sourceTree = BUILT_PRODUCTS_DIR; };
 		094490CA315436B2932E5DA5 /* DrinkType.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DrinkType.swift; sourceTree = "<group>"; };
 		173DD671A77A121399E37B84 /* HydrationShareCard.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = HydrationShareCard.swift; sourceTree = "<group>"; };
 		2C3D6B8859930328AEEB9237 /* StatsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StatsView.swift; sourceTree = "<group>"; };
@@ -60,6 +89,7 @@
 		38119778A20CE71B8AAB5C99 /* AnimatedNumberView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnimatedNumberView.swift; sourceTree = "<group>"; };
 		4A3048311587323E477F7BA8 /* WeeklyRecapView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = WeeklyRecapView.swift; sourceTree = "<group>"; };
 		4A5FF148BCE95B71528E8B00 /* PaywallView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PaywallView.swift; sourceTree = "<group>"; };
+		5B280A7FD291C9509DFDFA25 /* AquaFasteWidget.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = AquaFasteWidget.swift; sourceTree = "<group>"; };
 		5CC4F6A288C5EF1B5D797482 /* HapticManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HapticManager.swift; sourceTree = "<group>"; };
 		5F1BB799E4939CFEBD137494 /* TimerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TimerView.swift; sourceTree = "<group>"; };
 		60D1ADF5718F085CD1D76306 /* FavoriteDrinksSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FavoriteDrinksSheet.swift; sourceTree = "<group>"; };
@@ -92,6 +122,7 @@
 		D2B1179500E347BB3260ABC5 /* AquaFasteApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AquaFasteApp.swift; sourceTree = "<group>"; };
 		D99E899AE3B3F8BA63C28124 /* CSVExporter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CSVExporter.swift; sourceTree = "<group>"; };
 		DF2A6F489047A36FECFBEB67 /* DailyRewardManager.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = DailyRewardManager.swift; sourceTree = "<group>"; };
+		EED0FC11C0E31F21E36B243D /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS18.0.sdk/System/Library/Frameworks/Foundation.framework; sourceTree = DEVELOPER_DIR; };
 		F0DFDB46D4C3A961F69522DB /* FavoriteDrink.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FavoriteDrink.swift; sourceTree = "<group>"; };
 		F5B1066AF26C017905EA7780 /* ConfettiView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConfettiView.swift; sourceTree = "<group>"; };
 		FAD2B02772C92AE1619C613F /* WinBackManager.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = WinBackManager.swift; sourceTree = "<group>"; };
@@ -99,6 +130,14 @@
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
+		12856A7B8D6B0F88665200CC /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				47879D003ACD8E6473768EC2 /* Foundation.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		3C42F90416E79693F7E2BEC2 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
@@ -164,6 +203,15 @@
 				4A3048311587323E477F7BA8 /* WeeklyRecapView.swift */,
 			);
 			path = Stats;
+			sourceTree = "<group>";
+		};
+		37474F26EAFD8BB6B25464EE /* AquaFasteWidget */ = {
+			isa = PBXGroup;
+			children = (
+				5B280A7FD291C9509DFDFA25 /* AquaFasteWidget.swift */,
+			);
+			name = AquaFasteWidget;
+			path = AquaFasteWidget;
 			sourceTree = "<group>";
 		};
 		499C156CC545307A79E1FC41 /* ShareCard */ = {
@@ -256,7 +304,17 @@
 			children = (
 				08B7F0DF9FDA2789EEB883F6 /* Sources */,
 				CC7E80E5392616159D7F0601 /* Products */,
+				C07621E4FC01B3409C4EF930 /* Frameworks */,
+				37474F26EAFD8BB6B25464EE /* AquaFasteWidget */,
 			);
+			sourceTree = "<group>";
+		};
+		C07621E4FC01B3409C4EF930 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				C9A9F5139FEFC15145282605 /* iOS */,
+			);
+			name = Frameworks;
 			sourceTree = "<group>";
 		};
 		C8FBC77C7C785D319F6636FE /* Effects */ = {
@@ -269,10 +327,19 @@
 			path = Effects;
 			sourceTree = "<group>";
 		};
+		C9A9F5139FEFC15145282605 /* iOS */ = {
+			isa = PBXGroup;
+			children = (
+				EED0FC11C0E31F21E36B243D /* Foundation.framework */,
+			);
+			name = iOS;
+			sourceTree = "<group>";
+		};
 		CC7E80E5392616159D7F0601 /* Products */ = {
 			isa = PBXGroup;
 			children = (
 				FF200ED47AE79A4FBB9192B3 /* AquaFaste.app */,
+				0062DB7FCE43E87B6E994F3A /* AquaFasteWidgetExtension.appex */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -300,6 +367,23 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
+		998654B59F1EB9E65DAD080C /* AquaFasteWidgetExtension */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = A8DA501454BEA2808EC2C113 /* Build configuration list for PBXNativeTarget "AquaFasteWidgetExtension" */;
+			buildPhases = (
+				3BF17D62978AE2FA775EAB35 /* Sources */,
+				12856A7B8D6B0F88665200CC /* Frameworks */,
+				F71E7F46EA1F2ACAA22D5389 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = AquaFasteWidgetExtension;
+			productName = AquaFasteWidgetExtension;
+			productReference = 0062DB7FCE43E87B6E994F3A /* AquaFasteWidgetExtension.appex */;
+			productType = "com.apple.product-type.app-extension";
+		};
 		B938C8D7A1496D9D1F4EB64B /* AquaFaste */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = 90C35B1A1A1EC01DBE300268 /* Build configuration list for PBXNativeTarget "AquaFaste" */;
@@ -307,10 +391,12 @@
 				1EECFF238C988DEFED02F50B /* Sources */,
 				EF4C7D5D298D8DA1DE7E7B95 /* Resources */,
 				3C42F90416E79693F7E2BEC2 /* Frameworks */,
+				B88C69B612C784F8ED1D66CB /* Embed App Extensions */,
 			);
 			buildRules = (
 			);
 			dependencies = (
+				AE8D82AA8BC03964BB766168 /* PBXTargetDependency */,
 			);
 			name = AquaFaste;
 			packageProductDependencies = (
@@ -354,6 +440,7 @@
 			projectRoot = "";
 			targets = (
 				B938C8D7A1496D9D1F4EB64B /* AquaFaste */,
+				998654B59F1EB9E65DAD080C /* AquaFasteWidgetExtension */,
 			);
 		};
 /* End PBXProject section */
@@ -364,6 +451,13 @@
 			buildActionMask = 2147483647;
 			files = (
 				F7C17A47628B42CD3BA30B2E /* Assets.xcassets in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		F71E7F46EA1F2ACAA22D5389 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -417,7 +511,25 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		3BF17D62978AE2FA775EAB35 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				C71683746AA226C13382730A /* AquaFasteWidget.swift in Sources */,
+				5BACD7EC886D149238FB1713 /* WidgetDataManager.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		AE8D82AA8BC03964BB766168 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			name = AquaFasteWidgetExtension;
+			target = 998654B59F1EB9E65DAD080C /* AquaFasteWidgetExtension */;
+			targetProxy = 9CD889FDEB4DFAAC6BEE88C3 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
 
 /* Begin XCBuildConfiguration section */
 		0082D70FA91C49E9272C3044 /* Release */ = {
@@ -438,6 +550,45 @@
 				SDKROOT = iphoneos;
 				SUPPORTS_MAC_DESIGNED_FOR_IPHONE = NO;
 				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
+		0C8E8A9DB6F7EE5FB8729908 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_WIDGET_BACKGROUND_COLOR_NAME = WidgetBackground;
+				CLANG_ENABLE_OBJC_WEAK = NO;
+				CODE_SIGN_ENTITLEMENTS = AquaFasteWidget/AquaFasteWidgetExtension.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = 99H9NJ6Z6J;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_CFBundleDisplayName = "AquaFaste Widget";
+				INFOPLIST_KEY_NSExtension_NSExtensionPointIdentifier = "com.apple.widgetkit-extension";
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.theknack.aquafaste.widget;
+				SDKROOT = iphoneos;
+				SWIFT_VERSION = 6.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		1083F4782E847E83816E76FE /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_WIDGET_BACKGROUND_COLOR_NAME = WidgetBackground;
+				CLANG_ENABLE_OBJC_WEAK = NO;
+				CODE_SIGN_ENTITLEMENTS = AquaFasteWidget/AquaFasteWidgetExtension.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = 99H9NJ6Z6J;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_CFBundleDisplayName = "AquaFaste Widget";
+				INFOPLIST_KEY_NSExtension_NSExtensionPointIdentifier = "com.apple.widgetkit-extension";
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.theknack.aquafaste.widget;
+				SDKROOT = iphoneos;
+				SWIFT_VERSION = 6.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				VALIDATE_PRODUCT = YES;
 			};
 			name = Release;
 		};
@@ -614,6 +765,15 @@
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Debug;
+		};
+		A8DA501454BEA2808EC2C113 /* Build configuration list for PBXNativeTarget "AquaFasteWidgetExtension" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				1083F4782E847E83816E76FE /* Release */,
+				0C8E8A9DB6F7EE5FB8729908 /* Debug */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 		C725D356ADEAE4033854C7D9 /* Build configuration list for PBXProject "AquaFaste" */ = {
 			isa = XCConfigurationList;
