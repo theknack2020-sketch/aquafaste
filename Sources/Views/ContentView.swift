@@ -43,6 +43,9 @@ struct ContentView: View {
             // Record first launch date (no-op if already set)
             _ = subscription.firstLaunchDate
             TelemetryDeck.signal("app.launched")
+            SpotlightManager.indexAppActions()
+            WinBackManager.shared.checkLapsedUser()
+            DailyRewardManager.shared.checkDailyReward()
             if onboardingDone {
                 Task {
                     await NotificationManager.shared.scheduleAllNotifications()

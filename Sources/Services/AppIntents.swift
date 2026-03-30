@@ -4,12 +4,12 @@ import SwiftUI
 // MARK: - Log Water Intent
 
 struct LogWaterIntent: AppIntent {
-    static var title: LocalizedStringResource = "Log Water"
-    static var description = IntentDescription("Log a drink to your hydration tracker.")
-    static var openAppWhenRun = false
+    static let title: LocalizedStringResource = "Log Water"
+    static let description = IntentDescription("Log a drink to your hydration tracker.")
+    static let openAppWhenRun = false
 
-    @Parameter(title: "Amount (ml)", default: 250)
-    var amount: Int
+    @Parameter(title: "Amount (ml)", default: 250, inclusiveRange: (50, 2000))
+    var amount: Int?
 
     @Parameter(title: "Drink Type", default: .water)
     var drinkType: DrinkTypeEntity
@@ -20,23 +20,24 @@ struct LogWaterIntent: AppIntent {
 
     @MainActor
     func perform() async throws -> some IntentResult & ProvidesDialog {
+        let actualAmount = amount ?? 250
         let manager = HydrationManager.shared
-        manager.logWater(amount: Double(amount), drinkType: drinkType.toDrinkType)
+        manager.logWater(amount: Double(actualAmount), drinkType: drinkType.toDrinkType)
 
         let total = Int(manager.todayTotal)
         let goal = Int(UserProfile.shared.dailyGoal)
         let pct = min(100, total * 100 / max(goal, 1))
 
-        return .result(dialog: "Logged \(amount) ml \(drinkType.name). Today: \(total) ml (\(pct)%)")
+        return .result(dialog: "Logged \(actualAmount) ml \(drinkType.name). Today: \(total) ml (\(pct)%)")
     }
 }
 
 // MARK: - Check Hydration Intent
 
 struct CheckHydrationIntent: AppIntent {
-    static var title: LocalizedStringResource = "Check Hydration"
-    static var description = IntentDescription("See your hydration progress for today.")
-    static var openAppWhenRun = false
+    static let title: LocalizedStringResource = "Check Hydration"
+    static let description = IntentDescription("See your hydration progress for today.")
+    static let openAppWhenRun = false
 
     @MainActor
     func perform() async throws -> some IntentResult & ProvidesDialog {
@@ -59,9 +60,9 @@ struct CheckHydrationIntent: AppIntent {
 enum DrinkTypeEntity: String, AppEnum {
     case water, coffee, tea, juice, milk, soda, sparklingWater, smoothie, soup
 
-    static var typeDisplayRepresentation: TypeDisplayRepresentation = "Drink Type"
+    static let typeDisplayRepresentation: TypeDisplayRepresentation = "Drink Type"
 
-    static var caseDisplayRepresentations: [DrinkTypeEntity: DisplayRepresentation] = [
+    static let caseDisplayRepresentations: [DrinkTypeEntity: DisplayRepresentation] = [
         .water: "Water",
         .coffee: "Coffee",
         .tea: "Tea",
@@ -95,14 +96,13 @@ enum DrinkTypeEntity: String, AppEnum {
 // MARK: - App Shortcuts Provider
 
 struct AquaFasteShortcuts: AppShortcutsProvider {
-    static var appShortcuts: [AppShortcut] {
+    nonisolated(unsafe) static var appShortcuts: [AppShortcut] {
         AppShortcut(
             intent: LogWaterIntent(),
             phrases: [
                 "Log water in \(.applicationName)",
-                "Log \(\.$amount) ml in \(.applicationName)",
                 "Drink water with \(.applicationName)",
-                "Add water to \(.applicationName)",
+                "Add water to \(.applicationName)"
             ],
             shortTitle: "Log Water",
             systemImageName: "drop.fill"
@@ -120,5 +120,5 @@ struct AquaFasteShortcuts: AppShortcutsProvider {
         )
     }
 
-    static var shortcutTileColor: ShortcutTileColor = .blue
+    static let shortcutTileColor: ShortcutTileColor = .blue
 }

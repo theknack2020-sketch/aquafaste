@@ -10,23 +10,30 @@
 		033EE8FFAC9640FF14AE9D46 /* HistoryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC040F7BCA1B1E4C3B14D114 /* HistoryView.swift */; };
 		16BAB33DF7A854E1C820D4A6 /* FavoriteDrink.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0DFDB46D4C3A961F69522DB /* FavoriteDrink.swift */; };
 		242B3DFB841EB0D38AF34FC5 /* HapticManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5CC4F6A288C5EF1B5D797482 /* HapticManager.swift */; };
+		260430FF1D601F9EE473ED7A /* WeeklyRecapView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4A3048311587323E477F7BA8 /* WeeklyRecapView.swift */; };
 		280EA7F2629D8EF7AD5E8C40 /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 799E16EDBBE8A696B7599707 /* SettingsView.swift */; };
 		30BD4A69318CF75F4796F371 /* DrinkType.swift in Sources */ = {isa = PBXBuildFile; fileRef = 094490CA315436B2932E5DA5 /* DrinkType.swift */; };
 		3BB61E531BDB3B2D4040ACCB /* TimerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F1BB799E4939CFEBD137494 /* TimerView.swift */; };
+		3E3FAF3DCA13C5D441B57F72 /* DailyRewardManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = DF2A6F489047A36FECFBEB67 /* DailyRewardManager.swift */; };
 		4336CC82008C7DC7EEE49047 /* AquaFasteApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = D2B1179500E347BB3260ABC5 /* AquaFasteApp.swift */; };
 		45295B1B16BFEF8C84786F47 /* ConfettiView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F5B1066AF26C017905EA7780 /* ConfettiView.swift */; };
 		488D9D44D7B1327D6560B1F6 /* AnimatedNumberView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 38119778A20CE71B8AAB5C99 /* AnimatedNumberView.swift */; };
 		4AC871072DF977C741E2486A /* NotificationManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 86C5866E6BD40B542DE9A32C /* NotificationManager.swift */; };
 		4C8E0D9F616AF2159CBFF98F /* UserProfile.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C93E4C98BFCE933622517F9 /* UserProfile.swift */; };
 		4F40A8813B8F0D20C2718ED4 /* HealthKitManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8B05891DD147880EC5761DCB /* HealthKitManager.swift */; };
+		52B828EC189D51C261E887C8 /* AppIntents.swift in Sources */ = {isa = PBXBuildFile; fileRef = B60E485C4318ACF20B5A503E /* AppIntents.swift */; };
+		5D835073B41862D3A787B879 /* HydrationShareCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = 173DD671A77A121399E37B84 /* HydrationShareCard.swift */; };
 		66F404E2CBA6107CF415C9E2 /* WaterLog.swift in Sources */ = {isa = PBXBuildFile; fileRef = A75A9FD04E872827F76168F7 /* WaterLog.swift */; };
 		768F7B817D2887BA5A714942 /* CircularProgressView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8399794D5980AA14C03688C3 /* CircularProgressView.swift */; };
 		7A8AB43E99B2D73DA99C4B12 /* FavoriteDrinksSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = 60D1ADF5718F085CD1D76306 /* FavoriteDrinksSheet.swift */; };
 		7EB7FE51738D490529398AD7 /* PaywallView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4A5FF148BCE95B71528E8B00 /* PaywallView.swift */; };
 		845076441AFA0ED4CDB3AFC7 /* SplashEffectView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6CCEC0AA264DBB3A701487FF /* SplashEffectView.swift */; };
+		860D86C8DB7AB250AD99B440 /* WidgetDataManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = A4CAB8F3D42606893E0ECE6F /* WidgetDataManager.swift */; };
 		87E69CB56567D61E69339251 /* OnboardingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA67A3781165D0C6E9E1DCA2 /* OnboardingView.swift */; };
 		8E6018C6E0059C7264BC1684 /* DrinkPickerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 64E32075BB81A24842DD16F7 /* DrinkPickerView.swift */; };
 		91312B6A5935C5FC914C49DD /* CSVExporter.swift in Sources */ = {isa = PBXBuildFile; fileRef = D99E899AE3B3F8BA63C28124 /* CSVExporter.swift */; };
+		A0CD33DFEFD689D653E82E2B /* WinBackManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAD2B02772C92AE1619C613F /* WinBackManager.swift */; };
+		A155454BE6D3F1076BCB3405 /* SpotlightManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = D1C795851710A7C5443EB075 /* SpotlightManager.swift */; };
 		A4C1B1D1E1F10001A1B1C1D1 /* Achievement.swift in Sources */ = {isa = PBXBuildFile; fileRef = A4C1B1D1E1F10002A1B1C1D1 /* Achievement.swift */; };
 		A4C1B1D1E1F10003A1B1C1D1 /* AchievementManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = A4C1B1D1E1F10004A1B1C1D1 /* AchievementManager.swift */; };
 		A4C1B1D1E1F10005A1B1C1D1 /* AchievementsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A4C1B1D1E1F10006A1B1C1D1 /* AchievementsView.swift */; };
@@ -41,14 +48,17 @@
 		F1E276E0F417D4B2F3A22A83 /* StatsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C3D6B8859930328AEEB9237 /* StatsView.swift */; };
 		F3A4B5C6D7E809F0A1B2C3D4 /* SoundManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1B2C3D4E5F607A8B9C0D1E2 /* SoundManager.swift */; };
 		F7C17A47628B42CD3BA30B2E /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 750BB1699D32E929EC872DC3 /* Assets.xcassets */; };
+		F9DF8D0F270EBCF6217DB800 /* AppTips.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9579C3BF4FD19A6EED8B412F /* AppTips.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
 		094490CA315436B2932E5DA5 /* DrinkType.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DrinkType.swift; sourceTree = "<group>"; };
+		173DD671A77A121399E37B84 /* HydrationShareCard.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = HydrationShareCard.swift; sourceTree = "<group>"; };
 		2C3D6B8859930328AEEB9237 /* StatsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StatsView.swift; sourceTree = "<group>"; };
 		2C93E4C98BFCE933622517F9 /* UserProfile.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserProfile.swift; sourceTree = "<group>"; };
 		37DE37C8BE49F0DA05788CC0 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
 		38119778A20CE71B8AAB5C99 /* AnimatedNumberView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnimatedNumberView.swift; sourceTree = "<group>"; };
+		4A3048311587323E477F7BA8 /* WeeklyRecapView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = WeeklyRecapView.swift; sourceTree = "<group>"; };
 		4A5FF148BCE95B71528E8B00 /* PaywallView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PaywallView.swift; sourceTree = "<group>"; };
 		5CC4F6A288C5EF1B5D797482 /* HapticManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HapticManager.swift; sourceTree = "<group>"; };
 		5F1BB799E4939CFEBD137494 /* TimerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TimerView.swift; sourceTree = "<group>"; };
@@ -64,21 +74,27 @@
 		8B05891DD147880EC5761DCB /* HealthKitManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HealthKitManager.swift; sourceTree = "<group>"; };
 		8BD5EB58D472A8D9F57AC9FB /* HydrationManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HydrationManager.swift; sourceTree = "<group>"; };
 		907B9F4319693BDCB6473A05 /* SubscriptionManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SubscriptionManager.swift; sourceTree = "<group>"; };
+		9579C3BF4FD19A6EED8B412F /* AppTips.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = AppTips.swift; sourceTree = "<group>"; };
 		9E53961F6ED364E0743C76A3 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
 		A1B2C3D4E5F607A8B9C0D1E2 /* SoundManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SoundManager.swift; sourceTree = "<group>"; };
 		A4C1B1D1E1F10002A1B1C1D1 /* Achievement.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Achievement.swift; sourceTree = "<group>"; };
 		A4C1B1D1E1F10004A1B1C1D1 /* AchievementManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AchievementManager.swift; sourceTree = "<group>"; };
 		A4C1B1D1E1F10006A1B1C1D1 /* AchievementsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AchievementsView.swift; sourceTree = "<group>"; };
 		A4C1B1D1E1F10008A1B1C1D1 /* AchievementBadgeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AchievementBadgeView.swift; sourceTree = "<group>"; };
+		A4CAB8F3D42606893E0ECE6F /* WidgetDataManager.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = WidgetDataManager.swift; sourceTree = "<group>"; };
 		A75A9FD04E872827F76168F7 /* WaterLog.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WaterLog.swift; sourceTree = "<group>"; };
 		AA11BB22CC33DD44EE55FF02 /* ChartViews.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChartViews.swift; sourceTree = "<group>"; };
 		AA11BB22CC33DD44EE55FF04 /* InsightsEngine.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InsightsEngine.swift; sourceTree = "<group>"; };
 		AA67A3781165D0C6E9E1DCA2 /* OnboardingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingView.swift; sourceTree = "<group>"; };
+		B60E485C4318ACF20B5A503E /* AppIntents.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = AppIntents.swift; sourceTree = "<group>"; };
 		CC040F7BCA1B1E4C3B14D114 /* HistoryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HistoryView.swift; sourceTree = "<group>"; };
+		D1C795851710A7C5443EB075 /* SpotlightManager.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = SpotlightManager.swift; sourceTree = "<group>"; };
 		D2B1179500E347BB3260ABC5 /* AquaFasteApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AquaFasteApp.swift; sourceTree = "<group>"; };
 		D99E899AE3B3F8BA63C28124 /* CSVExporter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CSVExporter.swift; sourceTree = "<group>"; };
+		DF2A6F489047A36FECFBEB67 /* DailyRewardManager.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = DailyRewardManager.swift; sourceTree = "<group>"; };
 		F0DFDB46D4C3A961F69522DB /* FavoriteDrink.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FavoriteDrink.swift; sourceTree = "<group>"; };
 		F5B1066AF26C017905EA7780 /* ConfettiView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConfettiView.swift; sourceTree = "<group>"; };
+		FAD2B02772C92AE1619C613F /* WinBackManager.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = WinBackManager.swift; sourceTree = "<group>"; };
 		FF200ED47AE79A4FBB9192B3 /* AquaFaste.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = AquaFaste.app; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
@@ -117,6 +133,12 @@
 				86C5866E6BD40B542DE9A32C /* NotificationManager.swift */,
 				907B9F4319693BDCB6473A05 /* SubscriptionManager.swift */,
 				A1B2C3D4E5F607A8B9C0D1E2 /* SoundManager.swift */,
+				A4CAB8F3D42606893E0ECE6F /* WidgetDataManager.swift */,
+				B60E485C4318ACF20B5A503E /* AppIntents.swift */,
+				9579C3BF4FD19A6EED8B412F /* AppTips.swift */,
+				D1C795851710A7C5443EB075 /* SpotlightManager.swift */,
+				DF2A6F489047A36FECFBEB67 /* DailyRewardManager.swift */,
+				FAD2B02772C92AE1619C613F /* WinBackManager.swift */,
 			);
 			path = Services;
 			sourceTree = "<group>";
@@ -139,8 +161,18 @@
 			children = (
 				AA11BB22CC33DD44EE55FF02 /* ChartViews.swift */,
 				2C3D6B8859930328AEEB9237 /* StatsView.swift */,
+				4A3048311587323E477F7BA8 /* WeeklyRecapView.swift */,
 			);
 			path = Stats;
+			sourceTree = "<group>";
+		};
+		499C156CC545307A79E1FC41 /* ShareCard */ = {
+			isa = PBXGroup;
+			children = (
+				173DD671A77A121399E37B84 /* HydrationShareCard.swift */,
+			);
+			name = ShareCard;
+			path = ShareCard;
 			sourceTree = "<group>";
 		};
 		4C706008E657D9F122732A39 /* Resources */ = {
@@ -214,6 +246,7 @@
 				93979E59D033C757AEC5406E /* Settings */,
 				362DFDC9AF5E9673B90AEF15 /* Stats */,
 				03676D54251FF7AC72D15D17 /* Timer */,
+				499C156CC545307A79E1FC41 /* ShareCard */,
 			);
 			path = Views;
 			sourceTree = "<group>";
@@ -373,6 +406,14 @@
 				3BB61E531BDB3B2D4040ACCB /* TimerView.swift in Sources */,
 				4C8E0D9F616AF2159CBFF98F /* UserProfile.swift in Sources */,
 				66F404E2CBA6107CF415C9E2 /* WaterLog.swift in Sources */,
+				860D86C8DB7AB250AD99B440 /* WidgetDataManager.swift in Sources */,
+				52B828EC189D51C261E887C8 /* AppIntents.swift in Sources */,
+				F9DF8D0F270EBCF6217DB800 /* AppTips.swift in Sources */,
+				A155454BE6D3F1076BCB3405 /* SpotlightManager.swift in Sources */,
+				3E3FAF3DCA13C5D441B57F72 /* DailyRewardManager.swift in Sources */,
+				A0CD33DFEFD689D653E82E2B /* WinBackManager.swift in Sources */,
+				260430FF1D601F9EE473ED7A /* WeeklyRecapView.swift in Sources */,
+				5D835073B41862D3A787B879 /* HydrationShareCard.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
