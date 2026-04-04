@@ -261,7 +261,7 @@ struct PaywallView: View {
                 Text("Free")
                     .font(.caption.weight(.semibold))
                     .foregroundStyle(.white.opacity(0.4))
-                    .frame(width: 54)
+                    .frame(width: isRegular ? 72 : 54)
                 Text("Pro")
                     .font(.caption.weight(.bold))
                     .foregroundStyle(
@@ -271,7 +271,7 @@ struct PaywallView: View {
                             endPoint: .trailing
                         )
                     )
-                    .frame(width: 54)
+                    .frame(width: isRegular ? 72 : 54)
             }
             .padding(.horizontal, 16)
             .padding(.vertical, 12)
@@ -645,9 +645,9 @@ private struct FeatureRow: View {
                     .foregroundStyle(.white.opacity(0.9))
                 Spacer()
                 featureCell(freeValue, isPro: false)
-                    .frame(width: 54)
+                    .frame(width: isRegular ? 72 : 54)
                 featureCell(proValue, isPro: true)
-                    .frame(width: 54)
+                    .frame(width: isRegular ? 72 : 54)
             }
             .padding(.horizontal, 16)
             .padding(.vertical, 11)

@@ -257,6 +257,7 @@ struct DrinkTile: View {
             }
             .padding(.vertical, 4)
             .scaleEffect(tileScale)
+            .dynamicTypeSize(...DynamicTypeSize.accessibility1)
         }
         .accessibilityLabel("\(drink.displayName), \(Int(drink.hydrationRatio * 100)) percent hydration\(drink.hasCaffeine ? ", contains caffeine" : "")")
         .accessibilityAddTraits(isSelected ? [.isSelected] : [])

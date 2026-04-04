@@ -24,7 +24,7 @@ struct AchievementBadgeView: View {
                             : Color.gray.opacity(0.15),
                         lineWidth: 3
                     )
-                    .frame(width: 72, height: 72)
+                    .frame(width: isRegular ? 88 : 72, height: isRegular ? 88 : 72)
 
                 Circle()
                     .fill(
@@ -32,7 +32,7 @@ struct AchievementBadgeView: View {
                             ? achievement.tier.color.opacity(0.12)
                             : Color.gray.opacity(0.06)
                     )
-                    .frame(width: 66, height: 66)
+                    .frame(width: isRegular ? 82 : 66, height: isRegular ? 82 : 66)
 
                 // Icon
                 Image(systemName: achievement.iconName)
@@ -48,7 +48,7 @@ struct AchievementBadgeView: View {
                 if !achievement.isUnlocked {
                     Circle()
                         .fill(.ultraThinMaterial)
-                        .frame(width: 66, height: 66)
+                        .frame(width: isRegular ? 82 : 66, height: isRegular ? 82 : 66)
 
                     Image(systemName: "lock.fill")
                         .font(.adaptiveCaption(isRegular: isRegular).weight(.medium))
@@ -71,7 +71,7 @@ struct AchievementBadgeView: View {
                         }
                         Spacer()
                     }
-                    .frame(width: 72, height: 72)
+                    .frame(width: isRegular ? 88 : 72, height: isRegular ? 88 : 72)
                 }
             }
             .scaleEffect(appeared ? 1.0 : 0.7)
@@ -160,11 +160,11 @@ struct AchievementCelebrationOverlay: View {
                 ZStack {
                     Circle()
                         .fill(achievement.tier.color.opacity(0.15))
-                        .frame(width: 88, height: 88)
+                        .frame(width: isRegular ? 110 : 88, height: isRegular ? 110 : 88)
 
                     Circle()
                         .stroke(achievement.tier.color, lineWidth: 3)
-                        .frame(width: 88, height: 88)
+                        .frame(width: isRegular ? 110 : 88, height: isRegular ? 110 : 88)
 
                     Image(systemName: achievement.iconName)
                         .font(.adaptiveDisplay(size: 36, weight: .medium, isRegular: isRegular))

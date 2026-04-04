@@ -523,6 +523,7 @@ struct TimerView: View {
                                     .padding(.vertical, spacing.xs)
                                     .background(Color.aquaCardBackground, in: RoundedRectangle(cornerRadius: 12))
                                     .shadow(color: Color.black.opacity(0.06), radius: 4, x: 0, y: 2)
+                                    .dynamicTypeSize(...DynamicTypeSize.accessibility1)
                                 }
                                 .accessibilityLabel("Log \(profile.unit.formatAmount(fav.amount)) of \(fav.drink.displayName), \(fav.name)")
                                 .accessibilityHint("Double tap to log this favorite drink")
@@ -552,6 +553,7 @@ struct TimerView: View {
                                 .padding(.vertical, spacing.xs)
                                 .background(Color.aquaCardBackground, in: RoundedRectangle(cornerRadius: 12))
                                 .shadow(color: Color.black.opacity(0.06), radius: 4, x: 0, y: 2)
+                                .dynamicTypeSize(...DynamicTypeSize.accessibility1)
                             }
                             .accessibilityLabel("Add new favorite drink")
                             .accessibilityHint("Double tap to save a drink as a favorite")
@@ -844,6 +846,7 @@ struct QuickAddButton: View {
             .background(Color.aquaGradient, in: RoundedRectangle(cornerRadius: 16))
             .shadow(color: Color.aquaGradientEnd.opacity(0.35), radius: 8, x: 0, y: 4)
             .shadow(color: Color.aquaGradientStart.opacity(0.15), radius: 3, x: 0, y: 1)
+            .dynamicTypeSize(...DynamicTypeSize.accessibility1)
         }
         .scaleEffect(isPressed ? 0.88 : 1.0)
         .accessibilityLabel("Log \(unit.formatAmount(amount))\(name.isEmpty ? "" : ", \(name)")")
@@ -865,15 +868,15 @@ struct UndoToastView: View {
         HStack(spacing: 12) {
             Image(systemName: "arrow.uturn.backward.circle.fill")
                 .font(.title3)
-                .foregroundStyle(.white)
+                .foregroundStyle(Color.aquaPrimary)
 
             VStack(alignment: .leading, spacing: 2) {
                 Text("Drink Removed")
                     .font(.subheadline.weight(.semibold))
-                    .foregroundStyle(.white)
+                    .foregroundStyle(Color.aquaTextPrimary)
                 Text("\(unit.formatAmount(amount)) \(drinkName)")
                     .font(.caption)
-                    .foregroundStyle(.white.opacity(0.8))
+                    .foregroundStyle(Color.aquaTextSecondary)
             }
 
             Spacer()
@@ -891,7 +894,7 @@ struct UndoToastView: View {
         }
         .padding(.horizontal, 16)
         .padding(.vertical, 12)
-        .background(Color(.darkGray), in: RoundedRectangle(cornerRadius: 16))
+        .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 16))
         .padding(.horizontal, 20)
         .onAppear {
             DispatchQueue.main.asyncAfter(deadline: .now() + 5) {
