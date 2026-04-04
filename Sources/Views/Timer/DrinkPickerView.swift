@@ -3,6 +3,11 @@ import SwiftUI
 struct DrinkPickerView: View {
     @Binding var selectedDrink: DrinkType
     @Environment(\.dismiss) private var dismiss
+    @Environment(\.horizontalSizeClass) private var sizeClass
+
+    private var isRegular: Bool {
+        sizeClass == .regular
+    }
 
     private let haptics = HapticManager.shared
     private let sounds = SoundManager.shared
@@ -43,12 +48,12 @@ struct DrinkPickerView: View {
                             .padding(.horizontal, 4)
 
                             LazyVGrid(
-                                columns: [
-                                    GridItem(.flexible()),
-                                    GridItem(.flexible()),
-                                    GridItem(.flexible()),
-                                    GridItem(.flexible())
-                                ],
+                                columns: .adaptive(
+                                    compact: 4,
+                                    regular: 5,
+                                    spacing: 12,
+                                    isRegular: isRegular
+                                ),
                                 spacing: 12
                             ) {
                                 ForEach(group.drinks) { drink in
@@ -94,7 +99,7 @@ struct DrinkPickerView: View {
             ZStack {
                 Circle()
                     .fill(selectedDrink.color.opacity(0.15))
-                    .frame(width: 52, height: 52)
+                    .frame(width: isRegular ? 64 : 52, height: isRegular ? 64 : 52)
                 Image(systemName: selectedDrink.iconName)
                     .font(.title2)
                     .foregroundStyle(selectedDrink.color)
@@ -125,9 +130,10 @@ struct DrinkPickerView: View {
                 }
 
                 Text(hydrationEfficiencyText(for: selectedDrink))
-                    .font(.caption2)
+                    .font(.adaptiveCaption2(isRegular: isRegular))
                     .foregroundStyle(.secondary)
                     .lineLimit(1)
+                    .minimumScaleFactor(0.75)
             }
 
             Spacer()
@@ -179,6 +185,11 @@ struct DrinkTile: View {
     let isSelected: Bool
     let action: () -> Void
 
+    @Environment(\.horizontalSizeClass) private var sizeClass
+    private var isRegular: Bool {
+        sizeClass == .regular
+    }
+
     @State private var tileScale: CGFloat = 1.0
 
     var body: some View {
@@ -209,14 +220,14 @@ struct DrinkTile: View {
                                     endPoint: .bottomTrailing
                                 )
                         )
-                        .frame(width: 52, height: 52)
+                        .frame(width: isRegular ? 64 : 52, height: isRegular ? 64 : 52)
                         .shadow(color: drink.color.opacity(isSelected ? 0.3 : 0.1), radius: isSelected ? 8 : 4, x: 0, y: 2)
 
                     // Subtle ring for selected
                     if isSelected {
                         Circle()
                             .strokeBorder(drink.color, lineWidth: 2.5)
-                            .frame(width: 52, height: 52)
+                            .frame(width: isRegular ? 64 : 52, height: isRegular ? 64 : 52)
                     }
 
                     Image(systemName: drink.iconName)
@@ -225,7 +236,7 @@ struct DrinkTile: View {
                 }
 
                 Text(drink.displayName)
-                    .font(.caption2.weight(.medium))
+                    .font(.adaptiveCaption(isRegular: isRegular).weight(.medium))
                     .foregroundStyle(Color.aquaTextPrimary)
                     .lineLimit(1)
                     .minimumScaleFactor(0.8)
@@ -234,10 +245,10 @@ struct DrinkTile: View {
                 HStack(spacing: 2) {
                     if drink.hasCaffeine {
                         Text("☕")
-                            .font(.system(size: 8))
+                            .font(.adaptiveCaption2(isRegular: isRegular))
                     }
                     Text("\(Int(drink.hydrationRatio * 100))%")
-                        .font(.system(size: 10, weight: .semibold))
+                        .font(.adaptiveCaption(isRegular: isRegular).weight(.semibold))
                         .foregroundStyle(
                             drink.hydrationRatio >= 1.0 ? .green :
                                 drink.hydrationRatio >= 0.7 ? Color.aquaPrimary : .orange

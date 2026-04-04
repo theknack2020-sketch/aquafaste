@@ -102,7 +102,7 @@ struct AquaFasteShortcuts: AppShortcutsProvider {
             phrases: [
                 "Log water in \(.applicationName)",
                 "Drink water with \(.applicationName)",
-                "Add water to \(.applicationName)"
+                "Add water to \(.applicationName)",
             ],
             shortTitle: "Log Water",
             systemImageName: "drop.fill"

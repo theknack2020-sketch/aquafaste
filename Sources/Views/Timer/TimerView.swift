@@ -32,11 +32,24 @@ struct TimerView: View {
     @State private var sessionLogCount = 0
 
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    @Environment(\.horizontalSizeClass) private var sizeClass
 
     private let profile = UserProfile.shared
     private let subscription = SubscriptionManager.shared
     private let haptics = HapticManager.shared
     private let sounds = SoundManager.shared
+
+    private var isRegular: Bool {
+        sizeClass == .regular
+    }
+
+    private var sizes: AdaptiveSizes {
+        AdaptiveSizes(isRegular: isRegular)
+    }
+
+    private var spacing: AdaptiveSpacing {
+        AdaptiveSpacing(isRegular: isRegular)
+    }
 
     var body: some View {
         NavigationStack {
@@ -46,7 +59,7 @@ struct TimerView: View {
                     colors: [
                         Color.aquaGradientStart.opacity(0.30),
                         Color.aquaGradientEnd.opacity(0.15),
-                        Color.aquaBackground
+                        Color.aquaBackground,
                     ],
                     startPoint: .top,
                     endPoint: .center
@@ -54,13 +67,13 @@ struct TimerView: View {
                 .ignoresSafeArea()
 
                 ScrollView {
-                    VStack(spacing: 20) {
+                    VStack(spacing: spacing.section) {
                         // Progress circle with water fill overlay
                         ZStack {
                             // Radial glow behind progress ring
                             Circle()
                                 .fill(ThemeManager.shared.effectiveTheme.glowGradient)
-                                .frame(width: 340, height: 340)
+                                .frame(width: sizes.progressContainer, height: sizes.progressContainer)
                                 .blur(radius: 30)
 
                             CircularProgressView(
@@ -70,7 +83,7 @@ struct TimerView: View {
                                 unit: profile.unit,
                                 showSplash: $splashTrigger
                             )
-                            .frame(height: 300)
+                            .frame(height: sizes.progressRing)
                             .accessibilityIdentifier("progressRing")
 
                             // Water fill animation overlay
@@ -87,32 +100,21 @@ struct TimerView: View {
 
                         // Motivational micro-copy based on progress
                         Text(motivationalMessage)
-                            .font(.subheadline)
+                            .font(.adaptiveSubheadline(isRegular: isRegular))
                             .foregroundStyle(Color.aquaTextSecondary)
                             .multilineTextAlignment(.center)
-                            .padding(.horizontal, 20)
+                            .padding(.horizontal, spacing.lg)
                             .accessibilityLabel("Progress motivation: \(motivationalMessage)")
 
                         // Empty state for first use of the day
                         if manager.todayLogs.isEmpty {
-                            VStack(spacing: 16) {
-                                Image(systemName: "drop.fill")
-                                    .font(.system(size: 60))
-                                    .foregroundStyle(Color.aquaPrimary)
-                                    .symbolEffect(.pulse)
-
-                                Text("Start Your Day Hydrated")
-                                    .font(.title3.weight(.bold))
-                                    .foregroundStyle(Color.aquaTextPrimary)
-
+                            ContentUnavailableView {
+                                Label("Start Your Day Hydrated", systemImage: "drop.fill")
+                            } description: {
                                 Text("Tap a drink below to log your first sip. Every drop counts!")
-                                    .font(.subheadline)
-                                    .foregroundStyle(.secondary)
-                                    .multilineTextAlignment(.center)
                             }
-                            .padding(40)
-                            .accessibilityElement(children: .combine)
-                            .accessibilityLabel("Start your day hydrated. Tap a drink below to log your first sip.")
+                            .symbolEffect(.pulse)
+                            .padding(spacing.xl)
                         }
 
                         // Selected drink indicator with context menu for quick log
@@ -131,11 +133,11 @@ struct TimerView: View {
 
                         // Encouragement when close to goal
                         if !goalReached, remainingToGoal > 0, remainingToGoal <= profile.dailyGoal * 0.2 {
-                            HStack(spacing: 6) {
+                            HStack(spacing: spacing.xs) {
                                 Image(systemName: "sparkles")
                                     .foregroundStyle(.yellow)
                                 Text("Almost there! Just \(profile.unit.formatAmount(remainingToGoal)) to go!")
-                                    .font(.subheadline.weight(.medium))
+                                    .font(.adaptiveSubheadline(isRegular: isRegular).weight(.medium))
                                     .foregroundStyle(Color.aquaPrimary)
                             }
                             .padding(.horizontal, 14)
@@ -147,11 +149,11 @@ struct TimerView: View {
 
                         // Streak with motivational text
                         if profile.currentStreak > 0 {
-                            HStack(spacing: 6) {
+                            HStack(spacing: spacing.xs) {
                                 Image(systemName: "flame.fill")
                                     .foregroundStyle(.orange)
                                 Text(streakMotivationText)
-                                    .font(.subheadline.weight(.medium))
+                                    .font(.adaptiveSubheadline(isRegular: isRegular).weight(.medium))
                                     .foregroundStyle(Color.aquaTextSecondary)
                             }
                             .padding(.top, 4)
@@ -183,7 +185,8 @@ struct TimerView: View {
                         // Bottom spacer for undo toast
                         Spacer().frame(height: 60)
                     }
-                    .padding()
+                    .adaptivePadding(isRegular)
+                    .adaptiveContainer()
                 }
                 .navigationTitle(timeBasedGreeting)
                 .toolbar {
@@ -276,10 +279,10 @@ struct TimerView: View {
                         .allowsHitTesting(false)
                 }
             }
-            .sheet(isPresented: $showPaywall) {
+            .fullScreenCover(isPresented: $showPaywall) {
                 PaywallView()
             }
-            .sheet(isPresented: $showSoftPaywallSheet) {
+            .fullScreenCover(isPresented: $showSoftPaywallSheet) {
                 PaywallView()
                     .onDisappear {
                         subscription.softPaywallDismissedThisSession = true
@@ -353,11 +356,11 @@ struct TimerView: View {
             if !recents.isEmpty {
                 VStack(alignment: .leading, spacing: 8) {
                     Text("Recent")
-                        .font(.caption.weight(.semibold))
+                        .font(.adaptiveCaption(isRegular: isRegular).weight(.semibold))
                         .foregroundStyle(Color.aquaTextSecondary)
                         .padding(.horizontal, 4)
 
-                    HStack(spacing: 8) {
+                    HStack(spacing: spacing.xs) {
                         ForEach(Array(recents.enumerated()), id: \.offset) { _, recent in
                             Button {
                                 haptics.buttonPress()
@@ -366,10 +369,10 @@ struct TimerView: View {
                             } label: {
                                 HStack(spacing: 6) {
                                     Image(systemName: recent.drinkType.iconName)
-                                        .font(.caption)
+                                        .font(.adaptiveCaption(isRegular: isRegular))
                                         .foregroundStyle(recent.drinkType.color)
                                     Text(profile.unit.formatAmount(recent.amount))
-                                        .font(.caption2.weight(.medium))
+                                        .font(.adaptiveCaption(isRegular: isRegular).weight(.medium))
                                         .foregroundStyle(Color.aquaTextPrimary)
                                 }
                                 .padding(.horizontal, 10)
@@ -421,9 +424,9 @@ struct TimerView: View {
                     Image(systemName: "plus")
                         .font(.title2)
                     Text("Custom")
-                        .font(.caption2)
+                        .font(.adaptiveCaption(isRegular: isRegular))
                 }
-                .frame(width: 72, height: 72)
+                .frame(width: sizes.quickAddButton, height: sizes.quickAddButton)
                 .foregroundStyle(Color.aquaPrimary)
                 .background(Color.aquaCardBackground, in: RoundedRectangle(cornerRadius: 16))
                 .shadow(color: Color.black.opacity(0.08), radius: 6, x: 0, y: 3)
@@ -491,7 +494,7 @@ struct TimerView: View {
                     .padding(.horizontal)
 
                     ScrollView(.horizontal, showsIndicators: false) {
-                        HStack(spacing: 10) {
+                        HStack(spacing: isRegular ? 14 : 10) {
                             ForEach(favorites, id: \.id) { fav in
                                 Button {
                                     haptics.buttonPress()
@@ -502,21 +505,22 @@ struct TimerView: View {
                                         ZStack {
                                             Circle()
                                                 .fill(fav.drink.color.opacity(0.15))
-                                                .frame(width: 40, height: 40)
+                                                .frame(width: sizes.smallIcon, height: sizes.smallIcon)
                                             Image(systemName: fav.drink.iconName)
                                                 .font(.body)
                                                 .foregroundStyle(fav.drink.color)
                                         }
                                         Text(fav.name)
-                                            .font(.caption2.weight(.medium))
+                                            .font(.adaptiveCaption(isRegular: isRegular).weight(.medium))
                                             .foregroundStyle(Color.aquaTextPrimary)
                                             .lineLimit(1)
+                                            .minimumScaleFactor(0.75)
                                         Text(profile.unit.formatAmount(fav.amount))
-                                            .font(.system(size: 9))
+                                            .font(.adaptiveCaption2(isRegular: isRegular))
                                             .foregroundStyle(Color.aquaTextSecondary)
                                     }
-                                    .frame(width: 70)
-                                    .padding(.vertical, 8)
+                                    .frame(width: isRegular ? 88 : 70)
+                                    .padding(.vertical, spacing.xs)
                                     .background(Color.aquaCardBackground, in: RoundedRectangle(cornerRadius: 12))
                                     .shadow(color: Color.black.opacity(0.06), radius: 4, x: 0, y: 2)
                                 }
@@ -533,19 +537,19 @@ struct TimerView: View {
                                     ZStack {
                                         Circle()
                                             .strokeBorder(Color.aquaPrimary.opacity(0.3), lineWidth: 1.5)
-                                            .frame(width: 40, height: 40)
+                                            .frame(width: sizes.smallIcon, height: sizes.smallIcon)
                                         Image(systemName: "plus")
                                             .font(.body)
                                             .foregroundStyle(Color.aquaPrimary)
                                     }
                                     Text("Add")
-                                        .font(.caption2.weight(.medium))
+                                        .font(.adaptiveCaption(isRegular: isRegular).weight(.medium))
                                         .foregroundStyle(Color.aquaTextSecondary)
                                     Text(" ")
-                                        .font(.system(size: 9))
+                                        .font(.adaptiveCaption2(isRegular: isRegular))
                                 }
-                                .frame(width: 70)
-                                .padding(.vertical, 8)
+                                .frame(width: isRegular ? 88 : 70)
+                                .padding(.vertical, spacing.xs)
                                 .background(Color.aquaCardBackground, in: RoundedRectangle(cornerRadius: 12))
                                 .shadow(color: Color.black.opacity(0.06), radius: 4, x: 0, y: 2)
                             }
@@ -620,7 +624,7 @@ struct TimerView: View {
                 Spacer()
             }
 
-            LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: 12) {
+            LazyVGrid(columns: .adaptive(compact: 2, regular: 3, spacing: 12, isRegular: isRegular), spacing: 12) {
                 SummaryItem(
                     icon: "drop.fill",
                     label: "Total",
@@ -801,7 +805,16 @@ struct QuickAddButton: View {
     let unit: MeasurementUnit
     let action: () -> Void
 
+    @Environment(\.horizontalSizeClass) private var sizeClass
     @State private var isPressed = false
+
+    private var isRegular: Bool {
+        sizeClass == .regular
+    }
+
+    private var buttonSize: CGFloat {
+        AdaptiveSizes(isRegular: isRegular).quickAddButton
+    }
 
     var body: some View {
         Button {
@@ -819,14 +832,14 @@ struct QuickAddButton: View {
                 Image(systemName: "drop.fill")
                     .font(.title2)
                 Text(unit.formatAmount(amount))
-                    .font(.caption2.weight(.medium))
+                    .font(.adaptiveCaption(isRegular: isRegular).weight(.medium))
                 if !name.isEmpty {
                     Text(name)
-                        .font(.system(size: 8, weight: .regular, design: .rounded))
+                        .font(.adaptiveCaption2(isRegular: isRegular))
                         .foregroundStyle(.white.opacity(0.7))
                 }
             }
-            .frame(width: 72, height: 72)
+            .frame(width: buttonSize, height: buttonSize)
             .foregroundStyle(.white)
             .background(Color.aquaGradient, in: RoundedRectangle(cornerRadius: 16))
             .shadow(color: Color.aquaGradientEnd.opacity(0.35), radius: 8, x: 0, y: 4)
@@ -896,8 +909,13 @@ struct TimelineLogRow: View {
     let isFirst: Bool
     let isLast: Bool
 
+    @Environment(\.horizontalSizeClass) private var sizeClass
+    private var isRegular: Bool {
+        sizeClass == .regular
+    }
+
     var body: some View {
-        HStack(spacing: 12) {
+        HStack(spacing: isRegular ? 16 : 12) {
             // Timeline connector
             VStack(spacing: 0) {
                 Rectangle()
@@ -906,29 +924,29 @@ struct TimelineLogRow: View {
 
                 Circle()
                     .fill(log.drink.color)
-                    .frame(width: 10, height: 10)
+                    .frame(width: AdaptiveSizes(isRegular: isRegular).timelineDot, height: AdaptiveSizes(isRegular: isRegular).timelineDot)
 
                 Rectangle()
                     .fill(isLast ? Color.clear : Color.aquaPrimary.opacity(0.3))
                     .frame(width: 2)
             }
-            .frame(width: 12, height: 44)
+            .frame(width: isRegular ? 16 : 12, height: isRegular ? 52 : 44)
 
             Image(systemName: log.drink.iconName)
                 .font(.body)
                 .foregroundStyle(log.drink.color)
-                .frame(width: 28)
+                .frame(width: isRegular ? 32 : 28)
 
             VStack(alignment: .leading, spacing: 2) {
                 Text(log.drink.displayName)
-                    .font(.subheadline.weight(.medium))
+                    .font(.adaptiveSubheadline(isRegular: isRegular).weight(.medium))
                 HStack(spacing: 4) {
                     Text(log.timestamp, format: .dateTime.hour().minute())
-                        .font(.caption)
+                        .font(.adaptiveCaption(isRegular: isRegular))
                         .foregroundStyle(.secondary)
                     if log.caffeineMg > 0 {
                         Text("• \(Int(log.caffeineMg)) mg ☕")
-                            .font(.caption)
+                            .font(.adaptiveCaption(isRegular: isRegular))
                             .foregroundStyle(.brown)
                     }
                 }
@@ -937,11 +955,11 @@ struct TimelineLogRow: View {
             Spacer()
 
             Text(unit.formatAmount(log.amount))
-                .font(.subheadline.weight(.semibold))
+                .font(.adaptiveSubheadline(isRegular: isRegular).weight(.semibold))
                 .foregroundStyle(Color.aquaPrimary)
         }
         .padding(.horizontal)
-        .padding(.vertical, 4)
+        .padding(.vertical, isRegular ? 6 : 4)
         .accessibilityElement(children: .combine)
         .accessibilityLabel("\(log.drink.displayName), \(unit.formatAmount(log.amount)), at \(log.timestamp.formatted(.dateTime.hour().minute()))\(log.caffeineMg > 0 ? ", \(Int(log.caffeineMg)) milligrams caffeine" : "")")
     }
@@ -955,19 +973,24 @@ struct SummaryItem: View {
     let value: String
     let color: Color
 
+    @Environment(\.horizontalSizeClass) private var sizeClass
+    private var isRegular: Bool {
+        sizeClass == .regular
+    }
+
     var body: some View {
-        HStack(spacing: 8) {
+        HStack(spacing: isRegular ? 10 : 8) {
             Image(systemName: icon)
-                .font(.caption)
+                .font(.adaptiveCaption(isRegular: isRegular))
                 .foregroundStyle(color)
-                .frame(width: 20)
+                .frame(width: isRegular ? 24 : 20)
 
             VStack(alignment: .leading, spacing: 1) {
                 Text(label)
-                    .font(.caption2)
+                    .font(.adaptiveCaption(isRegular: isRegular))
                     .foregroundStyle(.secondary)
                 Text(value)
-                    .font(.subheadline.weight(.semibold))
+                    .font(.adaptiveSubheadline(isRegular: isRegular).weight(.semibold))
                     .foregroundStyle(Color.aquaTextPrimary)
                     .lineLimit(1)
                     .minimumScaleFactor(0.7)
@@ -985,13 +1008,18 @@ struct WaterFillAnimationView: View {
     let amount: Double
     let unit: MeasurementUnit
 
+    @Environment(\.horizontalSizeClass) private var sizeClass
+    private var isRegular: Bool {
+        sizeClass == .regular
+    }
+
     @State private var opacity: Double = 0
     @State private var iconScale: CGFloat = 0.5
 
     var body: some View {
         VStack(spacing: 8) {
             Image(systemName: drinkType.iconName)
-                .font(.system(size: 32))
+                .font(.adaptiveDisplay(size: 32, weight: .regular, isRegular: isRegular))
                 .foregroundStyle(drinkType.color)
                 .scaleEffect(iconScale)
 
@@ -1020,6 +1048,11 @@ struct WaterFillAnimationView: View {
 struct GoalCompleteOverlay: View {
     let onDismiss: () -> Void
 
+    @Environment(\.horizontalSizeClass) private var sizeClass
+    private var isRegular: Bool {
+        sizeClass == .regular
+    }
+
     @State private var iconScale: CGFloat = 0.3
     @State private var iconOpacity: Double = 0
     @State private var contentOpacity: Double = 0
@@ -1033,7 +1066,7 @@ struct GoalCompleteOverlay: View {
 
             VStack(spacing: 16) {
                 Image(systemName: "checkmark.circle.fill")
-                    .font(.system(size: 64))
+                    .font(.adaptiveDisplay(size: 64, weight: .regular, isRegular: isRegular))
                     .foregroundStyle(.green)
                     .scaleEffect(iconScale)
                     .opacity(iconOpacity)

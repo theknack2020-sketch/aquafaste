@@ -5,6 +5,11 @@ struct AchievementBadgeView: View {
     let achievement: Achievement
 
     @State private var appeared = false
+    @Environment(\.horizontalSizeClass) private var sizeClass
+
+    private var isRegular: Bool {
+        sizeClass == .regular
+    }
 
     private let theme = ThemeManager.shared.effectiveTheme
 
@@ -31,7 +36,7 @@ struct AchievementBadgeView: View {
 
                 // Icon
                 Image(systemName: achievement.iconName)
-                    .font(.system(size: 28, weight: .medium))
+                    .font(.adaptiveDisplay(size: 28, weight: .medium, isRegular: isRegular))
                     .foregroundStyle(
                         achievement.isUnlocked
                             ? achievement.tier.color
@@ -46,7 +51,7 @@ struct AchievementBadgeView: View {
                         .frame(width: 66, height: 66)
 
                     Image(systemName: "lock.fill")
-                        .font(.system(size: 16, weight: .medium))
+                        .font(.adaptiveCaption(isRegular: isRegular).weight(.medium))
                         .foregroundStyle(.secondary)
                 }
 
@@ -56,7 +61,7 @@ struct AchievementBadgeView: View {
                         HStack {
                             Spacer()
                             Image(systemName: "checkmark.circle.fill")
-                                .font(.system(size: 18))
+                                .font(.adaptiveSubheadline(isRegular: isRegular))
                                 .foregroundStyle(.green)
                                 .background(
                                     Circle()
@@ -77,7 +82,7 @@ struct AchievementBadgeView: View {
 
             // Title
             Text(achievement.title)
-                .font(.system(size: 12, weight: .semibold, design: .rounded))
+                .font(.adaptiveCaption(isRegular: isRegular).weight(.semibold))
                 .foregroundStyle(achievement.isUnlocked ? .primary : .secondary)
                 .lineLimit(2)
                 .multilineTextAlignment(.center)
@@ -85,11 +90,11 @@ struct AchievementBadgeView: View {
             // Subtitle or unlock date
             if achievement.isUnlocked, let date = achievement.unlockedAt {
                 Text(date, format: .dateTime.month(.abbreviated).day())
-                    .font(.system(size: 10, weight: .regular, design: .rounded))
+                    .font(.adaptiveCaption2(isRegular: isRegular))
                     .foregroundStyle(.tertiary)
             } else {
                 Text(achievement.subtitle)
-                    .font(.system(size: 10, weight: .regular, design: .rounded))
+                    .font(.adaptiveCaption2(isRegular: isRegular))
                     .foregroundStyle(.tertiary)
                     .lineLimit(2)
                     .multilineTextAlignment(.center)
@@ -124,6 +129,11 @@ struct AchievementCelebrationOverlay: View {
     @State private var showContent = false
     @State private var showConfetti = false
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    @Environment(\.horizontalSizeClass) private var sizeClass
+
+    private var isRegular: Bool {
+        sizeClass == .regular
+    }
 
     var body: some View {
         ZStack {
@@ -142,10 +152,10 @@ struct AchievementCelebrationOverlay: View {
             // Achievement card
             VStack(spacing: 20) {
                 Text("🏆")
-                    .font(.system(size: 48))
+                    .font(.adaptiveDisplay(size: 48, weight: .regular, isRegular: isRegular))
 
                 Text("Achievement Unlocked!")
-                    .font(.system(size: 22, weight: .bold, design: .rounded))
+                    .font(.adaptiveDisplay(size: 22, weight: .bold, design: .rounded, isRegular: isRegular))
 
                 ZStack {
                     Circle()
@@ -157,20 +167,20 @@ struct AchievementCelebrationOverlay: View {
                         .frame(width: 88, height: 88)
 
                     Image(systemName: achievement.iconName)
-                        .font(.system(size: 36, weight: .medium))
+                        .font(.adaptiveDisplay(size: 36, weight: .medium, isRegular: isRegular))
                         .foregroundStyle(achievement.tier.color)
                 }
 
                 VStack(spacing: 6) {
                     Text(achievement.title)
-                        .font(.system(size: 20, weight: .bold, design: .rounded))
+                        .font(.adaptiveTitle3(isRegular: isRegular).weight(.bold))
 
                     Text(achievement.subtitle)
-                        .font(.system(size: 14, weight: .regular, design: .rounded))
+                        .font(.adaptiveCaption(isRegular: isRegular))
                         .foregroundStyle(.secondary)
 
                     Text(achievement.tier.displayName)
-                        .font(.system(size: 12, weight: .semibold, design: .rounded))
+                        .font(.adaptiveCaption(isRegular: isRegular).weight(.semibold))
                         .foregroundStyle(achievement.tier.color)
                         .padding(.horizontal, 12)
                         .padding(.vertical, 4)
@@ -184,7 +194,7 @@ struct AchievementCelebrationOverlay: View {
                     dismiss()
                 } label: {
                     Text("Awesome!")
-                        .font(.system(size: 16, weight: .semibold, design: .rounded))
+                        .font(.adaptiveSubheadline(isRegular: isRegular).weight(.semibold))
                         .foregroundStyle(.white)
                         .frame(maxWidth: .infinity)
                         .padding(.vertical, 14)
@@ -221,7 +231,7 @@ struct AchievementCelebrationOverlay: View {
     }
 
     private func dismiss() {
-        withAnimation(.easeOut(duration: 0.2)) {
+        withAnimation(.spring(response: 0.25, dampingFraction: 0.9)) {
             showContent = false
         }
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.25) {

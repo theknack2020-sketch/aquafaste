@@ -22,6 +22,11 @@ struct PaywallView: View {
     private let sounds = SoundManager.shared
     private let theme = ThemeManager.shared.effectiveTheme
 
+    @Environment(\.horizontalSizeClass) private var sizeClass
+    private var isRegular: Bool {
+        sizeClass == .regular
+    }
+
     var body: some View {
         ZStack(alignment: .topTrailing) {
             // Rich premium background
@@ -30,7 +35,7 @@ struct PaywallView: View {
                     colors: [
                         Color(red: 0.02, green: 0.12, blue: 0.28),
                         Color(red: 0.05, green: 0.18, blue: 0.42),
-                        Color(red: 0.08, green: 0.25, blue: 0.50)
+                        Color(red: 0.08, green: 0.25, blue: 0.50),
                     ],
                     startPoint: .topLeading,
                     endPoint: .bottomTrailing
@@ -79,9 +84,9 @@ struct PaywallView: View {
             }
 
             ScrollView(showsIndicators: false) {
-                VStack(spacing: 28) {
+                VStack(spacing: isRegular ? 36 : 28) {
                     // Spacer for dismiss button clearance
-                    Color.clear.frame(height: 20)
+                    Color.clear.frame(height: isRegular ? 28 : 20)
 
                     headerSection
                     socialProofBadge
@@ -96,6 +101,8 @@ struct PaywallView: View {
                     termsSection
                 }
                 .padding(.bottom, 40)
+                .adaptivePadding(isRegular)
+                .adaptiveContainer(maxWidth: 600)
             }
 
             // Dismiss button — ALWAYS visible
@@ -171,13 +178,13 @@ struct PaywallView: View {
             // Premium glow icon
             ZStack {
                 // Outer glow rings
-                ForEach(0..<3, id: \.self) { ring in
+                ForEach(0 ..< 3, id: \.self) { ring in
                     Circle()
                         .stroke(
                             LinearGradient(
                                 colors: [
                                     Color.cyan.opacity(0.15 - Double(ring) * 0.04),
-                                    Color.blue.opacity(0.1 - Double(ring) * 0.03)
+                                    Color.blue.opacity(0.1 - Double(ring) * 0.03),
                                 ],
                                 startPoint: .topLeading,
                                 endPoint: .bottomTrailing
@@ -201,7 +208,7 @@ struct PaywallView: View {
                     .frame(width: 72, height: 72)
 
                 Image(systemName: "drop.fill")
-                    .font(.system(size: 38))
+                    .font(.adaptiveDisplay(size: 38, weight: .regular, isRegular: isRegular))
                     .foregroundStyle(
                         LinearGradient(
                             colors: [.cyan, .blue],
@@ -209,11 +216,12 @@ struct PaywallView: View {
                             endPoint: .bottom
                         )
                     )
+                    .symbolEffect(.variableColor.iterative, isActive: true)
                     .shadow(color: .cyan.opacity(0.5), radius: 12, y: 4)
             }
 
             Text("AquaFaste Pro")
-                .font(.system(size: 32, weight: .bold, design: .rounded))
+                .font(.adaptiveDisplay(size: 32, weight: .bold, design: .rounded, isRegular: isRegular))
                 .foregroundStyle(.white)
 
             Text("Unlock the complete hydration experience")
@@ -389,6 +397,8 @@ struct PaywallView: View {
                     .shadow(color: theme.gradientEnd.opacity(0.2), radius: 4, x: 0, y: 2)
                     .foregroundStyle(.white)
                 }
+                .scaleEffect(purchaseInProgress ? 0.96 : 1.0)
+                .animation(.spring(response: 0.3, dampingFraction: 0.7), value: purchaseInProgress)
                 .padding(.horizontal)
                 .accessibilityLabel(ctaText(for: product))
                 .accessibilityHint("Double tap to proceed with purchase")
@@ -410,7 +420,7 @@ struct PaywallView: View {
                         .font(.caption.weight(.medium))
                         .foregroundStyle(Color.aquaTextSecondary)
                     Text("We'll send you a reminder before it ends.")
-                        .font(.caption2)
+                        .font(.adaptiveCaption2(isRegular: isRegular))
                         .foregroundStyle(Color.aquaTextTertiary)
                 }
                 .multilineTextAlignment(.center)
@@ -502,7 +512,7 @@ struct PaywallView: View {
     private var termsSection: some View {
         VStack(spacing: 6) {
             Text(subscriptionTermsText)
-                .font(.caption2)
+                .font(.adaptiveCaption2(isRegular: isRegular))
                 .foregroundStyle(.tertiary)
                 .multilineTextAlignment(.center)
 
@@ -510,7 +520,7 @@ struct PaywallView: View {
                 Link("Privacy Policy", destination: URL(string: "https://theknack2020-sketch.github.io/aquafaste/privacy/")!)
                 Link("Terms of Use", destination: URL(string: "https://theknack2020-sketch.github.io/aquafaste/terms/")!)
             }
-            .font(.caption2)
+            .font(.adaptiveCaption2(isRegular: isRegular))
         }
         .padding(.horizontal)
     }
@@ -538,7 +548,7 @@ struct PaywallView: View {
             products = try await Product.products(for: [
                 SubscriptionManager.monthlyID,
                 SubscriptionManager.yearlyID,
-                SubscriptionManager.lifetimeID
+                SubscriptionManager.lifetimeID,
             ])
         } catch {
             errorMessage = "Failed to load products"
@@ -622,6 +632,11 @@ private struct FeatureRow: View {
     let freeValue: FeatureCellValue
     let proValue: FeatureCellValue
 
+    @Environment(\.horizontalSizeClass) private var sizeClass
+    private var isRegular: Bool {
+        sizeClass == .regular
+    }
+
     var body: some View {
         VStack(spacing: 0) {
             HStack {
@@ -649,15 +664,15 @@ private struct FeatureRow: View {
         switch value {
         case .check:
             Image(systemName: "checkmark.circle.fill")
-                .font(.system(size: 14))
+                .font(.adaptiveCaption(isRegular: isRegular))
                 .foregroundStyle(isPro ? .cyan : .green)
         case .cross:
             Image(systemName: "xmark")
-                .font(.system(size: 10, weight: .bold))
+                .font(.adaptiveCaption2(isRegular: isRegular).weight(.bold))
                 .foregroundStyle(.red.opacity(0.5))
         case let .text(label):
             Text(label)
-                .font(.caption2.weight(.semibold))
+                .font(.adaptiveCaption2(isRegular: isRegular).weight(.semibold))
                 .foregroundStyle(isPro ? .white : .white.opacity(0.4))
                 .multilineTextAlignment(.center)
         }
@@ -673,6 +688,11 @@ private struct PlanCard: View {
     let savingsText: String?
     let theme: AppTheme
     let action: () -> Void
+
+    @Environment(\.horizontalSizeClass) private var sizeClass
+    private var isRegular: Bool {
+        sizeClass == .regular
+    }
 
     var body: some View {
         Button(action: action) {
@@ -693,8 +713,8 @@ private struct PlanCard: View {
 
                         if let badge {
                             Text(badge)
-                                .font(.system(size: 9, weight: .bold))
-                                .padding(.horizontal, 7)
+                                .font(.adaptiveCaption2(isRegular: isRegular).weight(.bold))
+                                .padding(.horizontal, 8)
                                 .padding(.vertical, 3)
                                 .background(
                                     Capsule().fill(
@@ -733,11 +753,11 @@ private struct PlanCard: View {
 
                     if product.type == .autoRenewable {
                         Text(product.id == SubscriptionManager.yearlyID ? "/year" : "/month")
-                            .font(.caption2)
+                            .font(.adaptiveCaption2(isRegular: isRegular))
                             .foregroundStyle(Color.aquaTextSecondary)
                     } else {
                         Text("one-time")
-                            .font(.caption2)
+                            .font(.adaptiveCaption2(isRegular: isRegular))
                             .foregroundStyle(Color.aquaTextSecondary)
                     }
                 }
@@ -758,6 +778,7 @@ private struct PlanCard: View {
                 color: isSelected ? theme.primary.opacity(0.15) : Color.black.opacity(0.04),
                 radius: isSelected ? 10 : 4, x: 0, y: 3
             )
+            .animation(.spring(response: 0.3, dampingFraction: 0.8), value: isSelected)
         }
         .accessibilityLabel("\(product.displayName), \(product.displayPrice)\(isSelected ? ", selected" : "")\(badge != nil ? ", \(badge!)" : "")")
         .accessibilityHint(isSelected ? "Currently selected plan" : "Double tap to select this plan")
@@ -771,13 +792,18 @@ private struct TrustBadge: View {
     let text: String
     let theme: AppTheme
 
+    @Environment(\.horizontalSizeClass) private var sizeClass
+    private var isRegular: Bool {
+        sizeClass == .regular
+    }
+
     var body: some View {
-        VStack(spacing: 6) {
+        VStack(spacing: 8) {
             Image(systemName: icon)
-                .font(.title3)
+                .font(.adaptiveTitle3(isRegular: isRegular))
                 .foregroundStyle(theme.primary)
             Text(text)
-                .font(.caption2.weight(.medium))
+                .font(.adaptiveCaption(isRegular: isRegular).weight(.medium))
                 .foregroundStyle(Color.aquaTextSecondary)
                 .multilineTextAlignment(.center)
         }
@@ -867,7 +893,7 @@ struct SoftPaywallBanner: View {
         .padding()
         .background(Color.aquaCardBackground, in: RoundedRectangle(cornerRadius: 16))
         .padding(.horizontal)
-        .sheet(isPresented: $showPaywall) {
+        .fullScreenCover(isPresented: $showPaywall) {
             PaywallView()
         }
     }

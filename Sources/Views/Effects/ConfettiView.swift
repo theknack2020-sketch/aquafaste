@@ -10,7 +10,7 @@ struct ConfettiView: View {
 
     private let colors: [Color] = [
         .aquaPrimary, .aquaSecondary, .aquaAccent,
-        .orange, .yellow, .green, .pink, .mint
+        .orange, .yellow, .green, .pink, .mint,
     ]
 
     var body: some View {

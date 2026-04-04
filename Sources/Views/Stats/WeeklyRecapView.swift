@@ -11,13 +11,18 @@ struct WeeklyRecapView: View {
 
     @State private var appeared = false
 
+    @Environment(\.horizontalSizeClass) private var sizeClass
+    private var isRegular: Bool {
+        sizeClass == .regular
+    }
+
     var body: some View {
         ScrollView {
             VStack(spacing: 24) {
                 // Header
                 VStack(spacing: 8) {
                     Image(systemName: "chart.bar.fill")
-                        .font(.system(size: 40))
+                        .font(.adaptiveDisplay(size: 40, weight: .regular, isRegular: isRegular))
                         .foregroundStyle(
                             LinearGradient(colors: [.cyan, .blue], startPoint: .top, endPoint: .bottom)
                         )
@@ -26,7 +31,7 @@ struct WeeklyRecapView: View {
                         .animation(.spring(response: 0.6, dampingFraction: 0.6), value: appeared)
 
                     Text("Weekly Recap")
-                        .font(.system(size: 28, weight: .bold, design: .rounded))
+                        .font(.adaptiveDisplay(size: 28, weight: .bold, design: .rounded, isRegular: isRegular))
 
                     Text("Here's how you did this week")
                         .font(.subheadline)
@@ -37,7 +42,7 @@ struct WeeklyRecapView: View {
                 // Big stat card
                 VStack(spacing: 6) {
                     Text(unit.formatAmount(totalWater))
-                        .font(.system(size: 48, weight: .bold, design: .rounded))
+                        .font(.adaptiveDisplay(size: 48, weight: .bold, design: .rounded, isRegular: isRegular))
                         .foregroundStyle(
                             LinearGradient(colors: [.cyan, .blue], startPoint: .leading, endPoint: .trailing)
                         )
@@ -72,7 +77,7 @@ struct WeeklyRecapView: View {
                         .font(.body.weight(.medium))
                         .multilineTextAlignment(.center)
                     Text(motivationalEmoji)
-                        .font(.system(size: 32))
+                        .font(.adaptiveDisplay(size: 32, weight: .regular, isRegular: isRegular))
                 }
                 .padding()
                 .frame(maxWidth: .infinity)
@@ -116,9 +121,9 @@ struct WeeklyRecapView: View {
     private var motivationalMessage: String {
         switch goalHitDays {
         case 7: "Perfect week! You crushed every single day."
-        case 5...6: "Almost perfect! Keep pushing for that 7/7."
-        case 3...4: "Good effort! Try to hit your goal more consistently."
-        case 1...2: "Room to grow. Small improvements lead to big results."
+        case 5 ... 6: "Almost perfect! Keep pushing for that 7/7."
+        case 3 ... 4: "Good effort! Try to hit your goal more consistently."
+        case 1 ... 2: "Room to grow. Small improvements lead to big results."
         default: "Every drop counts. Let's make next week better!"
         }
     }
@@ -126,8 +131,8 @@ struct WeeklyRecapView: View {
     private var motivationalEmoji: String {
         switch goalHitDays {
         case 7: "🏆"
-        case 5...6: "💪"
-        case 3...4: "👍"
+        case 5 ... 6: "💪"
+        case 3 ... 4: "👍"
         default: "💧"
         }
     }

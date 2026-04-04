@@ -15,35 +15,23 @@ struct HistoryView: View {
     @State private var editDrinkType: DrinkType = .water
     @State private var showEditSheet = false
     @State private var showPaywall = false
+    @Environment(\.horizontalSizeClass) private var sizeClass
+
+    private var isRegular: Bool {
+        sizeClass == .regular
+    }
 
     var body: some View {
         NavigationStack {
             Group {
                 if manager.todayLogs.isEmpty, manager.logsForDate(Calendar.current.date(byAdding: .day, value: -1, to: .now)!).isEmpty, manager.logsForDate(Calendar.current.date(byAdding: .day, value: -2, to: .now)!).isEmpty, profile.currentStreak == 0 {
                     // Empty state
-                    VStack(spacing: 16) {
-                        Spacer()
-
-                        Image(systemName: "calendar.badge.clock")
-                            .font(.system(size: 60))
-                            .foregroundStyle(Color.aquaPrimary)
-                            .symbolEffect(.pulse)
-
-                        Text("No History Yet")
-                            .font(.title3.weight(.bold))
-                            .foregroundStyle(Color.aquaTextPrimary)
-
+                    ContentUnavailableView {
+                        Label("No History Yet", systemImage: "calendar.badge.clock")
+                    } description: {
                         Text("Your hydration journey starts with the first glass. Head to Hydrate and log a drink!")
-                            .font(.subheadline)
-                            .foregroundStyle(.secondary)
-                            .multilineTextAlignment(.center)
-
-                        Spacer()
                     }
-                    .frame(maxWidth: .infinity)
-                    .padding(40)
-                    .accessibilityElement(children: .combine)
-                    .accessibilityLabel("No history yet. Your hydration journey starts with the first glass.")
+                    .symbolEffect(.pulse)
                 } else {
                     ScrollView {
                         VStack(spacing: 24) {
@@ -86,13 +74,14 @@ struct HistoryView: View {
                                 }
                             }
                         }
-                        .padding()
+                        .adaptivePadding(isRegular)
+                        .adaptiveContainer()
                     }
                 }
             }
             .navigationTitle("History")
             .aquaBackgroundGradient()
-            .sheet(isPresented: $showPaywall) {
+            .fullScreenCover(isPresented: $showPaywall) {
                 PaywallView()
             }
             .sheet(isPresented: $showEditSheet) {
@@ -153,7 +142,7 @@ struct HistoryView: View {
                             .fill(profile.currentStreak >= milestone ? Color.orange : Color.gray.opacity(0.3))
                             .frame(width: 12, height: 12)
                         Text("\(milestone)")
-                            .font(.system(size: 8))
+                            .font(.adaptiveCaption2(isRegular: isRegular))
                             .foregroundStyle(.secondary)
                     }
                     .accessibilityLabel("\(milestone) day milestone, \(profile.currentStreak >= milestone ? "reached" : "not reached")")
@@ -169,6 +158,7 @@ struct HistoryView: View {
         .padding()
         .background(Color.aquaCardBackground, in: RoundedRectangle(cornerRadius: 16))
         .shadow(color: Color.orange.opacity(0.1), radius: 8, x: 0, y: 3)
+        .animation(.spring(response: 0.5, dampingFraction: 0.8), value: profile.currentStreak)
     }
 
     private var streakMessage: String {
@@ -250,7 +240,7 @@ struct HistoryView: View {
                     if let ml = value.as(Double.self) {
                         AxisValueLabel {
                             Text(profile.unit.formatAmount(ml))
-                                .font(.caption2)
+                                .font(.adaptiveCaption2(isRegular: isRegular))
                         }
                     }
                 }
@@ -260,13 +250,14 @@ struct HistoryView: View {
                     if let date = value.as(Date.self) {
                         AxisValueLabel {
                             Text(date, format: .dateTime.weekday(.abbreviated))
-                                .font(.caption2)
+                                .font(.adaptiveCaption2(isRegular: isRegular))
                         }
                     }
                 }
             }
             .chartYScale(domain: 0 ... (profile.dailyGoal * 1.3))
             .frame(height: 180)
+            .animation(.spring(response: 0.6), value: manager.todayLogs.count)
 
             // Goal line label
             HStack(spacing: 4) {
@@ -274,7 +265,7 @@ struct HistoryView: View {
                     .fill(Color.aquaPrimary)
                     .frame(width: 8, height: 8)
                 Text("Goal met")
-                    .font(.caption2)
+                    .font(.adaptiveCaption2(isRegular: isRegular))
                     .foregroundStyle(.secondary)
 
                 Circle()
@@ -282,7 +273,7 @@ struct HistoryView: View {
                     .frame(width: 8, height: 8)
                     .padding(.leading, 8)
                 Text("Under goal")
-                    .font(.caption2)
+                    .font(.adaptiveCaption2(isRegular: isRegular))
                     .foregroundStyle(.secondary)
             }
         }
@@ -324,7 +315,7 @@ struct HistoryView: View {
                         .foregroundStyle(Color.aquaPrimary)
                     if caffeine > 0 {
                         Text("\(Int(caffeine))mg ☕")
-                            .font(.caption2)
+                            .font(.adaptiveCaption2(isRegular: isRegular))
                             .foregroundStyle(.brown)
                     }
                 }
@@ -402,6 +393,7 @@ struct HistoryView: View {
                             Label("Delete", systemImage: "trash")
                         }
                     }
+                    .transition(.asymmetric(insertion: .move(edge: .leading).combined(with: .opacity), removal: .opacity))
                 }
             }
         }

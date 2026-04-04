@@ -1,6 +1,9 @@
 import CoreSpotlight
 import Foundation
+import os
 import UIKit
+
+private let logger = Logger(subsystem: "com.theknack.aquafaste", category: "SpotlightManager")
 
 enum SpotlightManager {
     static let domainID = "com.theknack.aquafaste"
@@ -55,7 +58,7 @@ enum SpotlightManager {
 
         CSSearchableIndex.default().indexSearchableItems(items) { error in
             if let error {
-                print("[AquaFaste] Spotlight indexing failed: \(error)")
+                logger.error("Spotlight indexing failed: \(error.localizedDescription)")
             }
         }
     }

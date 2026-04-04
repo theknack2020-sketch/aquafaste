@@ -51,6 +51,11 @@ struct SettingsView: View {
     /// Email
     @State private var showMailError = false
 
+    @Environment(\.horizontalSizeClass) private var sizeClass
+    private var isRegular: Bool {
+        sizeClass == .regular
+    }
+
     var body: some View {
         NavigationStack {
             List {
@@ -68,12 +73,14 @@ struct SettingsView: View {
             }
             .navigationTitle("Settings")
             .scrollContentBackground(.hidden)
+            .listRowSpacing(2)
+            .animation(.spring(response: 0.4, dampingFraction: 0.85), value: remindersEnabled)
             .background(
                 LinearGradient(
                     colors: [
                         Color.aquaGradientStart.opacity(0.25),
                         Color.aquaBackground,
-                        Color.aquaBackground
+                        Color.aquaBackground,
                     ],
                     startPoint: .top,
                     endPoint: .center
@@ -154,7 +161,7 @@ struct SettingsView: View {
         Section {
             HStack(spacing: 14) {
                 Image(systemName: "drop.fill")
-                    .font(.system(size: 32))
+                    .font(.system(size: isRegular ? 40 : 32))
                     .foregroundStyle(Color.aquaGradient)
                     .frame(width: 60, height: 60)
                     .background(
@@ -177,7 +184,7 @@ struct SettingsView: View {
                         .font(.caption)
                         .foregroundStyle(.secondary)
                     Text("Version \(appVersionString)")
-                        .font(.caption2)
+                        .font(.adaptiveCaption2(isRegular: isRegular))
                         .foregroundStyle(.tertiary)
                 }
                 .accessibilityElement(children: .combine)
@@ -200,7 +207,7 @@ struct SettingsView: View {
                         showPaywall = true
                     } else {
                         haptics.selectionChanged()
-                        withAnimation(.easeInOut(duration: 0.25)) {
+                        withAnimation(.spring(response: 0.35, dampingFraction: 0.8)) {
                             selectedThemeRaw = theme.rawValue
                             ThemeManager.shared.setTheme(theme)
                         }
@@ -221,7 +228,7 @@ struct SettingsView: View {
                                 RoundedRectangle(cornerRadius: 6)
                                     .fill(Color.black.opacity(0.3))
                                 Image(systemName: "lock.fill")
-                                    .font(.caption2)
+                                    .font(.adaptiveCaption2(isRegular: isRegular))
                                     .foregroundStyle(.white)
                             }
                         }
@@ -237,7 +244,7 @@ struct SettingsView: View {
 
                         if isLocked {
                             Text("PRO")
-                                .font(.system(size: 9, weight: .bold))
+                                .font(.adaptiveCaption2(isRegular: isRegular).weight(.bold))
                                 .padding(.horizontal, 6)
                                 .padding(.vertical, 2)
                                 .background(Color.orange, in: Capsule())
@@ -264,7 +271,8 @@ struct SettingsView: View {
         } header: {
             Label("Theme", systemImage: "paintpalette.fill")
         }
-        .sheet(isPresented: $showPaywall) {
+        .sensoryFeedback(.selection, trigger: selectedThemeRaw)
+        .fullScreenCover(isPresented: $showPaywall) {
             PaywallView()
         }
     }
@@ -581,7 +589,7 @@ struct SettingsView: View {
                     Text("Open Settings")
                         .font(.caption.weight(.medium))
                     Image(systemName: "arrow.up.forward.app.fill")
-                        .font(.caption2)
+                        .font(.adaptiveCaption2(isRegular: isRegular))
                 }
             }
             .foregroundStyle(Color.aquaPrimary)
@@ -607,7 +615,7 @@ struct SettingsView: View {
                     Spacer()
                     if !subscription.isPro {
                         Text("PRO")
-                            .font(.system(size: 9, weight: .bold))
+                            .font(.adaptiveCaption2(isRegular: isRegular).weight(.bold))
                             .padding(.horizontal, 6)
                             .padding(.vertical, 2)
                             .background(Color.orange, in: Capsule())
@@ -820,7 +828,7 @@ struct SettingsView: View {
             "af_goal_override", "af_streak", "af_last_goal_date", "af_cups",
             "af_reminders_enabled", "af_morning_reminder", "af_evening_summary",
             "af_goal_celebration", "af_streak_reminder", "af_app_theme",
-            "af_first_launch", "af_cup_names", "af_refill_reminder", "af_bottle_size"
+            "af_first_launch", "af_cup_names", "af_refill_reminder", "af_bottle_size",
         ]
         let defaults = UserDefaults.standard
         for key in keys {

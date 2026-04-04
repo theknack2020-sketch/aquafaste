@@ -7,6 +7,11 @@ struct CircularProgressView: View {
     let unit: MeasurementUnit
     var showSplash: Binding<Bool>?
 
+    @Environment(\.horizontalSizeClass) private var sizeClass
+    private var isRegular: Bool {
+        sizeClass == .regular
+    }
+
     @State private var animatedProgress: Double = 0
     @State private var splashTrigger = false
     @State private var glowPulse = false
@@ -102,7 +107,7 @@ struct CircularProgressView: View {
                 // Center content
                 VStack(spacing: 8) {
                     Image(systemName: "drop.fill")
-                        .font(.system(size: 28))
+                        .font(.adaptiveDisplay(size: 28, weight: .regular, isRegular: isRegular))
                         .foregroundStyle(Color.aquaPrimary)
                         .symbolEffect(.bounce, value: splashTrigger)
                         .accessibilityHidden(true)
@@ -110,7 +115,7 @@ struct CircularProgressView: View {
                     AnimatedNumberView(
                         value: currentAmount,
                         unit: unit,
-                        font: .system(size: 36, weight: .bold, design: .rounded),
+                        font: .adaptiveDisplay(size: 36, weight: .bold, design: .rounded, isRegular: isRegular),
                         color: Color.aquaTextPrimary
                     )
                     .accessibilityHidden(true)
@@ -213,7 +218,7 @@ struct WaveView: View {
             with: .linearGradient(
                 Gradient(colors: [
                     Color.aquaGradientStart.opacity(0.35),
-                    Color.aquaGradientEnd.opacity(0.2)
+                    Color.aquaGradientEnd.opacity(0.2),
                 ]),
                 startPoint: gradientStart,
                 endPoint: gradientEnd
@@ -236,7 +241,7 @@ struct WaveView: View {
             with: .linearGradient(
                 Gradient(colors: [
                     Color.aquaGradientEnd.opacity(0.15),
-                    Color.aquaPrimary.opacity(0.1)
+                    Color.aquaPrimary.opacity(0.1),
                 ]),
                 startPoint: CGPoint(x: 0, y: waterHeight),
                 endPoint: CGPoint(x: size.width, y: size.height)

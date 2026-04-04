@@ -1,6 +1,9 @@
 import Foundation
+import os
 import SwiftUI
 import UserNotifications
+
+private let logger = Logger(subsystem: "com.theknack.aquafaste", category: "NotificationManager")
 
 // MARK: - Notification Categories & Identifiers
 
@@ -78,7 +81,7 @@ final class NotificationManager: NSObject, ObservableObject {
             authStatus = granted ? .authorized : .denied
             return granted
         } catch {
-            print("[AquaFaste] Notification auth failed: \(error)")
+            logger.error("Notification auth failed: \(error.localizedDescription)")
             authStatus = .denied
             return false
         }
@@ -139,7 +142,7 @@ final class NotificationManager: NSObject, ObservableObject {
             morningCategory,
             eveningCategory,
             goalCategory,
-            streakCategory
+            streakCategory,
         ])
     }
 
@@ -151,7 +154,7 @@ final class NotificationManager: NSObject, ObservableObject {
         ("Good Morning! ☀️", "Your body needs water after sleep. A glass now kickstarts your metabolism."),
         ("Start Strong 💧", "A glass of water first thing sets the tone for a great day."),
         ("Morning Energy ☕", "Morning hydration = morning energy. Let's go!"),
-        ("Wake Up, Drink Up! 💧", "Your cells are thirsty after 8 hours. Hydrate to feel sharp and focused.")
+        ("Wake Up, Drink Up! 💧", "Your cells are thirsty after 8 hours. Hydrate to feel sharp and focused."),
     ]
 
     /// Streak protection messages — with {streak} placeholder
@@ -160,7 +163,7 @@ final class NotificationManager: NSObject, ObservableObject {
         "Your streak is at risk! One glass keeps it alive.",
         "{streak} days strong. Keep it going! 💪",
         "Almost lost it! Quick — log a drink to save your streak.",
-        "Streak alert: Log water now to stay on track. 🏆"
+        "Streak alert: Log water now to stay on track. 🏆",
     ]
 
     /// Evening summary messages — dynamic based on progress
@@ -169,7 +172,7 @@ final class NotificationManager: NSObject, ObservableObject {
         "Hydration champion! {percentage}% of your goal — crushed it! 💧",
         "Day complete. You logged {count} drinks today. Nice! ✅",
         "Goal smashed! {amount} logged. Your body thanks you. 🎯",
-        "Another perfect day — {percentage}% hydrated. Keep it up! 🏆"
+        "Another perfect day — {percentage}% hydrated. Keep it up! 🏆",
     ]
 
     private static let eveningGoalNotMetMessages: [String] = [
@@ -177,7 +180,7 @@ final class NotificationManager: NSObject, ObservableObject {
         "Hydration recap: {percentage}% of your goal today. Almost there!",
         "So close! Just {remaining} more to hit 100%. 🎯",
         "You drank {amount} today ({percentage}%). A bit more before bed?",
-        "Evening check: {remaining} left to reach your target. 💧"
+        "Evening check: {remaining} left to reach your target. 💧",
     ]
 
     /// Inactivity nudge messages — for 3+ days absence
@@ -186,7 +189,7 @@ final class NotificationManager: NSObject, ObservableObject {
         "It's been a while. A fresh glass of water awaits.",
         "Ready to restart? Your body will thank you. 🙏",
         "Let's build that streak back! One glass to begin. 💪",
-        "Water break — your hydration journey doesn't end here. 🌊"
+        "Water break — your hydration journey doesn't end here. 🌊",
     ]
 
     /// Get a random message for a type, with variable substitution
@@ -441,19 +444,19 @@ final class NotificationManager: NSObject, ObservableObject {
             [
                 "You've hit your daily hydration goal! That's \(streak) days in a row. Legendary! 🔥",
                 "Goal crushed — \(streak)-day streak and counting. You're a hydration machine! 🏆",
-                "\(streak) days strong! Your consistency is impressive. Keep dominating! 💪"
+                "\(streak) days strong! Your consistency is impressive. Keep dominating! 💪",
             ]
         } else if streak > 1 {
             [
                 "You've hit your daily hydration goal! That's \(streak) days in a row. You're on fire! 🔥",
                 "Daily goal — done. \(streak)-day streak is growing! 💪",
-                "Another day, another goal crushed. \(streak) days and counting! 🌟"
+                "Another day, another goal crushed. \(streak) days and counting! 🌟",
             ]
         } else {
             [
                 "You've reached your daily hydration goal. Great job staying hydrated!",
                 "Daily goal achieved! Your body thanks you. Keep it going tomorrow! 💧",
-                "100% hydrated today — that's how it's done! 🎯"
+                "100% hydrated today — that's how it's done! 🎯",
             ]
         }
 
@@ -541,7 +544,7 @@ final class NotificationManager: NSObject, ObservableObject {
             ("Stay sharp! 🎯", "Dehydration drops cognitive performance by up to 25%."),
             ("Your body needs you 💪", "Every cell in your body needs water to function."),
             ("Refill time! 🔄", "Top up your water bottle and take a few sips."),
-            ("Glow up! ✨", "Hydrated skin is happy skin. Drink some water.")
+            ("Glow up! ✨", "Hydrated skin is happy skin. Drink some water."),
         ]
 
         // Use hour + day-of-year for rotation so messages vary across hours and days

@@ -11,6 +11,19 @@ struct StatsView: View {
     private let sounds = SoundManager.shared
 
     @State private var showPaywall = false
+    @Environment(\.horizontalSizeClass) private var sizeClass
+
+    private var isRegular: Bool {
+        sizeClass == .regular
+    }
+
+    private var sizes: AdaptiveSizes {
+        AdaptiveSizes(isRegular: isRegular)
+    }
+
+    private var adaptiveSpacing: AdaptiveSpacing {
+        AdaptiveSpacing(isRegular: isRegular)
+    }
 
     var body: some View {
         NavigationStack {
@@ -25,45 +38,29 @@ struct StatsView: View {
             .navigationBarTitleDisplayMode(.large)
             .background(Color.aquaBackground)
             .aquaBackgroundGradient()
-            .sheet(isPresented: $showPaywall) {
+            .fullScreenCover(isPresented: $showPaywall) {
                 PaywallView()
             }
+            .onAppear { haptics.tabChange() }
         }
     }
 
     // MARK: - Empty State
 
     private var emptyState: some View {
-        VStack(spacing: 16) {
-            Spacer()
-
-            Image(systemName: "chart.bar.xaxis")
-                .font(.system(size: 60))
-                .foregroundStyle(Color.aquaPrimary)
-                .symbolEffect(.pulse)
-
-            Text("Not Enough Data Yet")
-                .font(.title3.weight(.bold))
-                .foregroundStyle(Color.aquaTextPrimary)
-
+        ContentUnavailableView {
+            Label("Not Enough Data Yet", systemImage: "chart.bar.xaxis")
+        } description: {
             Text("Track for 3+ days to see your patterns. The more you log, the smarter your insights.")
-                .font(.subheadline)
-                .foregroundStyle(.secondary)
-                .multilineTextAlignment(.center)
-
-            Spacer()
         }
-        .frame(maxWidth: .infinity)
-        .padding(40)
-        .accessibilityElement(children: .combine)
-        .accessibilityLabel("Not enough data yet. Track for three or more days to see your patterns.")
+        .symbolEffect(.pulse)
     }
 
     // MARK: - Stats Content
 
     private var statsContent: some View {
         ScrollView {
-            VStack(spacing: 24) {
+            VStack(spacing: adaptiveSpacing.section) {
                 hydrationScoreCard
                 summaryCards
 
@@ -107,7 +104,8 @@ struct StatsView: View {
                 // Personal Insights
                 insightsSection
             }
-            .padding()
+            .adaptivePadding(isRegular)
+            .adaptiveContainer()
         }
     }
 
@@ -116,18 +114,19 @@ struct StatsView: View {
     private var hydrationScoreCard: some View {
         let score = insights.hydrationScore(from: manager.allLogs())
         let scoreColor = scoreGradientColor(score)
+        let ringSize: CGFloat = isRegular ? 160 : 130
 
-        return VStack(spacing: 16) {
+        return VStack(spacing: adaptiveSpacing.md) {
             Text("HYDRATION SCORE")
-                .font(.system(size: 11, weight: .bold, design: .rounded))
+                .font(.adaptiveBadge(isRegular: isRegular))
                 .tracking(1.5)
                 .foregroundStyle(Color.aquaTextSecondary)
 
             ZStack {
                 // Background track
                 Circle()
-                    .stroke(Color.aquaPrimary.opacity(0.10), lineWidth: 12)
-                    .frame(width: 130, height: 130)
+                    .stroke(Color.aquaPrimary.opacity(0.10), lineWidth: isRegular ? 14 : 12)
+                    .frame(width: ringSize, height: ringSize)
 
                 // Progress arc
                 Circle()
@@ -137,26 +136,27 @@ struct StatsView: View {
                             colors: [scoreColor.opacity(0.6), scoreColor],
                             center: .center
                         ),
-                        style: StrokeStyle(lineWidth: 12, lineCap: .round)
+                        style: StrokeStyle(lineWidth: isRegular ? 14 : 12, lineCap: .round)
                     )
-                    .frame(width: 130, height: 130)
+                    .frame(width: ringSize, height: ringSize)
                     .rotationEffect(.degrees(-90))
 
                 // Score number
                 VStack(spacing: 2) {
                     Text("\(score)")
-                        .font(.system(size: 44, weight: .bold, design: .rounded))
+                        .font(.adaptiveDisplay(size: 44, weight: .bold, design: .rounded, isRegular: isRegular))
                         .foregroundStyle(scoreColor)
                         .contentTransition(.numericText())
+                        .animation(.spring(response: 0.6, dampingFraction: 0.7), value: score)
 
                     Text("out of 100")
-                        .font(.system(size: 11, weight: .medium))
+                        .font(.adaptiveCaption(isRegular: isRegular).weight(.medium))
                         .foregroundStyle(Color.aquaTextSecondary)
                 }
             }
 
             Text(scoreLabel(score))
-                .font(.subheadline.weight(.semibold))
+                .font(.adaptiveSubheadline(isRegular: isRegular).weight(.semibold))
                 .foregroundStyle(scoreColor)
         }
         .frame(maxWidth: .infinity)
@@ -298,13 +298,13 @@ struct StatsView: View {
 
                     VStack(alignment: .leading, spacing: 2) {
                         Text(item.title)
-                            .font(.caption)
+                            .font(.adaptiveCaption(isRegular: isRegular))
                             .foregroundStyle(.secondary)
                         Text(item.value)
-                            .font(.subheadline.weight(.bold))
+                            .font(.adaptiveSubheadline(isRegular: isRegular).weight(.bold))
                             .foregroundStyle(Color.aquaTextPrimary)
                         Text(item.subtitle)
-                            .font(.caption2)
+                            .font(.adaptiveCaption(isRegular: isRegular))
                             .foregroundStyle(.tertiary)
                     }
 
@@ -341,9 +341,9 @@ struct StatsView: View {
                     .font(.headline)
                 Spacer()
                 Text("PRO")
-                    .font(.system(size: 9, weight: .bold))
-                    .padding(.horizontal, 6)
-                    .padding(.vertical, 2)
+                    .font(.adaptiveCaption2(isRegular: isRegular).weight(.bold))
+                    .padding(.horizontal, 8)
+                    .padding(.vertical, 3)
                     .background(Color.orange, in: Capsule())
                     .foregroundStyle(.white)
             }
@@ -426,10 +426,15 @@ private struct StatCard: View {
     let value: String
     let unit: String
 
+    @Environment(\.horizontalSizeClass) private var sizeClass
+    private var isRegular: Bool {
+        sizeClass == .regular
+    }
+
     var body: some View {
-        VStack(alignment: .leading, spacing: 8) {
+        VStack(alignment: .leading, spacing: isRegular ? 10 : 8) {
             Image(systemName: icon)
-                .font(.title3)
+                .font(.adaptiveTitle3(isRegular: isRegular))
                 .foregroundStyle(iconColor)
 
             Text(value)
@@ -440,14 +445,15 @@ private struct StatCard: View {
 
             if !unit.isEmpty {
                 Text(unit)
-                    .font(.caption)
+                    .font(.adaptiveCaption(isRegular: isRegular))
                     .foregroundStyle(.secondary)
             }
 
             Text(title)
-                .font(.caption2)
+                .font(.adaptiveCaption(isRegular: isRegular))
                 .foregroundStyle(.secondary)
                 .lineLimit(1)
+                .minimumScaleFactor(0.75)
         }
         .frame(maxWidth: .infinity, alignment: .leading)
         .padding()
@@ -465,15 +471,20 @@ private struct StatCardWide: View {
     let value: String
     let subtitle: String
 
+    @Environment(\.horizontalSizeClass) private var sizeClass
+    private var isRegular: Bool {
+        sizeClass == .regular
+    }
+
     var body: some View {
-        HStack(spacing: 12) {
+        HStack(spacing: isRegular ? 16 : 12) {
             Image(systemName: icon)
                 .font(.title2)
                 .foregroundStyle(iconColor)
 
             VStack(alignment: .leading, spacing: 2) {
                 Text(title)
-                    .font(.caption)
+                    .font(.adaptiveCaption(isRegular: isRegular))
                     .foregroundStyle(.secondary)
                 Text(value)
                     .font(.title2.weight(.bold))
@@ -483,7 +494,7 @@ private struct StatCardWide: View {
             Spacer()
 
             Text(subtitle)
-                .font(.caption2)
+                .font(.adaptiveCaption(isRegular: isRegular))
                 .foregroundStyle(.tertiary)
         }
         .padding()

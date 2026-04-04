@@ -1,6 +1,9 @@
 import Foundation
+import os
 import SwiftUI
 import UniformTypeIdentifiers
+
+private let logger = Logger(subsystem: "com.theknack.aquafaste", category: "CSVExporter")
 
 /// Generates CSV data from hydration logs for export
 enum CSVExporter {
@@ -49,7 +52,7 @@ enum CSVExporter {
             try csv.write(to: fileURL, atomically: true, encoding: .utf8)
             return fileURL
         } catch {
-            print("[AquaFaste] Failed to write CSV: \(error)")
+            logger.error("Failed to write CSV: \(error.localizedDescription)")
             return nil
         }
     }

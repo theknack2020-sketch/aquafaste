@@ -1,6 +1,9 @@
 import Foundation
+import os
 import SwiftData
 import SwiftUI
+
+private let logger = Logger(subsystem: "com.theknack.aquafaste", category: "AchievementManager")
 
 /// Manages achievement definitions, progress checking, and unlock celebrations.
 @Observable @MainActor
@@ -45,7 +48,7 @@ final class AchievementManager {
 
         // Timing
         ("early_bird", "Early Bird", "Log a drink before 7:00 AM", "sunrise.fill", .timing, .bronze),
-        ("night_owl", "Night Hydrator", "Log a drink after 10:00 PM", "moon.fill", .timing, .bronze)
+        ("night_owl", "Night Hydrator", "Log a drink after 10:00 PM", "moon.fill", .timing, .bronze),
     ]
 
     // MARK: - Setup
@@ -70,7 +73,7 @@ final class AchievementManager {
         do {
             try context.save()
         } catch {
-            print("[AquaFaste] Failed to seed achievements: \(error)")
+            logger.error("Failed to seed achievements: \(error.localizedDescription)")
         }
 
         achievements = fetchAll(context: context)
@@ -96,7 +99,7 @@ final class AchievementManager {
         do {
             try context.save()
         } catch {
-            print("[AquaFaste] Failed to save unlocked achievements: \(error)")
+            logger.error("Failed to save unlocked achievements: \(error.localizedDescription)")
         }
 
         // Refresh local copy

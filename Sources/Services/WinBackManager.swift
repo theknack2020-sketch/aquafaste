@@ -132,7 +132,7 @@ struct WinBackOverlay: View {
     }
 
     private func dismiss() {
-        withAnimation(.easeIn(duration: 0.2)) { appeared = false }
+        withAnimation(.spring(response: 0.25, dampingFraction: 0.9)) { appeared = false }
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.25) { onDismiss() }
     }
 }

@@ -1,7 +1,10 @@
 import Foundation
+import os
 import SwiftData
 import SwiftUI
 import TelemetryDeck
+
+private let logger = Logger(subsystem: "com.theknack.aquafaste", category: "HydrationManager")
 
 @Observable @MainActor
 final class HydrationManager {
@@ -50,13 +53,13 @@ final class HydrationManager {
 
         TelemetryDeck.signal("water.logged", parameters: [
             "amount": "\(Int(amount))",
-            "drinkType": drinkType.rawValue
+            "drinkType": drinkType.rawValue,
         ])
 
         do {
             try context.save()
         } catch {
-            print("[AquaFaste] Failed to save water log: \(error)")
+            logger.error("Failed to save water log: \(error.localizedDescription)")
             presentError(
                 title: "Couldn't Save Drink",
                 message: "Couldn't save your drink. Try again?"
@@ -100,7 +103,7 @@ final class HydrationManager {
         do {
             try context.save()
         } catch {
-            print("[AquaFaste] Failed to delete log: \(error)")
+            logger.error("Failed to delete log: \(error.localizedDescription)")
             presentError(
                 title: "Couldn't Remove Entry",
                 message: "Couldn't remove that entry. Please try once more."
@@ -120,7 +123,7 @@ final class HydrationManager {
             do {
                 try context.save()
             } catch {
-                print("[AquaFaste] Failed to delete all logs: \(error)")
+                logger.error("Failed to delete all logs: \(error.localizedDescription)")
                 presentError(
                     title: "Reset Failed",
                     message: "Something went wrong. Your data is safe — try again in a moment."
@@ -143,7 +146,7 @@ final class HydrationManager {
         do {
             try modelContext?.save()
         } catch {
-            print("[AquaFaste] Failed to edit log: \(error)")
+            logger.error("Failed to edit log: \(error.localizedDescription)")
             presentError(
                 title: "Couldn't Save Changes",
                 message: "Couldn't save your drink. Try again?"
@@ -219,7 +222,7 @@ final class HydrationManager {
         do {
             try context.save()
         } catch {
-            print("[AquaFaste] Failed to save favorite: \(error)")
+            logger.error("Failed to save favorite: \(error.localizedDescription)")
             presentError(
                 title: "Couldn't Save Favorite",
                 message: "Couldn't save your drink. Try again?"
@@ -233,7 +236,7 @@ final class HydrationManager {
         do {
             try context.save()
         } catch {
-            print("[AquaFaste] Failed to delete favorite: \(error)")
+            logger.error("Failed to delete favorite: \(error.localizedDescription)")
             presentError(
                 title: "Couldn't Remove Favorite",
                 message: "Couldn't remove that entry. Please try once more."
@@ -271,7 +274,7 @@ final class HydrationManager {
         let saved = profile.lastTimezoneIdentifier
 
         if current != saved {
-            print("[AquaFaste] Timezone changed: \(saved) → \(current)")
+            logger.info("Timezone changed: \(saved) → \(current)")
             profile.lastTimezoneIdentifier = current
             // Force refresh — Calendar.current uses the new timezone automatically
             // so startOfDay calculations will be correct for the new timezone
@@ -304,15 +307,15 @@ final class HydrationManager {
 
             // Update widget data (when widget extension is configured)
             #if canImport(WidgetKit)
-            if let defaults = UserDefaults(suiteName: "group.com.theknack.aquafaste") {
-                defaults.set(todayTotal, forKey: "todayTotal")
-                defaults.set(profile.dailyGoal, forKey: "dailyGoal")
-                defaults.set(todayLogs.count, forKey: "drinkCount")
-                defaults.set(Date().timeIntervalSince1970, forKey: "lastUpdate")
-            }
+                if let defaults = UserDefaults(suiteName: "group.com.theknack.aquafaste") {
+                    defaults.set(todayTotal, forKey: "todayTotal")
+                    defaults.set(profile.dailyGoal, forKey: "dailyGoal")
+                    defaults.set(todayLogs.count, forKey: "drinkCount")
+                    defaults.set(Date().timeIntervalSince1970, forKey: "lastUpdate")
+                }
             #endif
         } catch {
-            print("[AquaFaste] Failed to fetch today's logs: \(error)")
+            logger.error("Failed to fetch today's logs: \(error.localizedDescription)")
         }
     }
 

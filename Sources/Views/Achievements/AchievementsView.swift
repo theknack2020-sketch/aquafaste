@@ -7,11 +7,17 @@ struct AchievementsView: View {
 
     private let manager = AchievementManager.shared
     private let theme = ThemeManager.shared.effectiveTheme
+    private let haptics = HapticManager.shared
 
-    private let columns = [
-        GridItem(.flexible(), spacing: 12),
-        GridItem(.flexible(), spacing: 12)
-    ]
+    @Environment(\.horizontalSizeClass) private var sizeClass
+    private var isRegular: Bool {
+        sizeClass == .regular
+    }
+
+    private var columns: [GridItem] {
+        let count = isRegular ? 4 : 3
+        return Array(repeating: GridItem(.flexible(), spacing: 12), count: count)
+    }
 
     var body: some View {
         NavigationStack {
@@ -22,24 +28,12 @@ struct AchievementsView: View {
 
                     // Empty state when no achievements unlocked
                     if manager.unlockedCount == 0 {
-                        VStack(spacing: 16) {
-                            Image(systemName: "trophy")
-                                .font(.system(size: 60))
-                                .foregroundStyle(theme.primary)
-                                .symbolEffect(.pulse)
-
-                            Text("Your Trophy Case Awaits")
-                                .font(.title3.weight(.bold))
-                                .foregroundStyle(Color.primary)
-
+                        ContentUnavailableView {
+                            Label("Your Trophy Case Awaits", systemImage: "trophy")
+                        } description: {
                             Text("Start tracking to unlock your first achievement. Every streak starts with day one!")
-                                .font(.subheadline)
-                                .foregroundStyle(.secondary)
-                                .multilineTextAlignment(.center)
                         }
-                        .padding(40)
-                        .accessibilityElement(children: .combine)
-                        .accessibilityLabel("Your trophy case awaits. Start tracking to unlock your first achievement.")
+                        .symbolEffect(.pulse)
                     }
 
                     // Achievement grid by category
@@ -56,6 +50,7 @@ struct AchievementsView: View {
             .background(Color(.systemGroupedBackground))
             .aquaBackgroundGradient()
             .onAppear {
+                HapticManager.shared.tabChange()
                 manager.setupAchievements(context: modelContext)
             }
         }
@@ -72,23 +67,24 @@ struct AchievementsView: View {
                     .frame(width: 64, height: 64)
 
                 Image(systemName: "trophy.fill")
-                    .font(.system(size: 28, weight: .medium))
+                    .font(.adaptiveDisplay(size: 28, weight: .medium, isRegular: isRegular))
                     .foregroundStyle(theme.primary)
+                    .symbolEffect(.bounce, value: manager.unlockedCount)
             }
 
             // Counter
             HStack(spacing: 4) {
                 Text("\(manager.unlockedCount)")
-                    .font(.system(size: 28, weight: .bold, design: .rounded))
+                    .font(.adaptiveDisplay(size: 28, weight: .bold, design: .rounded, isRegular: isRegular))
                     .foregroundStyle(theme.primary)
                     .contentTransition(.numericText())
 
                 Text("of \(manager.totalCount)")
-                    .font(.system(size: 20, weight: .medium, design: .rounded))
+                    .font(.adaptiveTitle3(isRegular: isRegular).weight(.medium))
                     .foregroundStyle(.secondary)
 
                 Text("Unlocked")
-                    .font(.system(size: 14, weight: .regular, design: .rounded))
+                    .font(.adaptiveCaption(isRegular: isRegular))
                     .foregroundStyle(.tertiary)
                     .padding(.leading, 2)
             }
@@ -134,7 +130,7 @@ struct AchievementsView: View {
             // Section header
             HStack(spacing: 6) {
                 Image(systemName: category.iconName)
-                    .font(.system(size: 13, weight: .semibold))
+                    .font(.adaptiveCaption(isRegular: isRegular).weight(.semibold))
                     .foregroundStyle(theme.primary.opacity(0.70))
 
                 Text(category.displayName)

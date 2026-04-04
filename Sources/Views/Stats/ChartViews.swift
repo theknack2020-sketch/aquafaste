@@ -7,8 +7,13 @@ struct WeeklyBarChart: View {
     let data: [(day: String, amount: Double, goal: Double)]
     private let profile = UserProfile.shared
 
+    @Environment(\.horizontalSizeClass) private var sizeClass
+    private var isRegular: Bool {
+        sizeClass == .regular
+    }
+
     var body: some View {
-        VStack(alignment: .leading, spacing: 12) {
+        VStack(alignment: .leading, spacing: isRegular ? 16 : 12) {
             ChartSectionHeader(title: "This Week", icon: "chart.bar.fill")
 
             Chart {
@@ -31,7 +36,7 @@ struct WeeklyBarChart: View {
                         .foregroundStyle(Color.aquaTextSecondary.opacity(0.5))
                         .annotation(position: .top, alignment: .trailing) {
                             Text("Goal")
-                                .font(.system(size: 9, weight: .medium))
+                                .font(.chartAxisLabel(isRegular: isRegular))
                                 .foregroundStyle(Color.aquaTextSecondary)
                         }
                 }
@@ -41,7 +46,7 @@ struct WeeklyBarChart: View {
                     if let ml = value.as(Double.self) {
                         AxisValueLabel {
                             Text(profile.unit.formatAmount(ml))
-                                .font(.caption2)
+                                .font(.adaptiveCaption2(isRegular: isRegular))
                         }
                         AxisGridLine(stroke: StrokeStyle(lineWidth: 0.5))
                             .foregroundStyle(Color.gray.opacity(0.15))
@@ -53,13 +58,13 @@ struct WeeklyBarChart: View {
                     AxisValueLabel {
                         if let day = value.as(String.self) {
                             Text(day)
-                                .font(.caption2)
+                                .font(.adaptiveCaption2(isRegular: isRegular))
                         }
                     }
                 }
             }
             .chartYScale(domain: 0 ... chartYMax)
-            .frame(height: 200)
+            .frame(height: AdaptiveSizes(isRegular: isRegular).chartHeight)
 
             // Legend
             HStack(spacing: 16) {
@@ -70,7 +75,7 @@ struct WeeklyBarChart: View {
                         .fill(Color.aquaTextSecondary.opacity(0.5))
                         .frame(width: 16, height: 1)
                     Text("Goal")
-                        .font(.caption2)
+                        .font(.adaptiveCaption2(isRegular: isRegular))
                         .foregroundStyle(.secondary)
                 }
             }
@@ -91,28 +96,40 @@ struct WeeklyBarChart: View {
 struct MonthlyHeatmapGrid: View {
     let data: [(date: Date, percentage: Double)]
     private let calendar = Calendar.current
-    private let columns = Array(repeating: GridItem(.flexible(), spacing: 6), count: 7)
     private let dayLabels = ["M", "T", "W", "T", "F", "S", "S"]
 
+    @Environment(\.horizontalSizeClass) private var sizeClass
+    private var isRegular: Bool {
+        sizeClass == .regular
+    }
+
+    private var cellSize: CGFloat {
+        isRegular ? 36 : 28
+    }
+
+    private var columns: [GridItem] {
+        Array(repeating: GridItem(.flexible(), spacing: isRegular ? 8 : 6), count: 7)
+    }
+
     var body: some View {
-        VStack(alignment: .leading, spacing: 12) {
+        VStack(alignment: .leading, spacing: isRegular ? 16 : 12) {
             ChartSectionHeader(title: "Last 30 Days", icon: "calendar")
 
             // Day header row
             HStack(spacing: 0) {
                 ForEach(dayLabels.indices, id: \.self) { i in
                     Text(dayLabels[i])
-                        .font(.system(size: 10, weight: .semibold))
+                        .font(.adaptiveCaption(isRegular: isRegular).weight(.semibold))
                         .foregroundStyle(.secondary)
                         .frame(maxWidth: .infinity)
                 }
             }
 
-            LazyVGrid(columns: columns, spacing: 6) {
+            LazyVGrid(columns: columns, spacing: isRegular ? 8 : 6) {
                 // Leading padding for grid alignment
                 ForEach(0 ..< leadingPadding, id: \.self) { _ in
                     Color.clear
-                        .frame(height: 28)
+                        .frame(height: cellSize)
                 }
 
                 ForEach(Array(data.enumerated()), id: \.offset) { _, item in
@@ -120,11 +137,11 @@ struct MonthlyHeatmapGrid: View {
 
                     Circle()
                         .fill(isFuture ? Color.gray.opacity(0.08) : heatmapColor(for: item.percentage))
-                        .frame(height: 28)
+                        .frame(height: cellSize)
                         .overlay {
                             if !isFuture {
                                 Text("\(calendar.component(.day, from: item.date))")
-                                    .font(.system(size: 9, weight: .medium))
+                                    .font(.chartAxisLabel(isRegular: isRegular))
                                     .foregroundStyle(
                                         item.percentage >= 0.75 ? .white : Color.aquaTextPrimary
                                     )
@@ -134,17 +151,17 @@ struct MonthlyHeatmapGrid: View {
             }
 
             // Legend
-            HStack(spacing: 6) {
+            HStack(spacing: isRegular ? 8 : 6) {
                 Text("0%")
-                    .font(.system(size: 9))
+                    .font(.adaptiveCaption2(isRegular: isRegular))
                     .foregroundStyle(.secondary)
                 ForEach([0.0, 0.25, 0.5, 0.75, 1.0], id: \.self) { pct in
                     Circle()
                         .fill(heatmapColor(for: pct))
-                        .frame(width: 14, height: 14)
+                        .frame(width: isRegular ? 16 : 14, height: isRegular ? 16 : 14)
                 }
                 Text("100%+")
-                    .font(.system(size: 9))
+                    .font(.adaptiveCaption2(isRegular: isRegular))
                     .foregroundStyle(.secondary)
             }
             .frame(maxWidth: .infinity, alignment: .center)
@@ -174,13 +191,18 @@ struct DrinkTypeDonutChart: View {
     let data: [(type: DrinkType, amount: Double, percentage: Double)]
     private let profile = UserProfile.shared
 
+    @Environment(\.horizontalSizeClass) private var sizeClass
+    private var isRegular: Bool {
+        sizeClass == .regular
+    }
+
     var body: some View {
-        VStack(alignment: .leading, spacing: 12) {
+        VStack(alignment: .leading, spacing: isRegular ? 16 : 12) {
             ChartSectionHeader(title: "Drink Breakdown", icon: "chart.pie.fill")
 
             if data.isEmpty {
                 Text("No data yet")
-                    .font(.subheadline)
+                    .font(.adaptiveSubheadline(isRegular: isRegular))
                     .foregroundStyle(.secondary)
                     .frame(maxWidth: .infinity, alignment: .center)
                     .padding(.vertical, 20)
@@ -194,32 +216,32 @@ struct DrinkTypeDonutChart: View {
                     .foregroundStyle(item.type.color)
                     .cornerRadius(4)
                 }
-                .frame(height: 200)
+                .frame(height: AdaptiveSizes(isRegular: isRegular).chartHeight)
 
                 // Legend list
-                VStack(spacing: 8) {
+                VStack(spacing: isRegular ? 10 : 8) {
                     ForEach(Array(data.prefix(6).enumerated()), id: \.offset) { _, item in
                         HStack(spacing: 10) {
                             Circle()
                                 .fill(item.type.color)
-                                .frame(width: 10, height: 10)
+                                .frame(width: isRegular ? 12 : 10, height: isRegular ? 12 : 10)
 
                             Image(systemName: item.type.iconName)
-                                .font(.caption)
+                                .font(.adaptiveCaption(isRegular: isRegular))
                                 .foregroundStyle(item.type.color)
-                                .frame(width: 20)
+                                .frame(width: isRegular ? 24 : 20)
 
                             Text(item.type.displayName)
-                                .font(.subheadline)
+                                .font(.adaptiveSubheadline(isRegular: isRegular))
 
                             Spacer()
 
                             Text(profile.unit.formatAmount(item.amount))
-                                .font(.caption.weight(.medium))
+                                .font(.adaptiveCaption(isRegular: isRegular).weight(.medium))
                                 .foregroundStyle(.secondary)
 
                             Text("\(Int(item.percentage))%")
-                                .font(.caption.weight(.semibold))
+                                .font(.adaptiveCaption(isRegular: isRegular).weight(.semibold))
                                 .foregroundStyle(Color.aquaPrimary)
                                 .frame(width: 36, alignment: .trailing)
                         }
@@ -237,8 +259,13 @@ struct TimeOfDayAreaChart: View {
     let data: [(hour: Int, amount: Double)]
     private let profile = UserProfile.shared
 
+    @Environment(\.horizontalSizeClass) private var sizeClass
+    private var isRegular: Bool {
+        sizeClass == .regular
+    }
+
     var body: some View {
-        VStack(alignment: .leading, spacing: 12) {
+        VStack(alignment: .leading, spacing: isRegular ? 16 : 12) {
             ChartSectionHeader(title: "When You Drink", icon: "clock.fill")
 
             Chart {
@@ -251,7 +278,7 @@ struct TimeOfDayAreaChart: View {
                         LinearGradient(
                             colors: [
                                 Color.aquaGradientStart.opacity(0.4),
-                                Color.aquaGradientEnd.opacity(0.08)
+                                Color.aquaGradientEnd.opacity(0.08),
                             ],
                             startPoint: .top,
                             endPoint: .bottom
@@ -273,7 +300,7 @@ struct TimeOfDayAreaChart: View {
                     if let hour = value.as(Int.self) {
                         AxisValueLabel {
                             Text(Self.hourLabel(hour))
-                                .font(.caption2)
+                                .font(.adaptiveCaption2(isRegular: isRegular))
                         }
                     }
                 }
@@ -283,7 +310,7 @@ struct TimeOfDayAreaChart: View {
                     if let ml = value.as(Double.self) {
                         AxisValueLabel {
                             Text(profile.unit.formatAmount(ml))
-                                .font(.caption2)
+                                .font(.adaptiveCaption2(isRegular: isRegular))
                         }
                         AxisGridLine(stroke: StrokeStyle(lineWidth: 0.5))
                             .foregroundStyle(Color.gray.opacity(0.15))
@@ -291,16 +318,16 @@ struct TimeOfDayAreaChart: View {
                 }
             }
             .chartYScale(domain: 0 ... (chartYMax * 1.15))
-            .frame(height: 180)
+            .frame(height: AdaptiveSizes(isRegular: isRegular).chartHeight - 20)
 
             // Peak hour callout
             if let peak = data.max(by: { $0.amount < $1.amount }), peak.amount > 0 {
                 HStack(spacing: 6) {
                     Image(systemName: "star.fill")
-                        .font(.caption)
+                        .font(.adaptiveCaption(isRegular: isRegular))
                         .foregroundStyle(.yellow)
                     Text("Peak: \(Self.hourLabel(peak.hour))")
-                        .font(.caption)
+                        .font(.adaptiveCaption(isRegular: isRegular))
                         .foregroundStyle(.secondary)
                 }
             }
@@ -327,8 +354,13 @@ struct TimeOfDayAreaChart: View {
 struct CaffeineLineChart: View {
     let data: [(day: String, mg: Double)]
 
+    @Environment(\.horizontalSizeClass) private var sizeClass
+    private var isRegular: Bool {
+        sizeClass == .regular
+    }
+
     var body: some View {
-        VStack(alignment: .leading, spacing: 12) {
+        VStack(alignment: .leading, spacing: isRegular ? 16 : 12) {
             ChartSectionHeader(title: "Caffeine Trend", icon: "bolt.fill")
 
             Chart {
@@ -343,7 +375,7 @@ struct CaffeineLineChart: View {
                     .symbol {
                         Circle()
                             .fill(Color.orange)
-                            .frame(width: 7, height: 7)
+                            .frame(width: isRegular ? 9 : 7, height: isRegular ? 9 : 7)
                     }
 
                     AreaMark(
@@ -366,7 +398,7 @@ struct CaffeineLineChart: View {
                     .foregroundStyle(.red.opacity(0.6))
                     .annotation(position: .top, alignment: .leading) {
                         Text("400mg limit")
-                            .font(.system(size: 9, weight: .medium))
+                            .font(.chartAxisLabel(isRegular: isRegular))
                             .foregroundStyle(.red.opacity(0.7))
                     }
             }
@@ -375,7 +407,7 @@ struct CaffeineLineChart: View {
                     if let mg = value.as(Double.self) {
                         AxisValueLabel {
                             Text("\(Int(mg))mg")
-                                .font(.caption2)
+                                .font(.adaptiveCaption2(isRegular: isRegular))
                         }
                         AxisGridLine(stroke: StrokeStyle(lineWidth: 0.5))
                             .foregroundStyle(Color.gray.opacity(0.15))
@@ -387,23 +419,23 @@ struct CaffeineLineChart: View {
                     AxisValueLabel {
                         if let day = value.as(String.self) {
                             Text(day)
-                                .font(.caption2)
+                                .font(.adaptiveCaption2(isRegular: isRegular))
                         }
                     }
                 }
             }
             .chartYScale(domain: 0 ... chartYMax)
-            .frame(height: 180)
+            .frame(height: AdaptiveSizes(isRegular: isRegular).chartHeight - 20)
 
             // Average callout
             let avgMg = data.map(\.mg).reduce(0, +) / Double(max(data.count, 1))
             if avgMg > 0 {
                 HStack(spacing: 6) {
                     Image(systemName: "info.circle.fill")
-                        .font(.caption)
+                        .font(.adaptiveCaption(isRegular: isRegular))
                         .foregroundStyle(.orange)
                     Text("Avg: \(Int(avgMg))mg/day")
-                        .font(.caption)
+                        .font(.adaptiveCaption(isRegular: isRegular))
                         .foregroundStyle(.secondary)
                 }
             }
@@ -423,6 +455,11 @@ private struct ChartSectionHeader: View {
     let title: String
     let icon: String
 
+    @Environment(\.horizontalSizeClass) private var sizeClass
+    private var isRegular: Bool {
+        sizeClass == .regular
+    }
+
     var body: some View {
         HStack(spacing: 6) {
             RoundedRectangle(cornerRadius: 2)
@@ -433,12 +470,13 @@ private struct ChartSectionHeader: View {
                         endPoint: .bottom
                     )
                 )
-                .frame(width: 3, height: 18)
+                .frame(width: isRegular ? 4 : 3, height: isRegular ? 22 : 18)
             Image(systemName: icon)
-                .font(.subheadline)
+                .font(.adaptiveSubheadline(isRegular: isRegular))
                 .foregroundStyle(Color.aquaPrimary)
+                .symbolEffect(.pulse)
             Text(title)
-                .font(.headline)
+                .font(.adaptiveHeadline(isRegular: isRegular))
         }
         .accessibilityAddTraits(.isHeader)
     }
@@ -448,13 +486,18 @@ private struct ChartLegendDot: View {
     let color: Color
     let label: String
 
+    @Environment(\.horizontalSizeClass) private var sizeClass
+    private var isRegular: Bool {
+        sizeClass == .regular
+    }
+
     var body: some View {
         HStack(spacing: 4) {
             Circle()
                 .fill(color)
-                .frame(width: 8, height: 8)
+                .frame(width: isRegular ? 10 : 8, height: isRegular ? 10 : 8)
             Text(label)
-                .font(.caption2)
+                .font(.adaptiveCaption2(isRegular: isRegular))
                 .foregroundStyle(.secondary)
         }
     }

@@ -1,5 +1,8 @@
 import Foundation
 import HealthKit
+import os
+
+private let logger = Logger(subsystem: "com.theknack.aquafaste", category: "HealthKitManager")
 
 actor HealthKitManager {
     static let shared = HealthKitManager()
@@ -11,7 +14,7 @@ actor HealthKitManager {
 
     func requestAuthorization() async -> Bool {
         guard HKHealthStore.isHealthDataAvailable() else {
-            print("[AquaFaste] HealthKit not available on this device")
+            logger.warning("HealthKit not available on this device")
             return false
         }
 
@@ -26,7 +29,7 @@ actor HealthKitManager {
             isAuthorized = true
             return true
         } catch {
-            print("[AquaFaste] HealthKit authorization failed: \(error.localizedDescription)")
+            logger.error("HealthKit authorization failed: \(error.localizedDescription)")
             isAuthorized = false
             return false
         }
@@ -55,7 +58,7 @@ actor HealthKitManager {
         do {
             try await healthStore.save(sample)
         } catch {
-            print("[AquaFaste] Failed to save water to HealthKit: \(error.localizedDescription)")
+            logger.error("Failed to save water to HealthKit: \(error.localizedDescription)")
             // Non-fatal — app continues to work without HealthKit sync
         }
     }

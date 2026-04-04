@@ -1,6 +1,6 @@
 import Foundation
 #if canImport(WidgetKit)
-import WidgetKit
+    import WidgetKit
 #endif
 
 /// Shared data between app and widget via App Group
@@ -30,7 +30,7 @@ enum WidgetDataManager {
 
         // Trigger widget refresh
         #if canImport(WidgetKit)
-        WidgetCenter.shared.reloadAllTimelines()
+            WidgetCenter.shared.reloadAllTimelines()
         #endif
     }
 

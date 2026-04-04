@@ -99,7 +99,7 @@ struct HydrationShareCard: View {
                         LinearGradient(
                             colors: [
                                 Color(red: 0.05, green: 0.12, blue: 0.30),
-                                Color(red: 0.08, green: 0.20, blue: 0.45)
+                                Color(red: 0.08, green: 0.20, blue: 0.45),
                             ],
                             startPoint: .topLeading,
                             endPoint: .bottomTrailing
@@ -123,7 +123,7 @@ struct HydrationShareCard: View {
                 .font(.subheadline.weight(.bold).monospacedDigit())
                 .foregroundStyle(.white)
             Text(label)
-                .font(.system(size: 9))
+                .font(.caption2)
                 .foregroundStyle(.white.opacity(0.4))
         }
         .frame(maxWidth: .infinity)

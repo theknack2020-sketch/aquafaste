@@ -3,6 +3,11 @@ import SwiftUI
 struct FavoriteDrinksSheet: View {
     @Environment(HydrationManager.self) private var manager
     @Environment(\.dismiss) private var dismiss
+    @Environment(\.horizontalSizeClass) private var sizeClass
+
+    private var isRegular: Bool {
+        sizeClass == .regular
+    }
 
     private let haptics = HapticManager.shared
     private let sounds = SoundManager.shared
@@ -107,20 +112,11 @@ struct FavoriteDrinksSheet: View {
     }
 
     private var emptyState: some View {
-        VStack(spacing: 16) {
-            Spacer()
-            Image(systemName: "star.fill")
-                .font(.system(size: 48))
-                .foregroundStyle(Color.aquaPrimary.opacity(0.3))
-
-            Text("No Favorites Yet")
-                .font(.headline)
-
+        ContentUnavailableView {
+            Label("No Favorites Yet", systemImage: "star.fill")
+        } description: {
             Text("Save your most-used drinks for quick access.")
-                .font(.subheadline)
-                .foregroundStyle(.secondary)
-                .multilineTextAlignment(.center)
-
+        } actions: {
             Button("Add a Favorite") {
                 haptics.buttonPress()
                 showAddSheet = true
@@ -128,11 +124,6 @@ struct FavoriteDrinksSheet: View {
             .buttonStyle(.borderedProminent)
             .tint(Color.aquaPrimary)
             .accessibilityIdentifier("addFirstFavoriteButton")
-
-            Spacer()
         }
-        .padding()
-        .accessibilityElement(children: .combine)
-        .accessibilityLabel("No favorites yet. Save your most-used drinks for quick access.")
     }
 }

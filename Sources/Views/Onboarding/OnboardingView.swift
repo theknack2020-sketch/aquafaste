@@ -1,4 +1,7 @@
+import os
 import SwiftUI
+
+private let logger = Logger(subsystem: "com.theknack.aquafaste", category: "OnboardingView")
 
 struct OnboardingView: View {
     @Binding var isComplete: Bool
@@ -14,6 +17,11 @@ struct OnboardingView: View {
     private let haptics = HapticManager.shared
     private let sounds = SoundManager.shared
 
+    @Environment(\.horizontalSizeClass) private var sizeClass
+    private var isRegular: Bool {
+        sizeClass == .regular
+    }
+
     var body: some View {
         VStack {
             TabView(selection: $currentPage) {
@@ -25,8 +33,9 @@ struct OnboardingView: View {
             }
             .tabViewStyle(.page(indexDisplayMode: .always))
             .indexViewStyle(.page(backgroundDisplayMode: .always))
+            .adaptiveContainer(maxWidth: 600)
         }
-        .sheet(isPresented: $showPaywall) {
+        .fullScreenCover(isPresented: $showPaywall) {
             PaywallView()
         }
     }
@@ -43,7 +52,7 @@ struct OnboardingView: View {
                     colors: [
                         Color(red: 0.02, green: 0.10, blue: 0.30),
                         Color(red: 0.04, green: 0.20, blue: 0.45),
-                        Color(red: 0.08, green: 0.30, blue: 0.55)
+                        Color(red: 0.08, green: 0.30, blue: 0.55),
                     ],
                     startPoint: .topLeading,
                     endPoint: .bottomTrailing
@@ -53,13 +62,13 @@ struct OnboardingView: View {
                 // Glow orbs
                 Circle()
                     .fill(RadialGradient(colors: [Color.cyan.opacity(0.3), .clear], center: .center, startRadius: 10, endRadius: 160))
-                    .frame(width: 320, height: 320)
+                    .frame(width: isRegular ? 420 : 320, height: isRegular ? 420 : 320)
                     .offset(x: -80, y: -180)
                     .blur(radius: 50)
 
                 Circle()
                     .fill(RadialGradient(colors: [Color.blue.opacity(0.25), .clear], center: .center, startRadius: 10, endRadius: 140))
-                    .frame(width: 280, height: 280)
+                    .frame(width: isRegular ? 360 : 280, height: isRegular ? 360 : 280)
                     .offset(x: 100, y: 200)
                     .blur(radius: 60)
             }
@@ -70,10 +79,10 @@ struct OnboardingView: View {
 
                 // Premium glow icon
                 ZStack {
-                    ForEach(0..<3, id: \.self) { ring in
+                    ForEach(0 ..< 3, id: \.self) { ring in
                         Circle()
                             .stroke(Color.cyan.opacity(0.12 - Double(ring) * 0.03), lineWidth: 1.5)
-                            .frame(width: CGFloat(90 + ring * 30), height: CGFloat(90 + ring * 30))
+                            .frame(width: CGFloat((isRegular ? 110 : 90) + ring * (isRegular ? 38 : 30)), height: CGFloat((isRegular ? 110 : 90) + ring * (isRegular ? 38 : 30)))
                     }
 
                     Circle()
@@ -84,10 +93,10 @@ struct OnboardingView: View {
                                 endPoint: .bottomTrailing
                             )
                         )
-                        .frame(width: 80, height: 80)
+                        .frame(width: isRegular ? 100 : 80, height: isRegular ? 100 : 80)
 
                     Image(systemName: "drop.fill")
-                        .font(.system(size: 42))
+                        .font(.adaptiveDisplay(size: 42, weight: .regular, isRegular: isRegular))
                         .foregroundStyle(
                             LinearGradient(colors: [.cyan, .blue], startPoint: .top, endPoint: .bottom)
                         )
@@ -95,7 +104,7 @@ struct OnboardingView: View {
                 }
 
                 Text("Welcome to AquaFaste")
-                    .font(.system(size: 30, weight: .bold, design: .rounded))
+                    .font(.adaptiveDisplay(size: 30, weight: .bold, design: .rounded, isRegular: isRegular))
                     .foregroundStyle(.white)
 
                 Text("Your honest hydration companion.\nNo ads. No tricks. Just water.")
@@ -150,7 +159,7 @@ struct OnboardingView: View {
                 colors: [
                     Color.aquaGradientStart.opacity(0.18),
                     Color.aquaGradientEnd.opacity(0.12),
-                    Color.aquaBackground
+                    Color.aquaBackground,
                 ],
                 startPoint: .topLeading,
                 endPoint: .bottomTrailing
@@ -161,7 +170,7 @@ struct OnboardingView: View {
                 Spacer()
 
                 Image(systemName: "scalemass.fill")
-                    .font(.system(size: 48))
+                    .font(.adaptiveDisplay(size: 48, weight: .regular, isRegular: isRegular))
                     .foregroundStyle(Color.aquaPrimary)
 
                 Text("What's your weight?")
@@ -173,7 +182,7 @@ struct OnboardingView: View {
 
                 HStack(alignment: .firstTextBaseline, spacing: 4) {
                     TextField("70", text: $weight)
-                        .font(.system(size: 56, weight: .bold, design: .rounded))
+                        .font(.adaptiveDisplay(size: 56, weight: .bold, design: .rounded, isRegular: isRegular))
                         .keyboardType(.numberPad)
                         .multilineTextAlignment(.center)
                         .frame(width: 140)
@@ -204,7 +213,6 @@ struct OnboardingView: View {
                     haptics.buttonPress()
                     withAnimation(.spring(response: 0.5, dampingFraction: 0.8)) { currentPage = 2 }
                 }
-                
 
                 pageIndicator(current: 1)
             }
@@ -220,7 +228,7 @@ struct OnboardingView: View {
                 colors: [
                     Color.aquaPrimary.opacity(0.18),
                     Color.aquaGradientStart.opacity(0.12),
-                    Color.aquaBackground
+                    Color.aquaBackground,
                 ],
                 startPoint: .top,
                 endPoint: .center
@@ -231,7 +239,7 @@ struct OnboardingView: View {
                 Spacer()
 
                 Image(systemName: "figure.run")
-                    .font(.system(size: 48))
+                    .font(.adaptiveDisplay(size: 48, weight: .regular, isRegular: isRegular))
                     .foregroundStyle(Color.aquaPrimary)
 
                 Text("How active are you?")
@@ -282,7 +290,6 @@ struct OnboardingView: View {
                     haptics.buttonPress()
                     withAnimation(.spring(response: 0.5, dampingFraction: 0.8)) { currentPage = 3 }
                 }
-                
 
                 pageIndicator(current: 2)
             }
@@ -298,7 +305,7 @@ struct OnboardingView: View {
                 colors: [
                     Color.aquaGradientEnd.opacity(0.18),
                     Color.aquaGradientStart.opacity(0.10),
-                    Color.aquaBackground
+                    Color.aquaBackground,
                 ],
                 startPoint: .topTrailing,
                 endPoint: .bottomLeading
@@ -309,7 +316,7 @@ struct OnboardingView: View {
                 Spacer()
 
                 Image(systemName: "bell.badge.fill")
-                    .font(.system(size: 56))
+                    .font(.adaptiveDisplay(size: 56, weight: .regular, isRegular: isRegular))
                     .foregroundStyle(Color.aquaPrimary)
                     .symbolRenderingMode(.hierarchical)
 
@@ -398,7 +405,6 @@ struct OnboardingView: View {
                         haptics.buttonPress()
                         withAnimation(.spring(response: 0.5, dampingFraction: 0.8)) { currentPage = 4 }
                     }
-                    
                 } else {
                     Button("Enable Reminders") {
                         Task {
@@ -410,7 +416,7 @@ struct OnboardingView: View {
                             }
                         }
                     }
-                    
+
                     .accessibilityLabel("Enable hydration reminders")
                     .accessibilityIdentifier("enableRemindersButton")
 
@@ -453,7 +459,7 @@ struct OnboardingView: View {
                 colors: [
                     Color.aquaPrimary.opacity(0.18),
                     Color.aquaGradientStart.opacity(0.12),
-                    Color.aquaBackground
+                    Color.aquaBackground,
                 ],
                 startPoint: .top,
                 endPoint: .bottom
@@ -464,7 +470,7 @@ struct OnboardingView: View {
                 Spacer()
 
                 Image(systemName: "checkmark.circle.fill")
-                    .font(.system(size: 64))
+                    .font(.adaptiveDisplay(size: 64, weight: .regular, isRegular: isRegular))
                     .foregroundStyle(Color.aquaPrimary)
 
                 Text("You're All Set!")
@@ -499,13 +505,13 @@ struct OnboardingView: View {
                     Task {
                         let hkAuthorized = await HealthKitManager.shared.requestAuthorization()
                         if !hkAuthorized {
-                            print("[AquaFaste] HealthKit not authorized — continuing without sync")
+                            logger.info("HealthKit not authorized — continuing without sync")
                         }
                         await NotificationManager.shared.scheduleAllNotifications()
                     }
                     isComplete = true
                 }
-                
+
                 .accessibilityLabel("Start tracking your daily hydration")
                 .accessibilityIdentifier("startTrackingButton")
 

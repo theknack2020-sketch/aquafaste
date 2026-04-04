@@ -44,6 +44,7 @@
 		AA11BB22CC33DD44EE55FF03 /* InsightsEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA11BB22CC33DD44EE55FF04 /* InsightsEngine.swift */; };
 		B4781DE7EB65E8B30FC94561 /* TelemetryDeck in Frameworks */ = {isa = PBXBuildFile; productRef = 7D464F88E919E1C32BB534D9 /* TelemetryDeck */; };
 		C061EE25B48591FDBE2B7817 /* Color+Theme.swift in Sources */ = {isa = PBXBuildFile; fileRef = 639F6FB14ABA191E731FB97A /* Color+Theme.swift */; };
+		C42583D1B362C1151AED6F31 /* AdaptiveLayout.swift in Sources */ = {isa = PBXBuildFile; fileRef = 30AD52D3B67254E7BD41C9F7 /* AdaptiveLayout.swift */; };
 		C71683746AA226C13382730A /* AquaFasteWidget.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5B280A7FD291C9509DFDFA25 /* AquaFasteWidget.swift */; };
 		C92F4EAC73AE40AD442A49DF /* SubscriptionManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 907B9F4319693BDCB6473A05 /* SubscriptionManager.swift */; };
 		D22ACF32AAFE7403A8577BFB /* HydrationManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8BD5EB58D472A8D9F57AC9FB /* HydrationManager.swift */; };
@@ -85,6 +86,7 @@
 		173DD671A77A121399E37B84 /* HydrationShareCard.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = HydrationShareCard.swift; sourceTree = "<group>"; };
 		2C3D6B8859930328AEEB9237 /* StatsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StatsView.swift; sourceTree = "<group>"; };
 		2C93E4C98BFCE933622517F9 /* UserProfile.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserProfile.swift; sourceTree = "<group>"; };
+		30AD52D3B67254E7BD41C9F7 /* AdaptiveLayout.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = AdaptiveLayout.swift; sourceTree = "<group>"; };
 		37DE37C8BE49F0DA05788CC0 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
 		38119778A20CE71B8AAB5C99 /* AnimatedNumberView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnimatedNumberView.swift; sourceTree = "<group>"; };
 		4A3048311587323E477F7BA8 /* WeeklyRecapView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = WeeklyRecapView.swift; sourceTree = "<group>"; };
@@ -278,6 +280,7 @@
 			isa = PBXGroup;
 			children = (
 				639F6FB14ABA191E731FB97A /* Color+Theme.swift */,
+				30AD52D3B67254E7BD41C9F7 /* AdaptiveLayout.swift */,
 			);
 			path = Extensions;
 			sourceTree = "<group>";
@@ -508,6 +511,7 @@
 				A0CD33DFEFD689D653E82E2B /* WinBackManager.swift in Sources */,
 				260430FF1D601F9EE473ED7A /* WeeklyRecapView.swift in Sources */,
 				5D835073B41862D3A787B879 /* HydrationShareCard.swift in Sources */,
+				C42583D1B362C1151AED6F31 /* AdaptiveLayout.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
