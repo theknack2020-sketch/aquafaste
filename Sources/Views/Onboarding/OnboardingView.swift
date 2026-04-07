@@ -33,7 +33,7 @@ struct OnboardingView: View {
             }
             .tabViewStyle(.page(indexDisplayMode: .always))
             .indexViewStyle(.page(backgroundDisplayMode: .always))
-            .adaptiveContainer(maxWidth: 600)
+            .adaptiveContainer(maxWidth: .infinity)
         }
         .fullScreenCover(isPresented: $showPaywall) {
             PaywallView()

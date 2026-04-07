@@ -102,7 +102,7 @@ struct PaywallView: View {
                 }
                 .padding(.bottom, 40)
                 .adaptivePadding(isRegular)
-                .adaptiveContainer(maxWidth: 600)
+                .adaptiveContainer(maxWidth: .infinity)
             }
 
             // Dismiss button — ALWAYS visible
