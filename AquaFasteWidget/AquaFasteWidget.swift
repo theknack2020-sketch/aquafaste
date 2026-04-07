@@ -15,18 +15,18 @@ struct HydrationEntry: TimelineEntry {
 // MARK: - Timeline Provider
 
 struct HydrationProvider: TimelineProvider {
-    func placeholder(in context: Context) -> HydrationEntry {
+    func placeholder(in _: Context) -> HydrationEntry {
         HydrationEntry(date: .now, todayTotal: 1800, dailyGoal: 2500, progress: 0.72, streak: 5, drinkCount: 6)
     }
 
-    func getSnapshot(in context: Context, completion: @escaping (HydrationEntry) -> Void) {
+    func getSnapshot(in _: Context, completion: @escaping (HydrationEntry) -> Void) {
         completion(currentEntry())
     }
 
-    func getTimeline(in context: Context, completion: @escaping (Timeline<HydrationEntry>) -> Void) {
+    func getTimeline(in _: Context, completion: @escaping (Timeline<HydrationEntry>) -> Void) {
         let entry = currentEntry()
         // Refresh every 30 minutes
-        let nextUpdate = Calendar.current.date(byAdding: .minute, value: 30, to: .now)!
+        let nextUpdate = Calendar.current.date(byAdding: .minute, value: 30, to: .now) ?? .now
         completion(Timeline(entries: [entry], policy: .after(nextUpdate)))
     }
 
@@ -63,23 +63,25 @@ struct SmallHydrationView: View {
 
             VStack(spacing: 2) {
                 Image(systemName: "drop.fill")
-                    .font(.system(size: 14))
+                    .font(.footnote)
                     .foregroundStyle(.cyan)
+                    .accessibilityHidden(true)
 
                 Text("\(Int(entry.todayTotal))")
-                    .font(.system(size: 24, weight: .bold, design: .rounded))
+                    .font(.system(.title2, design: .rounded, weight: .bold))
                     .foregroundStyle(.primary)
 
                 Text("of \(Int(entry.dailyGoal)) ml")
-                    .font(.system(size: 9))
+                    .font(.caption2)
                     .foregroundStyle(.secondary)
 
                 if entry.streak > 0 {
                     HStack(spacing: 2) {
                         Image(systemName: "flame.fill")
                             .font(.system(size: 8))
+                            .accessibilityHidden(true)
                         Text("\(entry.streak)")
-                            .font(.system(size: 9, weight: .bold))
+                            .font(.caption2.bold())
                     }
                     .foregroundStyle(.orange)
                 }
@@ -112,10 +114,11 @@ struct MediumHydrationView: View {
 
                 VStack(spacing: 1) {
                     Text("\(Int(entry.progress * 100))%")
-                        .font(.system(size: 20, weight: .bold, design: .rounded))
+                        .font(.system(.title3, design: .rounded, weight: .bold))
                     Image(systemName: "drop.fill")
-                        .font(.system(size: 10))
+                        .font(.caption2)
                         .foregroundStyle(.cyan)
+                        .accessibilityHidden(true)
                 }
             }
             .frame(width: 70, height: 70)
@@ -123,21 +126,21 @@ struct MediumHydrationView: View {
             // Right: Stats
             VStack(alignment: .leading, spacing: 6) {
                 Text("Hydration")
-                    .font(.system(size: 11, weight: .semibold))
+                    .font(.caption.weight(.semibold))
                     .foregroundStyle(.secondary)
                     .textCase(.uppercase)
 
                 Text("\(Int(entry.todayTotal)) ml")
-                    .font(.system(size: 22, weight: .bold, design: .rounded))
+                    .font(.system(.title3, design: .rounded, weight: .bold))
 
                 HStack(spacing: 12) {
                     Label("\(entry.drinkCount) drinks", systemImage: "drop.fill")
-                        .font(.system(size: 10))
+                        .font(.caption2)
                         .foregroundStyle(.secondary)
 
                     if entry.streak > 0 {
                         Label("\(entry.streak) day streak", systemImage: "flame.fill")
-                            .font(.system(size: 10))
+                            .font(.caption2)
                             .foregroundStyle(.orange)
                     }
                 }
@@ -145,11 +148,11 @@ struct MediumHydrationView: View {
                 let remaining = max(0, Int(entry.dailyGoal - entry.todayTotal))
                 if remaining > 0 {
                     Text("\(remaining) ml remaining")
-                        .font(.system(size: 10))
+                        .font(.caption2)
                         .foregroundStyle(.cyan)
                 } else {
                     Label("Goal reached!", systemImage: "checkmark.circle.fill")
-                        .font(.system(size: 10, weight: .medium))
+                        .font(.caption2.weight(.medium))
                         .foregroundStyle(.green)
                 }
             }
@@ -171,6 +174,7 @@ struct AccessoryCircularView: View {
             AccessoryWidgetBackground()
             Gauge(value: entry.progress) {
                 Image(systemName: "drop.fill")
+                    .accessibilityHidden(true)
             }
             .gaugeStyle(.accessoryCircular)
             .tint(.cyan)

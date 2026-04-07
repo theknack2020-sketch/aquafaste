@@ -136,6 +136,7 @@ struct TimerView: View {
                             HStack(spacing: spacing.xs) {
                                 Image(systemName: "sparkles")
                                     .foregroundStyle(.yellow)
+                                    .accessibilityHidden(true)
                                 Text("Almost there! Just \(profile.unit.formatAmount(remainingToGoal)) to go!")
                                     .font(.adaptiveSubheadline(isRegular: isRegular).weight(.medium))
                                     .foregroundStyle(Color.aquaPrimary)
@@ -152,6 +153,7 @@ struct TimerView: View {
                             HStack(spacing: spacing.xs) {
                                 Image(systemName: "flame.fill")
                                     .foregroundStyle(.orange)
+                                    .accessibilityHidden(true)
                                 Text(streakMotivationText)
                                     .font(.adaptiveSubheadline(isRegular: isRegular).weight(.medium))
                                     .foregroundStyle(Color.aquaTextSecondary)
@@ -310,6 +312,7 @@ struct TimerView: View {
             HStack(spacing: 8) {
                 Image(systemName: selectedDrink.iconName)
                     .foregroundStyle(selectedDrink.color)
+                    .accessibilityHidden(true)
                 Text(selectedDrink.displayName)
                     .foregroundStyle(Color.aquaTextPrimary)
                 if selectedDrink.hasCaffeine {
@@ -319,6 +322,7 @@ struct TimerView: View {
                 Image(systemName: "chevron.down")
                     .font(.caption)
                     .foregroundStyle(Color.aquaTextSecondary)
+                    .accessibilityHidden(true)
             }
             .padding(.horizontal, 16)
             .padding(.vertical, 8)
@@ -371,6 +375,7 @@ struct TimerView: View {
                                     Image(systemName: recent.drinkType.iconName)
                                         .font(.adaptiveCaption(isRegular: isRegular))
                                         .foregroundStyle(recent.drinkType.color)
+                                        .accessibilityHidden(true)
                                     Text(profile.unit.formatAmount(recent.amount))
                                         .font(.adaptiveCaption(isRegular: isRegular).weight(.medium))
                                         .foregroundStyle(Color.aquaTextPrimary)
@@ -423,6 +428,7 @@ struct TimerView: View {
                 VStack(spacing: 4) {
                     Image(systemName: "plus")
                         .font(.title2)
+                        .accessibilityHidden(true)
                     Text("Custom")
                         .font(.adaptiveCaption(isRegular: isRegular))
                 }
@@ -452,6 +458,7 @@ struct TimerView: View {
             Image(systemName: "cup.and.saucer.fill")
                 .font(.subheadline)
                 .foregroundStyle(.brown)
+                .accessibilityHidden(true)
 
             Text("\(Int(manager.todayCaffeine)) mg caffeine today")
                 .font(.subheadline.weight(.medium))
@@ -461,6 +468,7 @@ struct TimerView: View {
                 Image(systemName: "exclamationmark.triangle.fill")
                     .font(.caption)
                     .foregroundStyle(.orange)
+                    .accessibilityHidden(true)
             }
         }
         .padding(.horizontal, 14)
@@ -509,6 +517,7 @@ struct TimerView: View {
                                             Image(systemName: fav.drink.iconName)
                                                 .font(.body)
                                                 .foregroundStyle(fav.drink.color)
+                                                .accessibilityHidden(true)
                                         }
                                         Text(fav.name)
                                             .font(.adaptiveCaption(isRegular: isRegular).weight(.medium))
@@ -542,6 +551,7 @@ struct TimerView: View {
                                         Image(systemName: "plus")
                                             .font(.body)
                                             .foregroundStyle(Color.aquaPrimary)
+                                            .accessibilityHidden(true)
                                     }
                                     Text("Add")
                                         .font(.adaptiveCaption(isRegular: isRegular).weight(.medium))
@@ -621,6 +631,7 @@ struct TimerView: View {
                 Image(systemName: goalMet ? "checkmark.seal.fill" : "chart.bar.doc.horizontal.fill")
                     .font(.title3)
                     .foregroundStyle(goalMet ? .green : Color.aquaPrimary)
+                    .accessibilityHidden(true)
                 Text("Daily Summary")
                     .font(.headline)
                 Spacer()
@@ -833,6 +844,7 @@ struct QuickAddButton: View {
             VStack(spacing: 4) {
                 Image(systemName: "drop.fill")
                     .font(.title2)
+                    .accessibilityHidden(true)
                 Text(unit.formatAmount(amount))
                     .font(.adaptiveCaption(isRegular: isRegular).weight(.medium))
                 if !name.isEmpty {
@@ -869,6 +881,7 @@ struct UndoToastView: View {
             Image(systemName: "arrow.uturn.backward.circle.fill")
                 .font(.title3)
                 .foregroundStyle(Color.aquaPrimary)
+                .accessibilityHidden(true)
 
             VStack(alignment: .leading, spacing: 2) {
                 Text("Drink Removed")
@@ -939,6 +952,7 @@ struct TimelineLogRow: View {
                 .font(.body)
                 .foregroundStyle(log.drink.color)
                 .frame(width: isRegular ? 32 : 28)
+                .accessibilityHidden(true)
 
             VStack(alignment: .leading, spacing: 2) {
                 Text(log.drink.displayName)
@@ -987,6 +1001,7 @@ struct SummaryItem: View {
                 .font(.adaptiveCaption(isRegular: isRegular))
                 .foregroundStyle(color)
                 .frame(width: isRegular ? 24 : 20)
+                .accessibilityHidden(true)
 
             VStack(alignment: .leading, spacing: 1) {
                 Text(label)
@@ -1025,6 +1040,7 @@ struct WaterFillAnimationView: View {
                 .font(.adaptiveDisplay(size: 32, weight: .regular, isRegular: isRegular))
                 .foregroundStyle(drinkType.color)
                 .scaleEffect(iconScale)
+                .accessibilityHidden(true)
 
             Text("+\(unit.formatAmount(amount))")
                 .font(.title3.weight(.bold))
@@ -1073,6 +1089,7 @@ struct GoalCompleteOverlay: View {
                     .foregroundStyle(.green)
                     .scaleEffect(iconScale)
                     .opacity(iconOpacity)
+                    .accessibilityHidden(true)
 
                 Text("Goal Complete! 💧")
                     .font(.title2.weight(.bold))

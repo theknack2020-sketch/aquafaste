@@ -101,6 +101,7 @@ struct OnboardingView: View {
                             LinearGradient(colors: [.cyan, .blue], startPoint: .top, endPoint: .bottom)
                         )
                         .shadow(color: .cyan.opacity(0.5), radius: 16, y: 4)
+                        .accessibilityHidden(true)
                 }
 
                 Text("Welcome to AquaFaste")
@@ -172,6 +173,7 @@ struct OnboardingView: View {
                 Image(systemName: "scalemass.fill")
                     .font(.adaptiveDisplay(size: 48, weight: .regular, isRegular: isRegular))
                     .foregroundStyle(Color.aquaPrimary)
+                    .accessibilityHidden(true)
 
                 Text("What's your weight?")
                     .font(.title2.weight(.bold))
@@ -241,6 +243,7 @@ struct OnboardingView: View {
                 Image(systemName: "figure.run")
                     .font(.adaptiveDisplay(size: 48, weight: .regular, isRegular: isRegular))
                     .foregroundStyle(Color.aquaPrimary)
+                    .accessibilityHidden(true)
 
                 Text("How active are you?")
                     .font(.title2.weight(.bold))
@@ -269,6 +272,7 @@ struct OnboardingView: View {
                                 if selectedActivity == level {
                                     Image(systemName: "checkmark.circle.fill")
                                         .foregroundStyle(Color.aquaPrimary)
+                                        .accessibilityLabel("Selected")
                                 }
                             }
                             .padding()
@@ -319,6 +323,7 @@ struct OnboardingView: View {
                     .font(.adaptiveDisplay(size: 56, weight: .regular, isRegular: isRegular))
                     .foregroundStyle(Color.aquaPrimary)
                     .symbolRenderingMode(.hierarchical)
+                    .accessibilityHidden(true)
 
                 Text("Stay on Track")
                     .font(.title.weight(.bold))
@@ -365,6 +370,7 @@ struct OnboardingView: View {
                         HStack(spacing: 8) {
                             Image(systemName: "bell.slash")
                                 .foregroundStyle(.orange)
+                                .accessibilityHidden(true)
                             Text("Notifications Blocked")
                                 .font(.subheadline.weight(.semibold))
                         }
@@ -396,6 +402,7 @@ struct OnboardingView: View {
                         Image(systemName: "checkmark.circle.fill")
                             .font(.title2)
                             .foregroundStyle(.green)
+                            .accessibilityHidden(true)
                         Text("Reminders enabled!")
                             .font(.subheadline.weight(.medium))
                             .foregroundStyle(.green)
@@ -440,6 +447,7 @@ struct OnboardingView: View {
                 .font(.body)
                 .foregroundStyle(Color.aquaPrimary)
                 .frame(width: 28)
+                .accessibilityHidden(true)
 
             VStack(alignment: .leading, spacing: 2) {
                 Text(title)
@@ -472,6 +480,7 @@ struct OnboardingView: View {
                 Image(systemName: "checkmark.circle.fill")
                     .font(.adaptiveDisplay(size: 64, weight: .regular, isRegular: isRegular))
                     .foregroundStyle(Color.aquaPrimary)
+                    .accessibilityHidden(true)
 
                 Text("You're All Set!")
                     .font(.title.weight(.bold))
@@ -515,14 +524,9 @@ struct OnboardingView: View {
                 .accessibilityLabel("Start tracking your daily hydration")
                 .accessibilityIdentifier("startTrackingButton")
 
-                Button("Try Premium Free") {
-                    showPaywall = true
-                }
-                .font(.subheadline)
-                .foregroundStyle(Color.aquaPrimary)
-                .accessibilityLabel("Try premium features free")
-                .accessibilityHint("Opens premium subscription options")
-                .accessibilityIdentifier("onboardingTryPremiumButton")
+                Text("Free forever · Upgrade anytime")
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
 
                 pageIndicator(current: 4)
             }
@@ -538,6 +542,7 @@ struct OnboardingView: View {
                 .font(.body)
                 .foregroundStyle(Color.aquaPrimary)
                 .frame(width: 28)
+                .accessibilityHidden(true)
             Text(text)
                 .font(.subheadline)
                 .foregroundStyle(Color.aquaTextPrimary)
@@ -549,6 +554,7 @@ struct OnboardingView: View {
             Image(systemName: icon)
                 .foregroundStyle(Color.aquaPrimary)
                 .frame(width: 24)
+                .accessibilityHidden(true)
             Text(text)
                 .font(.subheadline)
         }

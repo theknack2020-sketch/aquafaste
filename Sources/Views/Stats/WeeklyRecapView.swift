@@ -27,6 +27,7 @@ struct WeeklyRecapView: View {
                             LinearGradient(colors: [.cyan, .blue], startPoint: .top, endPoint: .bottom)
                         )
                         .shadow(color: .cyan.opacity(0.4), radius: 12, y: 4)
+                        .accessibilityHidden(true)
                         .scaleEffect(appeared ? 1 : 0.3)
                         .animation(.spring(response: 0.6, dampingFraction: 0.6), value: appeared)
 
@@ -96,6 +97,7 @@ struct WeeklyRecapView: View {
                 .font(.title3)
                 .foregroundStyle(color)
                 .shadow(color: color.opacity(0.3), radius: 6, y: 2)
+                .accessibilityHidden(true)
 
             Text(value)
                 .font(.title3.bold().monospacedDigit())

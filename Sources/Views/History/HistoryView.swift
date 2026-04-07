@@ -24,7 +24,7 @@ struct HistoryView: View {
     var body: some View {
         NavigationStack {
             Group {
-                if manager.todayLogs.isEmpty, manager.logsForDate(Calendar.current.date(byAdding: .day, value: -1, to: .now)!).isEmpty, manager.logsForDate(Calendar.current.date(byAdding: .day, value: -2, to: .now)!).isEmpty, profile.currentStreak == 0 {
+                if manager.todayLogs.isEmpty, manager.logsForDate(Calendar.current.date(byAdding: .day, value: -1, to: .now) ?? .now).isEmpty, manager.logsForDate(Calendar.current.date(byAdding: .day, value: -2, to: .now) ?? .now).isEmpty, profile.currentStreak == 0 {
                     // Empty state
                     ContentUnavailableView {
                         Label("No History Yet", systemImage: "calendar.badge.clock")
@@ -47,16 +47,16 @@ struct HistoryView: View {
                             todaySection
 
                             // Yesterday
-                            let yesterday = Calendar.current.date(byAdding: .day, value: -1, to: .now)!
+                            let yesterday = Calendar.current.date(byAdding: .day, value: -1, to: .now) ?? .now
                             daySection(for: yesterday, title: "Yesterday")
 
                             // Day before yesterday
-                            let dayBefore = Calendar.current.date(byAdding: .day, value: -2, to: .now)!
+                            let dayBefore = Calendar.current.date(byAdding: .day, value: -2, to: .now) ?? .now
                             daySection(for: dayBefore, title: dayBefore.formatted(.dateTime.weekday(.wide)))
 
                             // Additional days (3-6 days ago)
                             ForEach(3 ..< 7, id: \.self) { daysAgo in
-                                let date = Calendar.current.date(byAdding: .day, value: -daysAgo, to: .now)!
+                                let date = Calendar.current.date(byAdding: .day, value: -daysAgo, to: .now) ?? .now
                                 daySection(for: date, title: date.formatted(.dateTime.weekday(.wide).month(.abbreviated).day()))
                             }
 
@@ -66,7 +66,7 @@ struct HistoryView: View {
                             } else {
                                 // Show older days for Pro users (7-29 days ago)
                                 ForEach(7 ..< 30, id: \.self) { daysAgo in
-                                    let date = Calendar.current.date(byAdding: .day, value: -daysAgo, to: .now)!
+                                    let date = Calendar.current.date(byAdding: .day, value: -daysAgo, to: .now) ?? .now
                                     let logs = manager.logsForDate(date)
                                     if !logs.isEmpty {
                                         daySection(for: date, title: date.formatted(.dateTime.weekday(.wide).month(.abbreviated).day()))
@@ -122,6 +122,7 @@ struct HistoryView: View {
                 Image(systemName: "flame.fill")
                     .font(.title2)
                     .foregroundStyle(.orange)
+                    .accessibilityHidden(true)
                 VStack(alignment: .leading, spacing: 2) {
                     Text("\(profile.currentStreak) Day Streak")
                         .font(.title3.weight(.bold))
@@ -181,6 +182,7 @@ struct HistoryView: View {
                 Image(systemName: "lock.fill")
                     .font(.title3)
                     .foregroundStyle(.orange)
+                    .accessibilityHidden(true)
                 VStack(alignment: .leading, spacing: 2) {
                     Text("Unlock Full History")
                         .font(.subheadline.weight(.bold))
@@ -349,6 +351,7 @@ struct HistoryView: View {
                             .font(.body)
                             .foregroundStyle(log.drink.color)
                             .frame(width: 24)
+                            .accessibilityHidden(true)
 
                         VStack(alignment: .leading, spacing: 2) {
                             Text(log.drink.displayName)
@@ -472,6 +475,7 @@ struct EditLogSheet: View {
                             ForEach(DrinkType.allCases) { drink in
                                 HStack {
                                     Image(systemName: drink.iconName)
+                                        .accessibilityHidden(true)
                                     Text(drink.displayName)
                                 }
                                 .tag(drink)

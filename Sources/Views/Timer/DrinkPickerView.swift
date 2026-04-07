@@ -104,6 +104,7 @@ struct DrinkPickerView: View {
                     .font(.title2)
                     .foregroundStyle(selectedDrink.color)
                     .symbolEffect(.bounce, value: selectedDrink)
+                    .accessibilityHidden(true)
             }
 
             VStack(alignment: .leading, spacing: 4) {
@@ -233,6 +234,7 @@ struct DrinkTile: View {
                     Image(systemName: drink.iconName)
                         .font(.title3)
                         .foregroundStyle(drink.color)
+                        .accessibilityHidden(true)
                 }
 
                 Text(drink.displayName)

@@ -43,6 +43,7 @@ struct AchievementBadgeView: View {
                             : Color.gray.opacity(0.35)
                     )
                     .symbolEffect(.bounce, value: appeared && achievement.isUnlocked)
+                    .accessibilityHidden(true)
 
                 // Lock overlay
                 if !achievement.isUnlocked {
@@ -53,6 +54,7 @@ struct AchievementBadgeView: View {
                     Image(systemName: "lock.fill")
                         .font(.adaptiveCaption(isRegular: isRegular).weight(.medium))
                         .foregroundStyle(.secondary)
+                        .accessibilityHidden(true)
                 }
 
                 // Checkmark for unlocked
@@ -63,6 +65,7 @@ struct AchievementBadgeView: View {
                             Image(systemName: "checkmark.circle.fill")
                                 .font(.adaptiveSubheadline(isRegular: isRegular))
                                 .foregroundStyle(.green)
+                                .accessibilityHidden(true)
                                 .background(
                                     Circle()
                                         .fill(Color(.systemBackground))
@@ -169,6 +172,7 @@ struct AchievementCelebrationOverlay: View {
                     Image(systemName: achievement.iconName)
                         .font(.adaptiveDisplay(size: 36, weight: .medium, isRegular: isRegular))
                         .foregroundStyle(achievement.tier.color)
+                        .accessibilityHidden(true)
                 }
 
                 VStack(spacing: 6) {

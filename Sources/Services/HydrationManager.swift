@@ -289,7 +289,7 @@ final class HydrationManager {
         // Use current calendar which respects the device's timezone
         let calendar = Calendar.current
         let startOfDay = calendar.startOfDay(for: .now)
-        let endOfDay = calendar.date(byAdding: .day, value: 1, to: startOfDay)!
+        let endOfDay = calendar.date(byAdding: .day, value: 1, to: startOfDay) ?? startOfDay
 
         let descriptor = FetchDescriptor<WaterLog>(
             predicate: #Predicate<WaterLog> { log in
@@ -324,7 +324,7 @@ final class HydrationManager {
 
         let calendar = Calendar.current
         let startOfDay = calendar.startOfDay(for: date)
-        let endOfDay = calendar.date(byAdding: .day, value: 1, to: startOfDay)!
+        let endOfDay = calendar.date(byAdding: .day, value: 1, to: startOfDay) ?? startOfDay
 
         let descriptor = FetchDescriptor<WaterLog>(
             predicate: #Predicate<WaterLog> { log in
@@ -344,7 +344,7 @@ final class HydrationManager {
     func weeklyData() -> [(date: Date, total: Double)] {
         let calendar = Calendar.current
         return (0 ..< 7).reversed().map { daysAgo in
-            let date = calendar.date(byAdding: .day, value: -daysAgo, to: .now)!
+            let date = calendar.date(byAdding: .day, value: -daysAgo, to: .now) ?? .now
             let start = calendar.startOfDay(for: date)
             return (date: start, total: totalForDate(start))
         }
@@ -399,14 +399,14 @@ final class HydrationManager {
 
         // If today hasn't met goal yet, start checking from yesterday
         if totalForDate(today) < profile.dailyGoal {
-            checkDate = calendar.date(byAdding: .day, value: -1, to: today)!
+            checkDate = calendar.date(byAdding: .day, value: -1, to: today) ?? today
         }
 
         while true {
             let dayTotal = totalForDate(checkDate)
             if dayTotal >= profile.dailyGoal {
                 streak += 1
-                checkDate = calendar.date(byAdding: .day, value: -1, to: checkDate)!
+                checkDate = calendar.date(byAdding: .day, value: -1, to: checkDate) ?? checkDate
             } else {
                 break
             }
@@ -430,7 +430,7 @@ final class HydrationManager {
         var currentStreak = 0
 
         for dayOffset in 0 ... totalDays {
-            let date = calendar.date(byAdding: .day, value: dayOffset, to: earliest)!
+            let date = calendar.date(byAdding: .day, value: dayOffset, to: earliest) ?? earliest
             let dayLogs = grouped[calendar.startOfDay(for: date)] ?? []
             let dayTotal = dayLogs.reduce(0.0) { $0 + $1.effectiveAmount }
 
@@ -496,15 +496,15 @@ final class HydrationManager {
         let weekday = calendar.component(.weekday, from: today)
         // Days since Monday (weekday 2 in gregorian)
         let daysSinceMonday = (weekday + 5) % 7
-        let thisMonday = calendar.date(byAdding: .day, value: -daysSinceMonday, to: today)!
-        let lastMonday = calendar.date(byAdding: .day, value: -7, to: thisMonday)!
+        let thisMonday = calendar.date(byAdding: .day, value: -daysSinceMonday, to: today) ?? today
+        let lastMonday = calendar.date(byAdding: .day, value: -7, to: thisMonday) ?? thisMonday
 
         var thisWeekTotal = 0.0
         var lastWeekTotal = 0.0
 
         for i in 0 ..< 7 {
-            let thisDay = calendar.date(byAdding: .day, value: i, to: thisMonday)!
-            let lastDay = calendar.date(byAdding: .day, value: i, to: lastMonday)!
+            let thisDay = calendar.date(byAdding: .day, value: i, to: thisMonday) ?? thisMonday
+            let lastDay = calendar.date(byAdding: .day, value: i, to: lastMonday) ?? lastMonday
 
             // Only count days up to today for this week
             if thisDay <= today {
@@ -524,7 +524,7 @@ final class HydrationManager {
         else { return [] }
 
         return range.map { day in
-            let date = calendar.date(byAdding: .day, value: day - 1, to: monthStart)!
+            let date = calendar.date(byAdding: .day, value: day - 1, to: monthStart) ?? monthStart
             let total = totalForDate(date)
             let ratio = profile.dailyGoal > 0 ? total / profile.dailyGoal : 0
             return (date: date, total: total, ratio: ratio)
@@ -622,7 +622,7 @@ final class HydrationManager {
             if lastDay == today {
                 return // already counted today
             }
-            let yesterday = calendar.date(byAdding: .day, value: -1, to: today)!
+            let yesterday = calendar.date(byAdding: .day, value: -1, to: today) ?? today
             if lastDay == yesterday {
                 profile.currentStreak += 1
             } else {

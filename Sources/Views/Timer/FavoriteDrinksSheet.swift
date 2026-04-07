@@ -37,6 +37,7 @@ struct FavoriteDrinksSheet: View {
                                     Image(systemName: fav.drink.iconName)
                                         .font(.body)
                                         .foregroundStyle(fav.drink.color)
+                                        .accessibilityHidden(true)
                                 }
 
                                 VStack(alignment: .leading, spacing: 2) {

@@ -70,6 +70,7 @@ struct AchievementsView: View {
                     .font(.adaptiveDisplay(size: 28, weight: .medium, isRegular: isRegular))
                     .foregroundStyle(theme.primary)
                     .symbolEffect(.bounce, value: manager.unlockedCount)
+                    .accessibilityHidden(true)
             }
 
             // Counter
@@ -132,6 +133,7 @@ struct AchievementsView: View {
                 Image(systemName: category.iconName)
                     .font(.adaptiveCaption(isRegular: isRegular).weight(.semibold))
                     .foregroundStyle(theme.primary.opacity(0.70))
+                    .accessibilityHidden(true)
 
                 Text(category.displayName)
                     .aquaSectionHeader(theme: theme)

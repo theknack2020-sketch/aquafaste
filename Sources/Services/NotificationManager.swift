@@ -204,10 +204,10 @@ final class NotificationManager: NSObject, ObservableObject {
 
         switch type {
         case .morningReminder:
-            return Self.morningMessages.randomElement()!
+            return Self.morningMessages.randomElement() ?? ("Good Morning! ☀️", "Time to start your day with a glass of water.")
 
         case .streakProtection:
-            let template = Self.streakProtectionMessages.randomElement()!
+            let template = Self.streakProtectionMessages.randomElement() ?? "Don't lose your {streak}-day streak! Log some water now."
             let body = template.replacingOccurrences(of: "{streak}", with: "\(streak)")
             return ("Keep Your Streak! 🔥", body)
 
@@ -218,7 +218,7 @@ final class NotificationManager: NSObject, ObservableObject {
             let emoji = percentage >= 100 ? "🎉" : (percentage >= 75 ? "👍" : "💧")
 
             let templates = amount >= goal ? Self.eveningGoalMetMessages : Self.eveningGoalNotMetMessages
-            let template = templates.randomElement()!
+            let template = templates.randomElement() ?? "Great job staying hydrated today! 💧"
 
             let body = template
                 .replacingOccurrences(of: "{amount}", with: formattedAmount)
@@ -230,7 +230,7 @@ final class NotificationManager: NSObject, ObservableObject {
             return ("Daily Hydration Summary 🌙", body)
 
         case .inactivityNudge:
-            let body = Self.inactivityMessages.randomElement()!
+            let body = Self.inactivityMessages.randomElement() ?? "A glass of water keeps you sharp and energized."
             return ("Time to Hydrate Again 💧", body)
 
         default:
@@ -460,7 +460,7 @@ final class NotificationManager: NSObject, ObservableObject {
             ]
         }
 
-        content.body = messages.randomElement()!
+        content.body = messages.randomElement() ?? "You've reached your daily hydration goal. Great job! 💧"
 
         content.sound = UNNotificationSound.default
         content.categoryIdentifier = NotificationCategory.goalComplete.rawValue

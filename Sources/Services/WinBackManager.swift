@@ -64,13 +64,14 @@ struct WinBackOverlay: View {
                         .fill(LinearGradient(colors: [.cyan.opacity(0.2), .blue.opacity(0.1)], startPoint: .topLeading, endPoint: .bottomTrailing))
                         .frame(width: 80, height: 80)
                     Image(systemName: "drop.fill")
-                        .font(.system(size: 36))
+                        .font(.largeTitle)
                         .foregroundStyle(LinearGradient(colors: [.cyan, .blue], startPoint: .top, endPoint: .bottom))
                         .shadow(color: .cyan.opacity(0.5), radius: 12, y: 4)
+                        .accessibilityHidden(true)
                 }
 
                 Text("We Missed You! 💧")
-                    .font(.system(size: 24, weight: .bold, design: .rounded))
+                    .font(.system(.title2, design: .rounded, weight: .bold))
 
                 Text("You've been away for \(daysAway) days.\nYour body needs hydration — let's get back on track!")
                     .font(.subheadline)
@@ -82,6 +83,7 @@ struct WinBackOverlay: View {
                 HStack(spacing: 20) {
                     VStack(spacing: 4) {
                         Image(systemName: "flame.fill").foregroundStyle(.orange)
+                            .accessibilityHidden(true)
                         Text("Streak\nLost")
                             .font(.caption2)
                             .foregroundStyle(.secondary)
@@ -89,6 +91,7 @@ struct WinBackOverlay: View {
                     }
                     VStack(spacing: 4) {
                         Image(systemName: "arrow.counterclockwise").foregroundStyle(.blue)
+                            .accessibilityHidden(true)
                         Text("Easy\nRestart")
                             .font(.caption2)
                             .foregroundStyle(.secondary)
@@ -96,6 +99,7 @@ struct WinBackOverlay: View {
                     }
                     VStack(spacing: 4) {
                         Image(systemName: "trophy.fill").foregroundStyle(.yellow)
+                            .accessibilityHidden(true)
                         Text("Earn\nBack")
                             .font(.caption2)
                             .foregroundStyle(.secondary)

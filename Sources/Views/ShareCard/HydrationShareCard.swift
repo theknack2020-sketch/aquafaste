@@ -25,6 +25,7 @@ struct HydrationShareCard: View {
                 Image(systemName: "drop.fill")
                     .font(.title3)
                     .foregroundStyle(.cyan)
+                    .accessibilityHidden(true)
                 Text("AquaFaste")
                     .font(.headline)
                     .foregroundStyle(.white.opacity(0.6))
@@ -33,6 +34,7 @@ struct HydrationShareCard: View {
                     HStack(spacing: 4) {
                         Image(systemName: "flame.fill")
                             .font(.caption)
+                            .accessibilityHidden(true)
                         Text("\(streak) day streak")
                             .font(.caption.weight(.semibold))
                     }
@@ -62,7 +64,7 @@ struct HydrationShareCard: View {
 
                 VStack(spacing: 4) {
                     Text("\(percentage)%")
-                        .font(.system(size: 44, weight: .bold, design: .rounded))
+                        .font(.system(.largeTitle, design: .rounded, weight: .bold))
                         .foregroundStyle(.white)
 
                     Text("hydrated")
@@ -84,6 +86,7 @@ struct HydrationShareCard: View {
             if progress >= 1.0 {
                 HStack(spacing: 6) {
                     Image(systemName: "checkmark.circle.fill")
+                        .accessibilityHidden(true)
                     Text("Daily Goal Reached!")
                 }
                 .font(.subheadline.weight(.semibold))

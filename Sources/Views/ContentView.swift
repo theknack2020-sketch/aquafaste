@@ -14,6 +14,8 @@ struct ContentView: View {
 
     private let subscription = SubscriptionManager.shared
 
+    @State private var showWhatsNew = false
+
     /// Track theme changes to force view refresh
     @AppStorage("af_app_theme") private var currentTheme: String = AppTheme.ocean.rawValue
     @State private var selectedTab = 0
@@ -52,6 +54,10 @@ struct ContentView: View {
                 }
                 // Rate Us prompt after 7 days of use (one-time)
                 checkRatePrompt()
+                // What's New screen after app update
+                if WhatsNewManager.shouldShow {
+                    showWhatsNew = true
+                }
             }
         }
         .onChange(of: scenePhase) { _, newPhase in
@@ -78,6 +84,10 @@ struct ContentView: View {
         }
         // Force re-render when theme changes via id
         .id(currentTheme)
+        // What's New after app update (only post-onboarding)
+        .fullScreenCover(isPresented: $showWhatsNew) {
+            WhatsNewView()
+        }
         // Achievement celebration overlay
         .overlay {
             if showAchievementCelebration, let achievement = achievementManager.pendingCelebration {

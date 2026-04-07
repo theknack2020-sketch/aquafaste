@@ -218,6 +218,7 @@ struct PaywallView: View {
                     )
                     .symbolEffect(.variableColor.iterative, isActive: true)
                     .shadow(color: .cyan.opacity(0.5), radius: 12, y: 4)
+                    .accessibilityHidden(true)
             }
 
             Text("AquaFaste Pro")
@@ -239,6 +240,7 @@ struct PaywallView: View {
             Image(systemName: "person.3.fill")
                 .font(.caption)
                 .foregroundStyle(theme.primary)
+                .accessibilityHidden(true)
             Text("10,000+ hydrated users")
                 .font(.caption.weight(.semibold))
                 .foregroundStyle(Color.aquaTextSecondary)
@@ -344,6 +346,7 @@ struct PaywallView: View {
                         Image(systemName: wantsTrial ? "checkmark.square.fill" : "square")
                             .font(.title3)
                             .foregroundStyle(wantsTrial ? theme.primary : Color(.tertiaryLabel))
+                            .accessibilityHidden(true)
 
                         Text("Start with 7-day free trial")
                             .font(.subheadline.weight(.medium))
@@ -379,6 +382,7 @@ struct PaywallView: View {
                         Image(systemName: wantsTrial && product.subscription?.introductoryOffer != nil
                             ? "gift.fill" : "crown.fill")
                             .font(.subheadline)
+                            .accessibilityHidden(true)
 
                         Text(ctaText(for: product))
                             .font(.headline)
@@ -666,10 +670,12 @@ private struct FeatureRow: View {
             Image(systemName: "checkmark.circle.fill")
                 .font(.adaptiveCaption(isRegular: isRegular))
                 .foregroundStyle(isPro ? .cyan : .green)
+                .accessibilityLabel("Included")
         case .cross:
             Image(systemName: "xmark")
                 .font(.adaptiveCaption2(isRegular: isRegular).weight(.bold))
                 .foregroundStyle(.red.opacity(0.5))
+                .accessibilityLabel("Not included")
         case let .text(label):
             Text(label)
                 .font(.adaptiveCaption2(isRegular: isRegular).weight(.semibold))
@@ -719,7 +725,7 @@ private struct PlanCard: View {
                                 .background(
                                     Capsule().fill(
                                         product.id == SubscriptionManager.yearlyID
-                                            ? Color.orange
+                                            ? Color.aquaWarning
                                             : theme.primary
                                     )
                                 )
@@ -802,6 +808,7 @@ private struct TrustBadge: View {
             Image(systemName: icon)
                 .font(.adaptiveTitle3(isRegular: isRegular))
                 .foregroundStyle(theme.primary)
+                .accessibilityHidden(true)
             Text(text)
                 .font(.adaptiveCaption(isRegular: isRegular).weight(.medium))
                 .foregroundStyle(Color.aquaTextSecondary)
@@ -825,8 +832,10 @@ private struct TestimonialCard: View {
                     Image(systemName: "star.fill")
                         .font(.caption)
                         .foregroundStyle(.yellow)
+                        .accessibilityHidden(true)
                 }
             }
+            .accessibilityLabel("\(rating) stars")
 
             Text("\u{201C}\(text)\u{201D}")
                 .font(.subheadline)
@@ -869,6 +878,7 @@ struct SoftPaywallBanner: View {
             Image(systemName: "sparkles")
                 .font(.title)
                 .foregroundStyle(Color.aquaPrimary)
+                .accessibilityHidden(true)
 
             Text("Enjoying AquaFaste?")
                 .font(.headline)

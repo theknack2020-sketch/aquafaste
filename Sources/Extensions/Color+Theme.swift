@@ -348,7 +348,11 @@ extension Color {
 // MARK: - Static Theme Colors (no actor isolation needed)
 
 extension Color {
-    // Semantic system colors
+    /// Semantic system colors
+    static var aquaWarning: Color {
+        Color.orange
+    }
+
     static let aquaBackground = Color(.systemBackground)
     static let aquaCardBackground = Color(.secondarySystemBackground)
     static let aquaGroupedBackground = Color(.systemGroupedBackground)

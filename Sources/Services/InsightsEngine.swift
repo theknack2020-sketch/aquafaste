@@ -30,7 +30,7 @@ final class InsightsEngine {
         let grouped = Dictionary(grouping: logs) { calendar.startOfDay(for: $0.timestamp) }
 
         return (0 ..< 7).reversed().map { daysAgo in
-            let date = calendar.date(byAdding: .day, value: -daysAgo, to: today)!
+            let date = calendar.date(byAdding: .day, value: -daysAgo, to: today) ?? today
             let dayLogs = grouped[date] ?? []
             let total = dayLogs.reduce(0.0) { $0 + $1.effectiveAmount }
             let label = formatter.string(from: date)
@@ -49,7 +49,7 @@ final class InsightsEngine {
         let grouped = Dictionary(grouping: logs) { calendar.startOfDay(for: $0.timestamp) }
 
         return (0 ..< 30).reversed().map { daysAgo in
-            let date = calendar.date(byAdding: .day, value: -daysAgo, to: today)!
+            let date = calendar.date(byAdding: .day, value: -daysAgo, to: today) ?? today
             let dayLogs = grouped[date] ?? []
             let total = dayLogs.reduce(0.0) { $0 + $1.effectiveAmount }
             let pct = min(total / goal, 1.5) // cap at 150%
@@ -107,7 +107,7 @@ final class InsightsEngine {
         let grouped = Dictionary(grouping: logs) { calendar.startOfDay(for: $0.timestamp) }
 
         return (0 ..< 7).reversed().map { daysAgo in
-            let date = calendar.date(byAdding: .day, value: -daysAgo, to: today)!
+            let date = calendar.date(byAdding: .day, value: -daysAgo, to: today) ?? today
             let dayLogs = grouped[date] ?? []
             let caffeine = dayLogs.reduce(0.0) { $0 + $1.caffeineMg }
             let label = formatter.string(from: date)
@@ -149,7 +149,7 @@ final class InsightsEngine {
 
         // Component 4: Recent activity — logged in last 3 days (15 points)
         let today = calendar.startOfDay(for: .now)
-        let threeDaysAgo = calendar.date(byAdding: .day, value: -3, to: today)!
+        let threeDaysAgo = calendar.date(byAdding: .day, value: -3, to: today) ?? today
         let recentDays = grouped.keys.count(where: { $0 >= threeDaysAgo })
         let recencyScore = min(Double(recentDays) / 3.0, 1.0) * 15
 

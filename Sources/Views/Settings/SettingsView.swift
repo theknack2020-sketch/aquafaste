@@ -161,7 +161,7 @@ struct SettingsView: View {
         Section {
             HStack(spacing: 14) {
                 Image(systemName: "drop.fill")
-                    .font(.system(size: isRegular ? 40 : 32))
+                    .font(isRegular ? .largeTitle : .title)
                     .foregroundStyle(Color.aquaGradient)
                     .frame(width: 60, height: 60)
                     .background(
@@ -247,7 +247,7 @@ struct SettingsView: View {
                                 .font(.adaptiveCaption2(isRegular: isRegular).weight(.bold))
                                 .padding(.horizontal, 6)
                                 .padding(.vertical, 2)
-                                .background(Color.orange, in: Capsule())
+                                .background(Color.aquaWarning, in: Capsule())
                                 .foregroundStyle(.white)
                         }
 
@@ -261,6 +261,7 @@ struct SettingsView: View {
                             Image(systemName: "lock.fill")
                                 .font(.caption)
                                 .foregroundStyle(Color(.tertiaryLabel))
+                                .accessibilityHidden(true)
                         }
                     }
                 }
@@ -339,6 +340,7 @@ struct SettingsView: View {
                 HStack {
                     Image(systemName: "cup.and.saucer.fill")
                         .foregroundStyle(Color.aquaPrimary)
+                        .accessibilityHidden(true)
                     Text(name)
                     Spacer()
                     Text(profile.unit.formatAmount(size))
@@ -574,6 +576,7 @@ struct SettingsView: View {
             HStack(spacing: 8) {
                 Image(systemName: "exclamationmark.triangle.fill")
                     .foregroundStyle(.orange)
+                    .accessibilityLabel("Warning")
                 Text("Notifications Disabled")
                     .font(.subheadline.weight(.semibold))
             }
@@ -590,6 +593,7 @@ struct SettingsView: View {
                         .font(.caption.weight(.medium))
                     Image(systemName: "arrow.up.forward.app.fill")
                         .font(.adaptiveCaption2(isRegular: isRegular))
+                        .accessibilityHidden(true)
                 }
             }
             .foregroundStyle(Color.aquaPrimary)
@@ -618,7 +622,7 @@ struct SettingsView: View {
                             .font(.adaptiveCaption2(isRegular: isRegular).weight(.bold))
                             .padding(.horizontal, 6)
                             .padding(.vertical, 2)
-                            .background(Color.orange, in: Capsule())
+                            .background(Color.aquaWarning, in: Capsule())
                             .foregroundStyle(.white)
                     }
                 }
@@ -645,6 +649,7 @@ struct SettingsView: View {
                         .font(.title3)
                         .foregroundStyle(.purple)
                         .frame(width: 32)
+                        .accessibilityHidden(true)
 
                     VStack(alignment: .leading) {
                         Text("Lumifaste")
@@ -659,6 +664,7 @@ struct SettingsView: View {
 
                     Image(systemName: "arrow.up.forward.app.fill")
                         .foregroundStyle(.secondary)
+                        .accessibilityHidden(true)
                 }
             }
             .accessibilityLabel("Lumifaste, Intermittent Fasting Tracker. Opens App Store.")
@@ -724,11 +730,23 @@ struct SettingsView: View {
             .accessibilityElement(children: .combine)
             .accessibilityLabel("Version \(appVersionString)")
 
+            // Copyright
+            HStack {
+                Spacer()
+                Text("© 2026 TheKnack")
+                    .font(.caption2)
+                    .foregroundStyle(.tertiary)
+                Spacer()
+            }
+            .listRowBackground(Color.clear)
+            .accessibilityLabel("Copyright 2026 TheKnack")
+
             // Health Disclaimer
             VStack(alignment: .leading, spacing: 6) {
                 HStack(spacing: 6) {
                     Image(systemName: "heart.text.square.fill")
                         .foregroundStyle(.red)
+                        .accessibilityHidden(true)
                     Text("Health Disclaimer")
                         .font(.subheadline.weight(.medium))
                 }
@@ -869,6 +887,7 @@ struct CupSizeEditor: View {
                     HStack(spacing: 12) {
                         Image(systemName: "cup.and.saucer.fill")
                             .foregroundStyle(Color.aquaPrimary)
+                            .accessibilityHidden(true)
 
                         TextField("Name", text: Binding(
                             get: { cups[index].name },

@@ -244,6 +244,7 @@ struct StatsView: View {
             HStack(spacing: 4) {
                 Image(systemName: isUp ? "arrow.up.right" : "arrow.down.right")
                     .font(.caption.weight(.bold))
+                    .accessibilityHidden(true)
                 Text("\(abs(Int(diff)))%")
                     .font(.subheadline.weight(.bold))
             }
@@ -284,6 +285,7 @@ struct StatsView: View {
                 Image(systemName: "lightbulb.fill")
                     .font(.subheadline)
                     .foregroundStyle(Color.aquaPrimary)
+                    .accessibilityHidden(true)
                 Text("Personal Insights")
                     .font(.headline)
             }
@@ -295,6 +297,7 @@ struct StatsView: View {
                         .font(.title3)
                         .foregroundStyle(Color.aquaPrimary)
                         .frame(width: 28, height: 28)
+                        .accessibilityHidden(true)
 
                     VStack(alignment: .leading, spacing: 2) {
                         Text(item.title)
@@ -337,6 +340,7 @@ struct StatsView: View {
                 Image(systemName: icon)
                     .font(.subheadline)
                     .foregroundStyle(Color.aquaPrimary)
+                    .accessibilityHidden(true)
                 Text(title)
                     .font(.headline)
                 Spacer()
@@ -344,7 +348,7 @@ struct StatsView: View {
                     .font(.adaptiveCaption2(isRegular: isRegular).weight(.bold))
                     .padding(.horizontal, 8)
                     .padding(.vertical, 3)
-                    .background(Color.orange, in: Capsule())
+                    .background(Color.aquaWarning, in: Capsule())
                     .foregroundStyle(.white)
             }
 
@@ -352,6 +356,7 @@ struct StatsView: View {
                 Image(systemName: "lock.fill")
                     .font(.title2)
                     .foregroundStyle(Color(.tertiaryLabel))
+                    .accessibilityLabel("Locked")
 
                 Text(description)
                     .font(.subheadline)
@@ -436,6 +441,7 @@ private struct StatCard: View {
             Image(systemName: icon)
                 .font(.adaptiveTitle3(isRegular: isRegular))
                 .foregroundStyle(iconColor)
+                .accessibilityHidden(true)
 
             Text(value)
                 .font(.title2.weight(.bold))
@@ -481,6 +487,7 @@ private struct StatCardWide: View {
             Image(systemName: icon)
                 .font(.title2)
                 .foregroundStyle(iconColor)
+                .accessibilityHidden(true)
 
             VStack(alignment: .leading, spacing: 2) {
                 Text(title)

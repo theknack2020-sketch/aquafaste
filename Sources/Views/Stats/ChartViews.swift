@@ -230,6 +230,7 @@ struct DrinkTypeDonutChart: View {
                                 .font(.adaptiveCaption(isRegular: isRegular))
                                 .foregroundStyle(item.type.color)
                                 .frame(width: isRegular ? 24 : 20)
+                                .accessibilityHidden(true)
 
                             Text(item.type.displayName)
                                 .font(.adaptiveSubheadline(isRegular: isRegular))
@@ -326,6 +327,7 @@ struct TimeOfDayAreaChart: View {
                     Image(systemName: "star.fill")
                         .font(.adaptiveCaption(isRegular: isRegular))
                         .foregroundStyle(.yellow)
+                        .accessibilityHidden(true)
                     Text("Peak: \(Self.hourLabel(peak.hour))")
                         .font(.adaptiveCaption(isRegular: isRegular))
                         .foregroundStyle(.secondary)
@@ -369,12 +371,12 @@ struct CaffeineLineChart: View {
                         x: .value("Day", item.day),
                         y: .value("Caffeine", item.mg)
                     )
-                    .foregroundStyle(Color.orange)
+                    .foregroundStyle(Color.aquaWarning)
                     .lineStyle(StrokeStyle(lineWidth: 2.5))
                     .interpolationMethod(.catmullRom)
                     .symbol {
                         Circle()
-                            .fill(Color.orange)
+                            .fill(Color.aquaWarning)
                             .frame(width: isRegular ? 9 : 7, height: isRegular ? 9 : 7)
                     }
 
@@ -384,7 +386,7 @@ struct CaffeineLineChart: View {
                     )
                     .foregroundStyle(
                         LinearGradient(
-                            colors: [Color.orange.opacity(0.25), Color.orange.opacity(0.02)],
+                            colors: [Color.aquaWarning.opacity(0.25), Color.aquaWarning.opacity(0.02)],
                             startPoint: .top,
                             endPoint: .bottom
                         )
@@ -434,6 +436,7 @@ struct CaffeineLineChart: View {
                     Image(systemName: "info.circle.fill")
                         .font(.adaptiveCaption(isRegular: isRegular))
                         .foregroundStyle(.orange)
+                        .accessibilityHidden(true)
                     Text("Avg: \(Int(avgMg))mg/day")
                         .font(.adaptiveCaption(isRegular: isRegular))
                         .foregroundStyle(.secondary)
@@ -475,6 +478,7 @@ private struct ChartSectionHeader: View {
                 .font(.adaptiveSubheadline(isRegular: isRegular))
                 .foregroundStyle(Color.aquaPrimary)
                 .symbolEffect(.pulse)
+                .accessibilityHidden(true)
             Text(title)
                 .font(.adaptiveHeadline(isRegular: isRegular))
         }
