@@ -688,7 +688,7 @@ struct SettingsView: View {
             // Rate App
             Button {
                 haptics.buttonPress()
-                if let url = URL(string: "https://apps.apple.com/app/aquafaste/id6743434938?action=write-review") {
+                if let url = URL(string: "https://apps.apple.com/app/aquafaste/id6760975661?action=write-review") {
                     UIApplication.shared.open(url)
                 }
             } label: {
@@ -762,7 +762,7 @@ struct SettingsView: View {
         }
         .sheet(isPresented: $showShareApp) {
             let shareText = "Stay hydrated with AquaFaste! 💧 Track your daily water intake and build healthy habits."
-            let appURL = URL(string: "https://apps.apple.com/app/aquafaste/id6743434938")!
+            let appURL = URL(string: "https://apps.apple.com/app/aquafaste/id6760975661")!
             ShareSheet(items: [shareText, appURL])
         }
     }
