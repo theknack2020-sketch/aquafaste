@@ -39,3 +39,7 @@ screenshots/raw_ipad/
 screenshots/framed_ipad/
 screenshots/raw_6.9/
 screenshots/raw_ipad13/
+
+# Secret patterns (TheKnack global law §2): never commit keys, certificates or env files
+*.pem
+*.secret
